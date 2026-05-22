@@ -1,0 +1,467 @@
+// hosthelper 도메인 모델
+// 참조: docs/prd/PRD.md, docs/adr/ADR-0001-stack-and-monorepo.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =========================================
+// Identity
+// =========================================
+
+enum UserRole {
+  HOST
+  CLEANER
+  OPS_ADMIN
+  OPS_AGENT
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+model User {
+  id            String     @id @default(cuid())
+  phone         String     @unique
+  email         String?    @unique
+  name          String
+  role          UserRole
+  status        UserStatus @default(PENDING)
+  passwordHash  String?
+  phoneVerified Boolean    @default(false)
+  emailVerified Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  hostProfile    HostProfile?
+  cleanerProfile CleanerProfile?
+
+  reviewsAuthored Review[] @relation("ReviewAuthor")
+  reviewsReceived Review[] @relation("ReviewTarget")
+
+  @@index([role, status])
+}
+
+model HostProfile {
+  id           String     @id @default(cuid())
+  userId       String     @unique
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessName String?
+  bizRegNo     String? // 사업자등록번호 (선택)
+  proMember    Boolean    @default(false)
+  proSince     DateTime?
+  trustScore   Decimal    @default(0) @db.Decimal(5, 2)
+  properties   Property[]
+  bookings     Booking[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+enum KycStatus {
+  NOT_SUBMITTED
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model CleanerProfile {
+  id              String        @id @default(cuid())
+  userId          String        @unique
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio             String?
+  yearsExperience Int           @default(0)
+  baseLat         Decimal?      @db.Decimal(10, 7) // 활동 기준 위치
+  baseLng         Decimal?      @db.Decimal(10, 7)
+  serviceRadiusKm Int           @default(10)
+  kycStatus       KycStatus     @default(NOT_SUBMITTED)
+  kycSubmittedAt  DateTime?
+  kycApprovedAt   DateTime?
+  trustScore      Decimal       @default(0) @db.Decimal(5, 2)
+  rating          Decimal       @default(0) @db.Decimal(3, 2) // 0.00 ~ 5.00
+  ratingCount     Int           @default(0)
+  completedJobs   Int           @default(0)
+  rebookingRate   Decimal       @default(0) @db.Decimal(5, 4)
+  declineRate     Decimal       @default(0) @db.Decimal(5, 4)
+  active          Boolean       @default(true)
+  skills          CleanerSkill[]
+  availabilities  Availability[]
+  jobs            CleaningJob[]
+  payouts         Payout[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([baseLat, baseLng])
+  @@index([active, kycStatus])
+}
+
+// =========================================
+// Catalog
+// =========================================
+
+enum KeyHandover {
+  LOCKBOX
+  SMART_LOCK
+  IN_PERSON
+  FRONT_DESK
+}
+
+model Property {
+  id              String           @id @default(cuid())
+  hostId          String
+  host            HostProfile      @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  nickname        String
+  addressLine1    String
+  addressLine2    String?
+  district        String // 강남구, 마포구 등
+  postalCode      String
+  lat             Decimal          @db.Decimal(10, 7)
+  lng             Decimal          @db.Decimal(10, 7)
+  pyeong          Decimal          @db.Decimal(5, 2) // 평수
+  bedrooms        Int
+  bathrooms       Int
+  keyHandover     KeyHandover
+  keyInstructions String?
+  cleaningManual  String?          @db.Text
+  active          Boolean          @default(true)
+  checklistId     String?
+  checklist       ChecklistTemplate? @relation(fields: [checklistId], references: [id])
+  bookings        Booking[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([hostId, active])
+  @@index([lat, lng])
+}
+
+model Skill {
+  id           String         @id @default(cuid())
+  code         String         @unique // LINEN_CHANGE, DEEP_CLEAN, WINDOW, IRON ...
+  label        String
+  description  String?
+  cleaners     CleanerSkill[]
+}
+
+model CleanerSkill {
+  cleanerId String
+  skillId   String
+  level     Int            @default(1) // 1-5
+  cleaner   CleanerProfile @relation(fields: [cleanerId], references: [id], onDelete: Cascade)
+  skill     Skill          @relation(fields: [skillId], references: [id])
+
+  @@id([cleanerId, skillId])
+}
+
+model ChecklistTemplate {
+  id          String           @id @default(cuid())
+  name        String
+  description String?
+  items       ChecklistItem[]
+  properties  Property[]
+  createdAt   DateTime         @default(now())
+}
+
+model ChecklistItem {
+  id           String            @id @default(cuid())
+  templateId   String
+  template     ChecklistTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  area         String // 거실, 침실1, 욕실 등
+  title        String
+  description  String?
+  photoRequired Boolean          @default(true)
+  orderIdx     Int
+
+  @@index([templateId, orderIdx])
+}
+
+// =========================================
+// Scheduling
+// =========================================
+
+model Availability {
+  id        String         @id @default(cuid())
+  cleanerId String
+  cleaner   CleanerProfile @relation(fields: [cleanerId], references: [id], onDelete: Cascade)
+  startsAt  DateTime
+  endsAt    DateTime
+
+  @@index([cleanerId, startsAt])
+}
+
+enum BookingStatus {
+  DRAFT
+  PENDING_PAYMENT
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model Booking {
+  id              String         @id @default(cuid())
+  hostId          String
+  host            HostProfile    @relation(fields: [hostId], references: [id])
+  propertyId      String
+  property        Property       @relation(fields: [propertyId], references: [id])
+  cleaningStartAt DateTime
+  cleaningEndAt   DateTime
+  status          BookingStatus  @default(DRAFT)
+  notes           String?
+  // Snapshot 가격 (확정 시점)
+  quotedPrice     Int // 원
+  platformFee     Int
+  cleanerPayout   Int
+  job             CleaningJob?
+  payment         Payment?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([hostId, cleaningStartAt])
+  @@index([status])
+}
+
+enum JobStatus {
+  REQUESTED   // booking 생성, 매칭 대기
+  MATCHED     // 청소사 확정
+  IN_PROGRESS // 청소사 도착·시작
+  SUBMITTED   // 청소사 완료 제출
+  APPROVED    // 호스트 승인 → 정산 대기
+  SETTLED     // 정산 완료
+  DISPUTED    // 분쟁
+  CANCELLED
+}
+
+model CleaningJob {
+  id          String          @id @default(cuid())
+  bookingId   String          @unique
+  booking     Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  cleanerId   String?
+  cleaner     CleanerProfile? @relation(fields: [cleanerId], references: [id])
+  status      JobStatus       @default(REQUESTED)
+  startedAt   DateTime?
+  submittedAt DateTime?
+  approvedAt  DateTime?
+  disputedAt  DateTime?
+  cancelledAt DateTime?
+
+  matchCandidates MatchCandidate[]
+  offerRounds     OfferRound[]
+  checklistRuns   ChecklistRun[]
+  photos          Photo[]
+  reviews         Review[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([status])
+  @@index([cleanerId, status])
+}
+
+// =========================================
+// Matching
+// =========================================
+
+model MatchCandidate {
+  id        String      @id @default(cuid())
+  jobId     String
+  job       CleaningJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  cleanerId String
+  score     Decimal     @db.Decimal(6, 4)
+  // Score breakdown (audit)
+  distanceKm    Decimal @db.Decimal(6, 3)
+  ratingScore   Decimal @db.Decimal(6, 4)
+  completedScore Decimal @db.Decimal(6, 4)
+  rebookingScore Decimal @db.Decimal(6, 4)
+  declinePenalty Decimal @db.Decimal(6, 4)
+  computedAt    DateTime @default(now())
+
+  @@unique([jobId, cleanerId])
+  @@index([jobId, score])
+}
+
+enum OfferRoundStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+model OfferRound {
+  id        String           @id @default(cuid())
+  jobId     String
+  job       CleaningJob      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  roundIdx  Int // 1, 2, 3
+  cleanerId String
+  status    OfferRoundStatus @default(PENDING)
+  expiresAt DateTime
+  respondedAt DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([jobId, roundIdx])
+  @@index([cleanerId, status])
+}
+
+// =========================================
+// Quality
+// =========================================
+
+model ChecklistRun {
+  id        String       @id @default(cuid())
+  jobId     String
+  job       CleaningJob  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  templateId String
+  startedAt DateTime?
+  completedAt DateTime?
+  results   ChecklistResult[]
+}
+
+model ChecklistResult {
+  id          String        @id @default(cuid())
+  runId       String
+  run         ChecklistRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  itemId      String
+  checked     Boolean       @default(false)
+  note        String?
+  photoIds    String[]      @default([])
+  checkedAt   DateTime?
+
+  @@unique([runId, itemId])
+}
+
+model Photo {
+  id        String      @id @default(cuid())
+  jobId     String
+  job       CleaningJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  s3Key     String
+  area      String? // 거실, 침실1 등
+  kind      String // before, after, issue
+  width     Int?
+  height    Int?
+  takenAt   DateTime?
+  uploadedAt DateTime    @default(now())
+
+  @@index([jobId, kind])
+}
+
+model Review {
+  id          String      @id @default(cuid())
+  jobId       String
+  job         CleaningJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  authorId    String // User.id (host or cleaner)
+  author      User        @relation("ReviewAuthor", fields: [authorId], references: [id])
+  targetId    String // User.id (cleaner or host)
+  target      User        @relation("ReviewTarget", fields: [targetId], references: [id])
+  rating      Int // 1-5
+  comment     String?
+  createdAt   DateTime    @default(now())
+
+  @@unique([jobId, authorId])
+  @@index([targetId])
+}
+
+// =========================================
+// Money
+// =========================================
+
+model PricingRule {
+  id              String   @id @default(cuid())
+  name            String
+  district        String? // null = 전체
+  baseFee         Int // 원 (기본)
+  perPyeong       Int // 원/평
+  bedroomAdd      Int // 원/방
+  nightSurcharge  Decimal  @default(1.0) @db.Decimal(4, 2) // 야간 22-06시 배수
+  holidaySurcharge Decimal @default(1.0) @db.Decimal(4, 2)
+  dynamicCoef     Decimal  @default(1.0) @db.Decimal(4, 2)
+  active          Boolean  @default(true)
+  effectiveFrom   DateTime @default(now())
+  effectiveTo     DateTime?
+
+  @@index([district, active])
+}
+
+enum PaymentStatus {
+  READY
+  IN_PROGRESS
+  PAID
+  PARTIAL_CANCELED
+  CANCELED
+  FAILED
+  EXPIRED
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  bookingId       String        @unique
+  booking         Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  pgProvider      String        @default("toss")
+  pgPaymentKey    String?       @unique
+  orderId         String        @unique
+  amount          Int
+  status          PaymentStatus @default(READY)
+  method          String? // CARD, TRANSFER ...
+  approvedAt      DateTime?
+  cancelledAt     DateTime?
+  failureCode     String?
+  failureMessage  String?
+  rawResponse     Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([status])
+}
+
+enum PayoutStatus {
+  SCHEDULED // T+2 예약
+  HOLDING   // 분쟁 윈도우
+  RELEASED  // 송금 시도
+  PAID
+  FAILED
+  HOLD_ON_DISPUTE
+}
+
+model Payout {
+  id              String         @id @default(cuid())
+  cleanerId       String
+  cleaner         CleanerProfile @relation(fields: [cleanerId], references: [id])
+  jobId           String         @unique
+  gross           Int // 결제액
+  platformFee     Int
+  withholdingTax  Int // 3.3% 원천세
+  net             Int // 실지급액
+  status          PayoutStatus   @default(SCHEDULED)
+  scheduledFor    DateTime
+  releasedAt      DateTime?
+  paidAt          DateTime?
+  bankCode        String?
+  bankAccount     String? // 암호화 저장 (별도 컬럼 또는 KMS)
+  failureReason   String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([status, scheduledFor])
+}
+
+// =========================================
+// 매칭 가중치 (런타임 조정)
+// =========================================
+
+model MatchingWeights {
+  id              String   @id @default("default")
+  wDistance       Decimal  @default(0.35) @db.Decimal(4, 3)
+  wRating         Decimal  @default(0.25) @db.Decimal(4, 3)
+  wCompleted      Decimal  @default(0.15) @db.Decimal(4, 3)
+  wRebooking      Decimal  @default(0.15) @db.Decimal(4, 3)
+  wDeclinePenalty Decimal  @default(0.10) @db.Decimal(4, 3)
+  newCleanerBoost Decimal  @default(0.10) @db.Decimal(4, 3) // 신규 30일
+  maxDistanceKm   Int      @default(10)
+  topN            Int      @default(5)
+  offerTtlMinutes Int      @default(15)
+  maxRounds       Int      @default(3)
+  updatedAt       DateTime @updatedAt
+}
