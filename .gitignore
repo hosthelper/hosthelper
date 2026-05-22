@@ -47,3 +47,12 @@ test-results/
 
 # Next.js
 next-env.d.ts
+
+# 법적 문서 스캔본 (사본은 별도 보관, 저장소에는 커밋 금지)
+docs/legal/scans/
+*.pdf
+*.jpg
+*.jpeg
+*.png
+!packages/ui/**/*.png
+!docs/**/*.diagram.png
