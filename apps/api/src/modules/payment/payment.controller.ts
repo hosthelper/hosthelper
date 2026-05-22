@@ -1,5 +1,6 @@
 import { Body, Controller, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import type { Payment } from '@hosthelper/db';
 import { PaymentService } from './payment.service';
 
 @ApiTags('payment')
@@ -13,7 +14,9 @@ export class PaymentController {
   }
 
   @Post('confirm')
-  confirm(@Body() body: { orderId: string; paymentKey: string; amount: number }) {
+  confirm(
+    @Body() body: { orderId: string; paymentKey: string; amount: number },
+  ): Promise<Payment> {
     return this.payment.confirm(body.orderId, body.paymentKey, body.amount);
   }
 }

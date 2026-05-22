@@ -3,8 +3,10 @@ import type { PrismaClient } from '@hosthelper/db';
 import type { QuoteInput, QuoteOutput } from '@hosthelper/shared';
 import { PRISMA } from '../prisma/prisma.module';
 
-const PLATFORM_FEE_RATE = 0.18;
-const WITHHOLDING_TAX_RATE = 0.033;
+// 수익 모델: 건당 정액 수수료 ₩10,000
+// 청소사 정산 = 결제액 - 플랫폼수수료 - 원천세(3.3%)
+export const PLATFORM_FEE_KRW = 10_000;
+export const WITHHOLDING_TAX_RATE = 0.033;
 
 @Injectable()
 export class PricingService {
@@ -36,8 +38,8 @@ export class PricingService {
     const preMultiplier = base + perPyeong + bedroomAdd;
     const total = Math.round(preMultiplier * nightMultiplier * holidayMultiplier * dynamicCoef);
 
-    const platformFee = Math.round(total * PLATFORM_FEE_RATE);
-    const grossToCleaner = total - platformFee;
+    const platformFee = PLATFORM_FEE_KRW;
+    const grossToCleaner = Math.max(total - platformFee, 0);
     const withholdingTax = Math.round(grossToCleaner * WITHHOLDING_TAX_RATE);
     const cleanerPayout = grossToCleaner - withholdingTax;
 

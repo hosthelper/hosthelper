@@ -49,11 +49,40 @@ jobs:
       - name: Prisma generate
         run: pnpm db:generate
 
+      - name: Build shared packages
+        run: |
+          pnpm --filter @hosthelper/shared build
+          pnpm --filter @hosthelper/db build
+
       - name: Typecheck
         run: pnpm typecheck
 
       - name: Test
         run: pnpm test
 
-      - name: Build
+      - name: Apply migrations
+        run: pnpm --filter @hosthelper/db exec prisma migrate deploy
+
+      - name: Build apps
         run: pnpm build
+
+      - name: API smoke test
+        env:
+          NODE_ENV: development
+          API_PORT: 4000
+        run: |
+          node apps/api/dist/main.js &
+          API_PID=$!
+          # 부팅 대기
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4000/health > /dev/null 2>&1; then
+              echo "API is up"
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:4000/health
+          curl -fsS -X POST http://127.0.0.1:4000/api/pricing/quote \
+            -H 'content-type: application/json' \
+            -d '{"pyeong":20,"bedrooms":2,"cleaningStartAt":"2026-06-01T11:00:00.000Z","cleaningEndAt":"2026-06-01T14:00:00.000Z"}'
+          kill $API_PID

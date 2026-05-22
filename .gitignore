@@ -41,3 +41,9 @@ packages/db/prisma/generated/
 coverage/
 playwright-report/
 test-results/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Next.js
+next-env.d.ts

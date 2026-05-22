@@ -1,12 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  // 검증은 라우트별 ZodPipe로 수행 (class-validator 미사용).
   app.setGlobalPrefix('api', { exclude: ['health'] });
 
   const config = new DocumentBuilder()

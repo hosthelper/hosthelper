@@ -23,6 +23,10 @@
     },
     "clean": {
       "cache": false
+    },
+    "@hosthelper/db#generate": {
+      "outputs": ["../../node_modules/.pnpm/@prisma+client*/**"],
+      "cache": false
     }
   }
 }

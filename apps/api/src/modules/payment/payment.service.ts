@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import type { PrismaClient } from '@hosthelper/db';
+import type { PrismaClient, Payment } from '@hosthelper/db';
 import { PRISMA } from '../prisma/prisma.module';
 
 // 토스페이먼츠 에스크로 결제 시나리오:
@@ -41,14 +41,14 @@ export class PaymentService {
     };
   }
 
-  async confirm(orderId: string, paymentKey: string, amount: number) {
+  async confirm(orderId: string, paymentKey: string, amount: number): Promise<Payment> {
     const payment = await this.prisma.payment.findUniqueOrThrow({ where: { orderId } });
     if (payment.amount !== amount) {
       throw new BadRequestException('Amount mismatch');
     }
     const tossRes = await this.callTossConfirm(paymentKey, orderId, amount);
 
-    const updated = await this.prisma.$transaction(async (tx) => {
+    const updated: Payment = await this.prisma.$transaction(async (tx) => {
       const p = await tx.payment.update({
         where: { id: payment.id },
         data: {

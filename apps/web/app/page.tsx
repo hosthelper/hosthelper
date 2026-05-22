@@ -2,39 +2,39 @@ import Link from 'next/link';
 
 export default function HomePage() {
   return (
-    <main className="container">
-      <header>
-        <h1>hosthelper</h1>
-        <p className="tagline">수익형 숙박을 위한 청소 운영관리 매칭 SaaS</p>
-      </header>
+    <div className="wrap">
+      <nav className="nav">
+        <span className="logo">hosthelper</span>
+        <Link href="/login" className="login">로그인</Link>
+      </nav>
 
-      <section className="cta">
-        <Link href="/host" className="btn primary">
-          호스트로 시작하기
-        </Link>
-        <Link href="/cleaner" className="btn secondary">
-          청소 매니저로 시작하기
-        </Link>
+      <section className="hero">
+        <h1>시간을<br />효율적으로<br />아껴드립니다</h1>
+        <p>턴오버 청소, 한 번에.</p>
+        <div className="cta">
+          <Link href="/host/new" className="btn primary">호스트로 시작</Link>
+          <Link href="/cleaner/new" className="btn ghost">청소사로 시작</Link>
+        </div>
       </section>
 
-      <section className="features">
-        <article>
-          <h3>턴오버 SLA</h3>
-          <p>체크아웃→체크인 사이 4시간 안에 매칭부터 청소까지.</p>
-        </article>
-        <article>
-          <h3>사진검수 체크리스트</h3>
-          <p>방별 before/after 사진으로 품질을 보장합니다.</p>
-        </article>
-        <article>
-          <h3>자동 정산 T+2</h3>
-          <p>분쟁 윈도우 후 청소사 자동 정산. 세금계산서까지.</p>
-        </article>
+      <div className="divider" />
+
+      <section className="three">
+        <div className="cell">
+          <h4>한 번에 매칭</h4>
+          <p>체크아웃 알림만으로 청소사가 잡힙니다.</p>
+        </div>
+        <div className="cell">
+          <h4>간편결제</h4>
+          <p>토스로 결제, T+2 자동 정산.</p>
+        </div>
+        <div className="cell">
+          <h4>건당 ₩10,000</h4>
+          <p>수수료는 한 건당 정액. 그게 전부입니다.</p>
+        </div>
       </section>
 
-      <footer>
-        <small>© 2026 hosthelper · 서울 파일럿 운영 중</small>
-      </footer>
-    </main>
+      <footer className="foot">© hosthelper</footer>
+    </div>
   );
 }
