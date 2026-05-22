@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Wrap, Nav, Hero, Card, Field, TextInput, Button } from '@hosthelper/ui';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -53,63 +54,54 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="wrap">
-      <nav className="nav"><span className="logo">hosthelper</span></nav>
-      <section className="hero" style={{ paddingTop: '3rem' }}>
-        <h1 style={{ fontSize: '1.75rem' }}>로그인</h1>
-        <p>휴대폰 번호로 시작합니다.</p>
-      </section>
+    <Wrap>
+      <Nav />
+      <Hero title="로그인" subtitle="휴대폰 번호로 시작합니다." />
 
-      <div className="card" style={{ maxWidth: 420, margin: '0 auto' }}>
-        {step === 'phone' ? (
-          <>
-            <div className="field">
-              <label htmlFor="phone">휴대폰 번호</label>
-              <input
-                id="phone"
-                type="tel"
-                inputMode="numeric"
-                placeholder="01012345678"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                maxLength={11}
-              />
-            </div>
-            <button
-              className="btn primary block"
-              onClick={requestOtp}
-              disabled={loading || phone.length < 10}
-            >
-              {loading ? '전송 중...' : '인증번호 받기'}
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="field">
-              <label htmlFor="code">인증번호 6자리</label>
-              <input
-                id="code"
-                type="tel"
-                inputMode="numeric"
-                placeholder="000000"
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                maxLength={6}
-              />
-            </div>
-            <button
-              className="btn primary block"
-              onClick={verifyOtp}
-              disabled={loading || code.length !== 6}
-            >
-              {loading ? '확인 중...' : '확인'}
-            </button>
-          </>
-        )}
-        {error ? (
-          <p style={{ color: '#b91c1c', fontSize: '0.85rem', marginTop: '0.75rem' }}>{error}</p>
-        ) : null}
+      <div style={{ maxWidth: 420, margin: '0 auto' }}>
+        <Card>
+          {step === 'phone' ? (
+            <>
+              <Field label="휴대폰 번호" htmlFor="phone">
+                <TextInput
+                  id="phone"
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="01012345678"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                  maxLength={11}
+                />
+              </Field>
+              <Button block onClick={requestOtp} disabled={loading || phone.length < 10}>
+                {loading ? '전송 중...' : '인증번호 받기'}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Field label="인증번호 6자리" htmlFor="code">
+                <TextInput
+                  id="code"
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="000000"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                  maxLength={6}
+                />
+              </Field>
+              <Button block onClick={verifyOtp} disabled={loading || code.length !== 6}>
+                {loading ? '확인 중...' : '확인'}
+              </Button>
+            </>
+          )}
+          {error ? (
+            <p style={{ color: 'var(--hh-danger)', fontSize: '0.85rem', marginTop: '0.75rem' }}>
+              {error}
+            </p>
+          ) : null}
+        </Card>
       </div>
-    </div>
+    </Wrap>
   );
 }

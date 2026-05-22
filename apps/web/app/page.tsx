@@ -1,40 +1,46 @@
 import Link from 'next/link';
+import { Wrap, Nav, Hero, Button, Divider, Footer } from '@hosthelper/ui';
 
 export default function HomePage() {
   return (
-    <div className="wrap">
-      <nav className="nav">
-        <span className="logo">hosthelper</span>
-        <Link href="/login" className="login">로그인</Link>
-      </nav>
+    <Wrap>
+      <Nav right={<Link href="/login">로그인</Link>} />
 
-      <section className="hero">
-        <h1>시간을<br />효율적으로<br />아껴드립니다</h1>
-        <p>턴오버 청소, 한 번에.</p>
-        <div className="cta">
-          <Link href="/host/new" className="btn primary">호스트로 시작</Link>
-          <Link href="/cleaner/new" className="btn ghost">청소사로 시작</Link>
-        </div>
-      </section>
+      <Hero
+        title={
+          <>
+            시간을<br />
+            효율적으로<br />
+            아껴드립니다
+          </>
+        }
+        subtitle="턴오버 청소, 한 번에."
+        ctas={
+          <>
+            <Link href="/host/new"><Button variant="primary">호스트로 시작</Button></Link>
+            <Link href="/cleaner/new"><Button variant="ghost">청소사로 시작</Button></Link>
+          </>
+        }
+      />
 
-      <div className="divider" />
+      <Divider />
 
-      <section className="three">
-        <div className="cell">
+      <div className="hh-three">
+        <div className="hh-three__cell">
           <h4>한 번에 매칭</h4>
           <p>체크아웃 알림만으로 청소사가 잡힙니다.</p>
         </div>
-        <div className="cell">
+        <div className="hh-three__cell">
           <h4>간편결제</h4>
           <p>토스로 결제, T+2 자동 정산.</p>
         </div>
-        <div className="cell">
+        <div className="hh-three__cell">
           <h4>건당 ₩10,000</h4>
-          <p>수수료는 한 건당 정액. 그게 전부입니다.</p>
+          <p>수수료는 한 건당 정액.</p>
         </div>
-      </section>
+      </div>
 
-      <footer className="foot">© hosthelper</footer>
-    </div>
+      <Footer />
+    </Wrap>
   );
 }

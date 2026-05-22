@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Wrap, Nav, Section, Card, ListItem, Button, Footer } from '@hosthelper/ui';
 
 interface Offer {
   id: string;
@@ -16,37 +17,37 @@ const offers: Offer[] = [
 
 export default function CleanerHome() {
   return (
-    <div className="wrap">
-      <nav className="nav">
-        <span className="logo">hosthelper</span>
-        <Link href="/login" className="login">로그아웃</Link>
-      </nav>
+    <Wrap>
+      <Nav right={<Link href="/login">로그아웃</Link>} />
 
-      <section style={{ padding: '2.5rem 0 1rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>새 일감</h1>
-      </section>
+      <Section title="새 일감" />
 
-      <div className="card">
+      <Card>
         {offers.map((o) => (
-          <div key={o.id} className="list-item">
-            <div>
-              <div>{o.property}</div>
-              <div className="meta">{o.district} · {o.time}</div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontWeight: 700 }}>₩{o.payout.toLocaleString()}</div>
-              <div className="meta">{o.expiresInMin}분 남음</div>
-            </div>
-          </div>
+          <ListItem
+            key={o.id}
+            left={
+              <>
+                <div>{o.property}</div>
+                <div className="hh-list-item__meta">{o.district} · {o.time}</div>
+              </>
+            }
+            right={
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontWeight: 700 }}>₩{o.payout.toLocaleString()}</div>
+                <div className="hh-list-item__meta">{o.expiresInMin}분 남음</div>
+              </div>
+            }
+          />
         ))}
+      </Card>
+
+      <div style={{ marginTop: '1.25rem' }} className="hh-inline">
+        <Button variant="ghost" style={{ flex: 1 }}>거절</Button>
+        <Button style={{ flex: 1 }}>수락</Button>
       </div>
 
-      <div style={{ marginTop: '1.25rem', display: 'flex', gap: '0.5rem' }}>
-        <button className="btn ghost" style={{ flex: 1 }}>거절</button>
-        <button className="btn primary" style={{ flex: 1 }}>수락</button>
-      </div>
-
-      <footer className="foot">© hosthelper</footer>
-    </div>
+      <Footer />
+    </Wrap>
   );
 }

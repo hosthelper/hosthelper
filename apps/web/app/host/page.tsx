@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { Wrap, Nav, Section, Card, ListItem, Badge, Button, Footer } from '@hosthelper/ui';
+import type { BadgeTone } from '@hosthelper/ui';
 
 interface Job {
   id: string;
@@ -14,46 +16,42 @@ const stubJobs: Job[] = [
   { id: 'j-3', property: '청담 스카이뷰 #301', time: '5/24 11:00', status: 'requested' },
 ];
 
-const labels: Record<Job['status'], { text: string; cls: string }> = {
-  matched: { text: '매칭 완료', cls: 'live' },
-  requested: { text: '매칭 중', cls: 'warn' },
-  in_progress: { text: '진행 중', cls: 'live' },
-  done: { text: '완료', cls: '' },
+const labels: Record<Job['status'], { text: string; tone: BadgeTone }> = {
+  matched: { text: '매칭 완료', tone: 'live' },
+  requested: { text: '매칭 중', tone: 'warn' },
+  in_progress: { text: '진행 중', tone: 'live' },
+  done: { text: '완료', tone: 'default' },
 };
 
 export default function HostDashboard() {
   return (
-    <div className="wrap">
-      <nav className="nav">
-        <span className="logo">hosthelper</span>
-        <Link href="/login" className="login">로그아웃</Link>
-      </nav>
+    <Wrap>
+      <Nav right={<Link href="/login">로그아웃</Link>} />
 
-      <section style={{ padding: '2.5rem 0 1rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>오늘 일정</h1>
-      </section>
+      <Section title="오늘 일정" />
 
-      <div className="card">
+      <Card>
         {stubJobs.map((j) => (
-          <div key={j.id} className="list-item">
-            <div>
-              <div>{j.property}</div>
-              <div className="meta">
-                {j.time} {j.cleaner ? `· ${j.cleaner}` : ''}
-              </div>
-            </div>
-            <span className={`badge ${labels[j.status].cls}`}>{labels[j.status].text}</span>
-          </div>
+          <ListItem
+            key={j.id}
+            left={
+              <>
+                <div>{j.property}</div>
+                <div className="hh-list-item__meta">
+                  {j.time} {j.cleaner ? `· ${j.cleaner}` : ''}
+                </div>
+              </>
+            }
+            right={<Badge tone={labels[j.status].tone}>{labels[j.status].text}</Badge>}
+          />
         ))}
-      </div>
+      </Card>
 
       <div style={{ marginTop: '1.25rem' }}>
-        <Link href="/host/book" className="btn primary block">
-          청소 예약하기
-        </Link>
+        <Link href="/host/book"><Button block>청소 예약하기</Button></Link>
       </div>
 
-      <footer className="foot">© hosthelper</footer>
-    </div>
+      <Footer />
+    </Wrap>
   );
 }

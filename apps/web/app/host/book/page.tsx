@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Wrap, Nav, Section, Card, Field, TextInput, Button, ListItem, Footer } from '@hosthelper/ui';
 
 interface Quote {
   total: number;
@@ -40,73 +41,76 @@ export default function BookPage() {
   }
 
   return (
-    <div className="wrap">
-      <nav className="nav">
-        <span className="logo">hosthelper</span>
-        <Link href="/host" className="login">취소</Link>
-      </nav>
+    <Wrap>
+      <Nav right={<Link href="/host">취소</Link>} />
 
-      <section style={{ padding: '2.5rem 0 1rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>청소 예약</h1>
-      </section>
+      <Section title="청소 예약" />
 
-      <div className="card">
-        <div className="field">
-          <label htmlFor="start">시작 시각</label>
-          <input id="start" type="datetime-local" value={start} onChange={(e) => setStart(e.target.value)} />
-        </div>
-        <div className="field">
-          <label htmlFor="end">종료 시각</label>
-          <input id="end" type="datetime-local" value={end} onChange={(e) => setEnd(e.target.value)} />
-        </div>
-        <div className="row">
-          <div className="field">
-            <label htmlFor="pyeong">평수</label>
-            <input
+      <Card>
+        <Field label="시작 시각" htmlFor="start">
+          <TextInput
+            id="start"
+            type="datetime-local"
+            value={start}
+            onChange={(e) => setStart(e.target.value)}
+          />
+        </Field>
+        <Field label="종료 시각" htmlFor="end">
+          <TextInput
+            id="end"
+            type="datetime-local"
+            value={end}
+            onChange={(e) => setEnd(e.target.value)}
+          />
+        </Field>
+        <div className="hh-row">
+          <Field label="평수" htmlFor="pyeong">
+            <TextInput
               id="pyeong"
               type="number"
               value={pyeong}
               onChange={(e) => setPyeong(Number(e.target.value))}
               min={1}
             />
-          </div>
-          <div className="field">
-            <label htmlFor="bedrooms">침실 수</label>
-            <input
+          </Field>
+          <Field label="침실 수" htmlFor="bedrooms">
+            <TextInput
               id="bedrooms"
               type="number"
               value={bedrooms}
               onChange={(e) => setBedrooms(Number(e.target.value))}
               min={0}
             />
-          </div>
+          </Field>
         </div>
-        <button className="btn ghost block" onClick={getQuote} disabled={loading || !start || !end}>
+        <Button variant="ghost" block onClick={getQuote} disabled={loading || !start || !end}>
           {loading ? '계산 중...' : '견적 보기'}
-        </button>
-      </div>
+        </Button>
+      </Card>
 
       {quote ? (
-        <div className="card" style={{ marginTop: '1rem' }}>
-          <div className="list-item">
-            <div>결제 금액</div>
-            <div style={{ fontWeight: 700 }}>₩{quote.total.toLocaleString()}</div>
-          </div>
-          <div className="list-item">
-            <div>플랫폼 수수료</div>
-            <div className="meta">₩{quote.platformFee.toLocaleString()}</div>
-          </div>
-          <div className="list-item">
-            <div>청소사 정산</div>
-            <div className="meta">₩{quote.cleanerPayout.toLocaleString()}</div>
-          </div>
-          <button className="btn primary block" style={{ marginTop: '1rem' }}>
-            토스로 결제
-          </button>
+        <div style={{ marginTop: '1rem' }}>
+          <Card>
+            <ListItem
+              left="결제 금액"
+              right={<strong>₩{quote.total.toLocaleString()}</strong>}
+            />
+            <ListItem
+              left="플랫폼 수수료"
+              right={<span className="hh-list-item__meta">₩{quote.platformFee.toLocaleString()}</span>}
+            />
+            <ListItem
+              left="청소사 정산"
+              right={<span className="hh-list-item__meta">₩{quote.cleanerPayout.toLocaleString()}</span>}
+            />
+            <div style={{ marginTop: '1rem' }}>
+              <Button block>토스로 결제</Button>
+            </div>
+          </Card>
         </div>
       ) : null}
 
-      <footer className="foot">© hosthelper</footer>
-    </div>
+      <Footer />
+    </Wrap>
   );
 }
