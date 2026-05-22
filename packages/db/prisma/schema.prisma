@@ -465,3 +465,77 @@ model MatchingWeights {
   maxRounds       Int      @default(3)
   updatedAt       DateTime @updatedAt
 }
+
+// =========================================
+// AI Native — Queryable Organization
+// =========================================
+
+// 운영 의사결정 감사 로그. AI 또는 사람이 내린 모든 정책·분쟁 결정이
+// 여기 남고 SQL로 쿼리 가능해야 한다. (인포그래픽 §Queryable Organization)
+enum DecisionKind {
+  DISPUTE_TRIAGE
+  PRICING_OVERRIDE
+  MATCHING_WEIGHT_CHANGE
+  CLEANER_KYC
+  PAYOUT_HOLD_RELEASE
+  POLICY_CHANGE
+}
+
+enum DecisionMaker {
+  AI
+  OPS_HUMAN
+  HOST
+  CLEANER
+  SYSTEM
+}
+
+enum DecisionStatus {
+  PROPOSED       // AI/시스템 제안 단계
+  APPROVED       // 사람이 승인
+  OVERRIDDEN     // 사람이 다르게 결정
+  EXECUTED       // 실제 액션까지 완료
+  ROLLED_BACK
+}
+
+model Decision {
+  id          String         @id @default(cuid())
+  kind        DecisionKind
+  subjectType String         // e.g. "CleaningJob", "Booking", "User"
+  subjectId   String         // 대상 엔티티 ID
+  proposedBy  DecisionMaker
+  decidedBy   DecisionMaker?
+  status      DecisionStatus @default(PROPOSED)
+  summary     String         @db.Text
+  payload     Json           // 전체 컨텍스트·증거·권고안
+  confidence  Decimal?       @db.Decimal(4, 3) // AI인 경우
+  llmCallId   String?        @unique
+  llmCall     LLMCall?       @relation(fields: [llmCallId], references: [id])
+  createdAt   DateTime       @default(now())
+  decidedAt   DateTime?
+  executedAt  DateTime?
+
+  @@index([kind, status, createdAt])
+  @@index([subjectType, subjectId])
+}
+
+// LLM 호출 회계 (Token Economy)
+// 인포그래픽 §Token Economy: 인건비→토큰비용 가시화.
+model LLMCall {
+  id                       String    @id @default(cuid())
+  purpose                  String    // "dispute_triage", "pricing_recommendation" ...
+  model                    String
+  inputTokens              Int
+  outputTokens             Int
+  cacheCreationInputTokens Int       @default(0)
+  cacheReadInputTokens     Int       @default(0)
+  costUsdMicro             Int       // USD * 1,000,000 (정밀도 유지)
+  latencyMs                Int
+  success                  Boolean   @default(true)
+  errorMessage             String?
+  createdAt                DateTime  @default(now())
+
+  decision Decision?
+
+  @@index([purpose, createdAt])
+  @@index([model, createdAt])
+}

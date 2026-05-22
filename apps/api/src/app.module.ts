@@ -7,6 +7,7 @@ import { MatchingModule } from './modules/matching/matching.module';
 import { PricingModule } from './modules/pricing/pricing.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { AiModule } from './modules/ai/ai.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PaymentModule } from './modules/payment/payment.module';
     PricingModule,
     BookingModule,
     PaymentModule,
+    AiModule,
   ],
   controllers: [HealthController],
 })

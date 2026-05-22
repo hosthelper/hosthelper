@@ -12,6 +12,7 @@
     "test:e2e": "jest --config jest-e2e.json"
   },
   "dependencies": {
+    "@hosthelper/ai": "workspace:*",
     "@hosthelper/db": "workspace:*",
     "@hosthelper/shared": "workspace:*",
     "@nestjs/common": "^10.3.0",
