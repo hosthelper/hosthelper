@@ -7,8 +7,16 @@ import {
 import { analyzeDispute, type AiClient, type DisputeInput, type TokenBudget } from '@hosthelper/ai';
 import type { PrismaClient, Decision } from '@hosthelper/db';
 import { PRISMA } from '../prisma/prisma.module';
+import { PlatformEventsService } from '../events/platform-events.service';
 import { AI_CLIENT } from './ai-gateway.provider';
 import { TOKEN_BUDGET } from './token-budget.provider';
+
+const DISPUTE_RECO_LABEL: Record<string, string> = {
+  side_with_host: '호스트 손',
+  side_with_cleaner: '청소사 손',
+  partial_refund: '부분 환불',
+  needs_human_review: '사람 검토 필요',
+};
 
 @Injectable()
 export class DisputeService {
@@ -16,6 +24,7 @@ export class DisputeService {
     @Inject(PRISMA) private readonly prisma: PrismaClient,
     @Inject(AI_CLIENT) private readonly ai: AiClient,
     @Inject(TOKEN_BUDGET) private readonly budget: TokenBudget,
+    private readonly events: PlatformEventsService,
   ) {}
 
   async triage(
@@ -91,7 +100,7 @@ export class DisputeService {
     }
     const latencyMs = Date.now() - t0;
 
-    return this.prisma.$transaction(async (tx) => {
+    const decision = await this.prisma.$transaction(async (tx) => {
       const llmCall = await tx.lLMCall.create({
         data: {
           purpose: 'dispute_triage',
@@ -132,6 +141,19 @@ export class DisputeService {
 
       return decision;
     });
+
+    const recommendation = result?.output.recommendation ?? 'needs_human_review';
+    void this.events.emit({
+      type: 'dispute.triaged',
+      title: `분쟁 1차 판정 · ${DISPUTE_RECO_LABEL[recommendation] ?? recommendation}`,
+      data: {
+        jobId: job.id,
+        recommendation,
+        confidence: result?.output.confidence ?? null,
+      },
+    });
+
+    return decision;
   }
 
   async list(limit: number = 50): Promise<Decision[]> {

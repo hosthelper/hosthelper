@@ -2,6 +2,7 @@ import { Worker } from 'bullmq';
 import IORedis from 'ioredis';
 import { runPayout } from './jobs/payout.processor';
 import { runMatchingOffer } from './jobs/matching-offer.processor';
+import { closePlatformEvents } from './platform-events';
 
 const connection = new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
   maxRetriesPerRequest: null,
@@ -32,7 +33,7 @@ for (const w of [payoutWorker, matchingWorker]) {
 
 async function shutdown() {
   await Promise.all([payoutWorker.close(), matchingWorker.close()]);
-  await connection.quit();
+  await Promise.allSettled([connection.quit(), closePlatformEvents()]);
   process.exit(0);
 }
 process.on('SIGINT', shutdown);
