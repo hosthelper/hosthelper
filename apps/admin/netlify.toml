@@ -6,6 +6,7 @@
   publish = "out"
 
 [build.environment]
+  NODE_VERSION = "20"
   STATIC_EXPORT = "1"
   NEXT_PUBLIC_DEMO = "1"
   NETLIFY_NEXT_PLUGIN_SKIP = "true"
