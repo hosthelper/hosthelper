@@ -1,4 +1,5 @@
 import { prisma } from '@hosthelper/db';
+import { publishPlatformEvent } from '../platform-events';
 
 // 매칭 오퍼 라운드. Top N 후보에게 푸시 후 TTL 동안 응답 대기.
 // TTL 초과 시 다음 라운드 enqueue. maxRounds 도달 시 운영팀 알림.
@@ -49,6 +50,19 @@ export async function runMatchingOffer({
   );
 
   // TODO: 푸시/알림톡 발송
+
+  if (candidates.length > 0) {
+    await publishPlatformEvent({
+      type: 'offer.created',
+      title: `오퍼 발송 · 라운드 ${roundIdx} · ${candidates.length}명`,
+      data: {
+        jobId,
+        roundIdx,
+        cleanerCount: candidates.length,
+        expiresAt: expiresAt.toISOString(),
+      },
+    });
+  }
 
   return { offered: candidates.length, roundIdx, expiresAt };
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Wrap, Nav, Section, Card, Field, TextInput, Button, ListItem, Footer } from '@hosthelper/ui';
+import { DEMO } from '../../demo';
 
 interface Quote {
   total: number;
@@ -22,6 +23,14 @@ export default function BookPage() {
 
   async function getQuote() {
     if (!start || !end) return;
+    if (DEMO) {
+      // 데모: 백엔드 없이 클라이언트에서 견적 계산 (정액 수수료 ₩10,000).
+      const platformFee = 10000;
+      const base = 40000 + pyeong * 1500 + bedrooms * 8000;
+      const total = base + platformFee;
+      setQuote({ total, platformFee, cleanerPayout: total - platformFee });
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch(`${api}/api/pricing/quote`, {

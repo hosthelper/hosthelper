@@ -8,11 +8,13 @@ import { PricingModule } from './modules/pricing/pricing.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { AiModule } from './modules/ai/ai.module';
+import { EventsModule } from './modules/events/events.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
+    EventsModule,
     AuthModule,
     MatchingModule,
     PricingModule,

@@ -1,0 +1,11 @@
+# Netlify 빌드 설정 — 운영진 대시보드 (apps/admin)
+# GitHub 연동 시 base directory를 apps/admin 로 지정하면 이 파일이 자동 적용됩니다.
+[build]
+  base = "apps/admin"
+  command = "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @hosthelper/admin build"
+  publish = "out"
+
+[build.environment]
+  STATIC_EXPORT = "1"
+  NEXT_PUBLIC_DEMO = "1"
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import '@hosthelper/ui/styles.css';
+import { DemoBanner } from './demo';
 
 export const metadata: Metadata = {
   title: 'hosthelper — 시간을 효율적으로 아껴드립니다',
@@ -16,7 +17,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body>
+        <DemoBanner />
+        {children}
+      </body>
     </html>
   );
 }

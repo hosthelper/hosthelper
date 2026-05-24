@@ -1,6 +1,7 @@
 import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import type { PrismaClient, Payment } from '@hosthelper/db';
 import { PRISMA } from '../prisma/prisma.module';
+import { PlatformEventsService } from '../events/platform-events.service';
 
 // 토스페이먼츠 에스크로 결제 시나리오:
 // 1. 호스트가 booking 생성 후 결제 시도 → /payments/intent (orderId, amount)
@@ -19,7 +20,10 @@ interface TossConfirmResponse {
 
 @Injectable()
 export class PaymentService {
-  constructor(@Inject(PRISMA) private readonly prisma: PrismaClient) {}
+  constructor(
+    @Inject(PRISMA) private readonly prisma: PrismaClient,
+    private readonly events: PlatformEventsService,
+  ) {}
 
   async createIntent(bookingId: string) {
     const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
@@ -65,6 +69,13 @@ export class PaymentService {
       });
       return p;
     });
+
+    void this.events.emit({
+      type: 'payment.confirmed',
+      title: `결제 확정 · ₩${amount.toLocaleString()}`,
+      data: { bookingId: updated.bookingId, amount },
+    });
+
     return updated;
   }
 

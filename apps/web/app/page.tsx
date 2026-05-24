@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Wrap, Nav, Hero, Button, Divider, Footer } from '@hosthelper/ui';
+import { Wrap, Nav, Hero, Button, Divider, Footer, ListItem, Card, Section } from '@hosthelper/ui';
+import { DEMO, ADMIN_URL } from './demo';
 
 export default function HomePage() {
   return (
@@ -22,6 +23,25 @@ export default function HomePage() {
           </>
         }
       />
+
+      {DEMO ? (
+        <>
+          <Section title="둘러보기 (데모)" />
+          <Card>
+            <Link href="/login"><ListItem left="회원 로그인" right={<span>→</span>} /></Link>
+            <Link href="/host"><ListItem left="호스트 대시보드" right={<span>→</span>} /></Link>
+            <Link href="/host/book"><ListItem left="청소 예약 · 견적" right={<span>→</span>} /></Link>
+            <Link href="/cleaner"><ListItem left="청소사 일감" right={<span>→</span>} /></Link>
+            <Link href="/live"><ListItem left="실시간 현황" right={<span>→</span>} /></Link>
+            <Link href="/library"><ListItem left="디자인 컴포넌트" right={<span>→</span>} /></Link>
+            {ADMIN_URL ? (
+              <a href={ADMIN_URL} target="_blank" rel="noreferrer">
+                <ListItem left="운영진 실시간 대시보드" right={<span>↗</span>} />
+              </a>
+            ) : null}
+          </Card>
+        </>
+      ) : null}
 
       <Divider />
 

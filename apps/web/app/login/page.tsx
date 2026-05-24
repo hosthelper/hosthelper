@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Wrap, Nav, Hero, Card, Field, TextInput, Button } from '@hosthelper/ui';
+import { DEMO } from '../demo';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,6 +17,10 @@ export default function LoginPage() {
 
   async function requestOtp() {
     setError(null);
+    if (DEMO) {
+      setStep('code');
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch(`${api}/api/auth/otp/request`, {
@@ -34,6 +39,10 @@ export default function LoginPage() {
 
   async function verifyOtp() {
     setError(null);
+    if (DEMO) {
+      router.push('/host');
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch(`${api}/api/auth/otp/verify`, {
@@ -98,6 +107,11 @@ export default function LoginPage() {
           {error ? (
             <p style={{ color: 'var(--hh-danger)', fontSize: '0.85rem', marginTop: '0.75rem' }}>
               {error}
+            </p>
+          ) : null}
+          {DEMO ? (
+            <p style={{ color: 'var(--hh-muted)', fontSize: '0.8rem', marginTop: '0.75rem' }}>
+              데모 모드 · 아무 번호나 입력하면 호스트 화면으로 넘어갑니다.
             </p>
           ) : null}
         </Card>

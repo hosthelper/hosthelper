@@ -1,11 +1,15 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { PrismaClient } from '@hosthelper/db';
 import { PRISMA } from '../prisma/prisma.module';
+import { PlatformEventsService } from '../events/platform-events.service';
 import { rankCandidates, type CleanerSnapshot, type JobLocation } from './scoring';
 
 @Injectable()
 export class MatchingService {
-  constructor(@Inject(PRISMA) private readonly prisma: PrismaClient) {}
+  constructor(
+    @Inject(PRISMA) private readonly prisma: PrismaClient,
+    private readonly events: PlatformEventsService,
+  ) {}
 
   // V1 룰베이스 매칭. ADR-0002 참조.
   async findCandidates(jobId: string) {
@@ -92,6 +96,14 @@ export class MatchingService {
         }),
       ),
     );
+
+    const top = ranked[0];
+    const topScore = top ? Number(top.score) : 0;
+    void this.events.emit({
+      type: 'match.candidates_computed',
+      title: `후보 ${ranked.length}명 산출 · 최고점 ${topScore.toFixed(3)}`,
+      data: { jobId, candidateCount: ranked.length, topScore },
+    });
 
     return ranked;
   }
