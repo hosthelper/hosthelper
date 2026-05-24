@@ -1,0 +1,12 @@
+# Netlify 빌드 설정 — 회원/호스트/청소사 (apps/web)
+# GitHub 연동 시 base directory를 apps/web 로 지정하면 이 파일이 자동 적용됩니다.
+[build]
+  base = "apps/web"
+  command = "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @hosthelper/shared build && pnpm --filter @hosthelper/ui build && pnpm --filter @hosthelper/web build"
+  publish = "out"
+
+[build.environment]
+  STATIC_EXPORT = "1"
+  NEXT_PUBLIC_DEMO = "1"
+  # 정적 export(out/)를 그대로 서빙. Next 런타임 플러그인 비활성화.
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
