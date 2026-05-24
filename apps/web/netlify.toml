@@ -6,6 +6,7 @@
   publish = "out"
 
 [build.environment]
+  NODE_VERSION = "20"
   STATIC_EXPORT = "1"
   NEXT_PUBLIC_DEMO = "1"
   # 정적 export(out/)를 그대로 서빙. Next 런타임 플러그인 비활성화.

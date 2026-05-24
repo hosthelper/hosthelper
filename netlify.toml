@@ -1,0 +1,15 @@
+# 루트 Netlify 설정 — GitHub 연동 시 Base directory 미설정(루트)이어도
+# 모노레포의 apps/web(회원/호스트/청소사 데모)을 자동으로 빌드·배포한다.
+# 운영진(admin) 사이트를 따로 만들 때는 Base directory=apps/admin 로 별도 사이트 생성
+# (그 경우 apps/admin/netlify.toml 적용).
+[build]
+  base = "apps/web"
+  command = "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @hosthelper/shared build && pnpm --filter @hosthelper/ui build && pnpm --filter @hosthelper/web build"
+  publish = "out"
+
+[build.environment]
+  NODE_VERSION = "20"
+  STATIC_EXPORT = "1"
+  NEXT_PUBLIC_DEMO = "1"
+  # 정적 export(out/)를 그대로 서빙 — Next 런타임 플러그인 비활성화
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
