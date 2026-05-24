@@ -1,34 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-
-// admin은 @hosthelper/ui·shared에 의존하지 않으므로 타입을 로컬로 선언.
-type PlatformEventType =
-  | 'booking.created'
-  | 'payment.confirmed'
-  | 'match.candidates_computed'
-  | 'offer.created'
-  | 'offer.accepted'
-  | 'offer.declined'
-  | 'job.matched'
-  | 'dispute.triaged';
-
-interface PlatformEvent {
-  id: string;
-  at: string;
-  title: string;
-  type: PlatformEventType;
-  data: Record<string, unknown>;
-}
-
-interface KpiSnapshot {
-  at: string;
-  activeJobs: number;
-  pendingOffers: number;
-  todayBookings: number;
-  todayGmv: number;
-  openDisputes: number;
-}
+import {
+  DEMO,
+  startDemoStream,
+  type KpiSnapshot,
+  type PlatformEvent,
+  type PlatformEventType,
+} from './demo';
 
 const TYPE_LABEL: Record<PlatformEventType, string> = {
   'booking.created': '예약',
@@ -51,6 +30,19 @@ export default function AdminLive() {
   const esRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
+    if (DEMO) {
+      setConnected(true);
+      return startDemoStream({
+        onSnapshot: setKpi,
+        onEvent: (event) => {
+          setFeed((prev) => [event, ...prev].slice(0, MAX_FEED));
+          if (event.type === 'dispute.triaged') {
+            setAlerts((prev) => [event, ...prev].slice(0, 20));
+          }
+        },
+      });
+    }
+
     const api = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
     const es = new EventSource(`${api}/api/events/stream`);
     esRef.current = es;
@@ -86,7 +78,7 @@ export default function AdminLive() {
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 style={{ margin: 0 }}>실시간 운영 모니터링</h1>
         <span style={{ ...pill, background: connected ? '#047857' : '#c2410c', color: '#fff' }}>
-          {connected ? '실시간 연결됨' : '연결 끊김'}
+          {DEMO ? '데모 스트림' : connected ? '실시간 연결됨' : '연결 끊김'}
         </span>
       </header>
       <p style={{ color: '#6b7280', marginTop: '0.25rem' }}>

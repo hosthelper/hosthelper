@@ -9,6 +9,8 @@ import {
   type KpiSnapshot,
   type PlatformEvent,
 } from '@hosthelper/shared';
+import { DEMO } from '../demo';
+import { startDemoStream } from './demo';
 
 const TYPE_LABEL: Record<PlatformEvent['type'], string> = {
   'booking.created': '예약',
@@ -36,6 +38,14 @@ export default function LivePage() {
   const esRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
+    if (DEMO) {
+      setConnected(true);
+      return startDemoStream({
+        onSnapshot: setKpi,
+        onEvent: (event) => setFeed((prev) => [event, ...prev].slice(0, MAX_FEED)),
+      });
+    }
+
     const api = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
     const es = new EventSource(`${api}/api/events/stream`);
     esRef.current = es;
@@ -68,7 +78,9 @@ export default function LivePage() {
       <Nav
         right={
           <span className="hh-inline" style={{ alignItems: 'center', gap: '0.5rem' }}>
-            <Badge tone={connected ? 'live' : 'warn'}>{connected ? '실시간 연결됨' : '연결 끊김'}</Badge>
+            <Badge tone={connected ? 'live' : 'warn'}>
+              {DEMO ? '데모 스트림' : connected ? '실시간 연결됨' : '연결 끊김'}
+            </Badge>
             <Link href="/host">호스트</Link>
           </span>
         }
