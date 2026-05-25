@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Shell } from '../ui';
 import {
   DEMO,
   startDemoStream,
@@ -73,18 +74,14 @@ export default function AdminLive() {
     return () => es.close();
   }, []);
 
-  return (
-    <main>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ margin: 0 }}>실시간 운영 모니터링</h1>
-        <span style={{ ...pill, background: connected ? '#047857' : '#c2410c', color: '#fff' }}>
-          {DEMO ? '데모 스트림' : connected ? '실시간 연결됨' : '연결 끊김'}
-        </span>
-      </header>
-      <p style={{ color: '#6b7280', marginTop: '0.25rem' }}>
-        <a href="/" style={{ color: '#6b7280' }}>← 운영자 콘솔</a>
-      </p>
+  const statusPill = (
+    <span style={{ ...pill, background: connected ? '#047857' : '#c2410c', color: '#fff' }}>
+      {DEMO ? '데모 스트림' : connected ? '실시간 연결됨' : '연결 끊김'}
+    </span>
+  );
 
+  return (
+    <Shell title="실시간 모니터링" actions={statusPill}>
       <section style={kpiGrid}>
         <KpiCard label="진행 중 잡" value={kpi?.activeJobs} />
         <KpiCard label="대기 오퍼" value={kpi?.pendingOffers} />
@@ -93,7 +90,7 @@ export default function AdminLive() {
         <KpiCard label="열린 분쟁" value={kpi?.openDisputes} warn={!!kpi && kpi.openDisputes > 0} />
       </section>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
         <section>
           <h2 style={h2}>매칭 활동</h2>
           <div style={card}>
@@ -118,7 +115,7 @@ export default function AdminLive() {
           </div>
         </section>
       </div>
-    </main>
+    </Shell>
   );
 }
 
