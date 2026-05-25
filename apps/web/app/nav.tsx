@@ -10,6 +10,7 @@ export function AppNav() {
         <span className="hh-inline" style={{ gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <Link href="/host">호스트</Link>
           <Link href="/cleaner">청소사</Link>
+          <Link href="/messages">메시지</Link>
           <Link href="/live">실시간</Link>
         </span>
       }

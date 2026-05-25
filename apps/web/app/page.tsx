@@ -28,12 +28,11 @@ export default function HomePage() {
         <>
           <Section title="둘러보기 (데모)" />
           <Card>
-            <Link href="/login"><ListItem left="회원 로그인" right={<span>→</span>} /></Link>
-            <Link href="/host"><ListItem left="호스트 대시보드" right={<span>→</span>} /></Link>
-            <Link href="/host/book"><ListItem left="청소 예약 · 견적" right={<span>→</span>} /></Link>
-            <Link href="/cleaner"><ListItem left="청소사 일감" right={<span>→</span>} /></Link>
+            <Link href="/host/properties"><ListItem left="호스트 · 숙소 캘린더 연결" right={<span>→</span>} /></Link>
+            <Link href="/host"><ListItem left="호스트 대시보드 · 내 일감" right={<span>→</span>} /></Link>
+            <Link href="/cleaner"><ListItem left="청소사 · 일감 보드" right={<span>→</span>} /></Link>
+            <Link href="/messages"><ListItem left="호스트 ↔ 청소사 메시지" right={<span>→</span>} /></Link>
             <Link href="/live"><ListItem left="실시간 현황" right={<span>→</span>} /></Link>
-            <Link href="/library"><ListItem left="디자인 컴포넌트" right={<span>→</span>} /></Link>
             {ADMIN_URL ? (
               <a href={ADMIN_URL} target="_blank" rel="noreferrer">
                 <ListItem left="운영진 실시간 대시보드" right={<span>↗</span>} />
@@ -47,16 +46,16 @@ export default function HomePage() {
 
       <div className="hh-three">
         <div className="hh-three__cell">
-          <h4>한 번에 매칭</h4>
-          <p>체크아웃 알림만으로 청소사가 잡힙니다.</p>
+          <h4>캘린더 연결</h4>
+          <p>숙소 예약 캘린더만 연결하면 체크아웃마다 청소 일감이 자동 생성됩니다.</p>
         </div>
         <div className="hh-three__cell">
-          <h4>간편결제</h4>
-          <p>토스로 결제, T+2 자동 정산.</p>
+          <h4>일감 매칭</h4>
+          <p>청소사가 일감 보드에서 보고 바로 수락합니다.</p>
         </div>
         <div className="hh-three__cell">
-          <h4>건당 ₩10,000</h4>
-          <p>수수료는 한 건당 정액.</p>
+          <h4>메시지</h4>
+          <p>호스트와 청소사가 일감별로 직접 소통합니다. 수수료는 건당 ₩10,000.</p>
         </div>
       </div>
 
