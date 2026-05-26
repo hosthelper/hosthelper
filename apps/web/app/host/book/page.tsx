@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Wrap, Section, Card, Field, TextInput, Button, ListItem, Footer } from '@hosthelper/ui';
-import { AppNav } from '../../nav';
+import { Wrap, Section, Card, Field, TextInput, Button, ListItem } from '@hosthelper/ui';
 import { DEMO } from '../../demo';
 import { addJob, PLATFORM_FEE } from '../../demo-store';
 
@@ -62,7 +61,6 @@ export default function BookPage() {
   if (posted) {
     return (
       <Wrap>
-        <AppNav />
         <Section title="일감 등록 완료" />
         <Card>
           <div style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>
@@ -83,15 +81,12 @@ export default function BookPage() {
             <Button variant="ghost" block>청소사 화면에서 보기</Button>
           </Link>
         </div>
-        <Footer />
       </Wrap>
     );
   }
 
   return (
     <Wrap>
-      <AppNav />
-
       <Section title="직접 일감 등록" />
 
       <Card>
@@ -131,8 +126,6 @@ export default function BookPage() {
           </Card>
         </div>
       ) : null}
-
-      <Footer />
     </Wrap>
   );
 }

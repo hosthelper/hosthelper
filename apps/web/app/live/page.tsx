@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
-import { Wrap, Nav, Section, Card, ListItem, Badge, Footer } from '@hosthelper/ui';
+import { Wrap, Section, Card, ListItem, Badge } from '@hosthelper/ui';
 import {
   SSE_EVENT_PLATFORM,
   SSE_EVENT_SNAPSHOT,
@@ -75,18 +74,12 @@ export default function LivePage() {
 
   return (
     <Wrap>
-      <Nav
-        right={
-          <span className="hh-inline" style={{ alignItems: 'center', gap: '0.5rem' }}>
-            <Badge tone={connected ? 'live' : 'warn'}>
-              {DEMO ? '데모 스트림' : connected ? '실시간 연결됨' : '연결 끊김'}
-            </Badge>
-            <Link href="/host">호스트</Link>
-          </span>
-        }
-      />
-
       <Section title="실시간 현황" />
+      <p className="hh-list-item__meta" style={{ marginTop: '-0.5rem' }}>
+        <Badge tone={connected ? 'live' : 'warn'}>
+          {DEMO ? '데모 스트림' : connected ? '실시간 연결됨' : '연결 끊김'}
+        </Badge>
+      </p>
 
       <div className="hh-row" style={{ flexWrap: 'wrap', gap: '0.75rem' }}>
         <Kpi label="진행 중 잡" value={kpi?.activeJobs} />
@@ -121,8 +114,6 @@ export default function LivePage() {
           )}
         </Card>
       </div>
-
-      <Footer />
     </Wrap>
   );
 }

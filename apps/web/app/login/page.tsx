@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Wrap, Nav, Hero, Card, Field, TextInput, Button } from '@hosthelper/ui';
+import { Wrap, Hero, Card, Field, TextInput, Button } from '@hosthelper/ui';
 import { DEMO } from '../demo';
 
 export default function LoginPage() {
@@ -64,7 +64,6 @@ export default function LoginPage() {
 
   return (
     <Wrap>
-      <Nav />
       <Hero title="로그인" subtitle="휴대폰 번호로 시작합니다." />
 
       <div style={{ maxWidth: 420, margin: '0 auto' }}>
