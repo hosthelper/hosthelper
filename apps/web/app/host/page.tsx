@@ -27,8 +27,11 @@ export default function HostDashboard() {
       <AppNav />
 
       <Section title="호스트 대시보드" />
+      <p className="hh-list-item__meta" style={{ marginTop: '-0.5rem' }}>
+        지금은 <b>호스트 화면</b>이에요 — 청소 일감을 올리고, 수락한 청소사와 소통하는 쪽입니다.
+      </p>
 
-      <div className="hh-row" style={{ flexWrap: 'wrap' }}>
+      <div className="hh-row" style={{ flexWrap: 'wrap', marginTop: '1rem' }}>
         <Stat label="모집 중" value={`${open}건`} />
         <Stat label="진행/예정" value={`${active}건`} />
         <Stat label="연결된 숙소" value={`${connected}곳`} />
