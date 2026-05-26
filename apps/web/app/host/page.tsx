@@ -1,9 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Wrap, Section, Card, ListItem, Badge, Button, Footer } from '@hosthelper/ui';
+import { Wrap, Section, Card, ListItem, Badge, Button } from '@hosthelper/ui';
 import type { BadgeTone } from '@hosthelper/ui';
-import { AppNav } from '../nav';
 import { getJobs, getProperties, useStoreVersion, type JobStatus } from '../demo-store';
 
 const LABEL: Record<JobStatus, { text: string; tone: BadgeTone }> = {
@@ -24,8 +23,6 @@ export default function HostDashboard() {
 
   return (
     <Wrap>
-      <AppNav />
-
       <Section title="호스트 대시보드" />
       <p className="hh-list-item__meta" style={{ marginTop: '-0.5rem' }}>
         지금은 <b>호스트 화면</b>이에요 — 청소 일감을 올리고, 수락한 청소사와 소통하는 쪽입니다.
@@ -84,8 +81,6 @@ export default function HostDashboard() {
           )}
         </Card>
       </div>
-
-      <Footer />
     </Wrap>
   );
 }

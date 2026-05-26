@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Wrap, Section, Card, ListItem, Button, Badge, Footer } from '@hosthelper/ui';
-import { AppNav } from '../nav';
+import { Wrap, Section, Card, ListItem, Button, Badge } from '@hosthelper/ui';
 import {
   getJobs,
   updateJob,
@@ -38,8 +37,6 @@ export default function CleanerHome() {
 
   return (
     <Wrap>
-      <AppNav />
-
       <Section title="청소 일감 보드" />
       <p className="hh-list-item__meta" style={{ marginTop: '-0.5rem' }}>
         지금은 <b>청소사 화면</b>이에요 — 호스트가 올린 청소 일감을 보고 수락하면, 호스트와 메시지를 주고받을 수 있습니다.
@@ -118,8 +115,6 @@ export default function CleanerHome() {
           )}
         </Card>
       </div>
-
-      <Footer />
     </Wrap>
   );
 }

@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Wrap, Section, Card, Field, TextInput, Button, ListItem, Badge, Footer } from '@hosthelper/ui';
-import { AppNav } from '../../nav';
+import { Wrap, Section, Card, Field, TextInput, Button, ListItem, Badge } from '@hosthelper/ui';
 import {
   getProperties,
   addProperty,
@@ -33,8 +32,6 @@ export default function PropertiesPage() {
 
   return (
     <Wrap>
-      <AppNav />
-
       <Section title="숙소 · 스케줄 연결" />
       <p className="hh-list-item__meta" style={{ marginTop: '-0.5rem' }}>
         숙소의 예약 캘린더(Airbnb iCal 등)를 연결하면 체크아웃마다 청소 일감이 자동 생성되어 청소사에게 노출됩니다.
@@ -99,8 +96,6 @@ export default function PropertiesPage() {
           </Button>
         </Card>
       </div>
-
-      <Footer />
     </Wrap>
   );
 }

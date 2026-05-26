@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import '@hosthelper/ui/styles.css';
+import './theme.css';
 import { DemoBanner } from './demo';
+import { SiteHeader, SiteFooter } from './_shell';
 
 export const metadata: Metadata = {
   title: 'hosthelper — 시간을 효율적으로 아껴드립니다',
@@ -11,7 +13,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#0a0a0a',
+  themeColor: '#ff5a5f',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -19,7 +21,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko">
       <body>
         <DemoBanner />
-        {children}
+        <SiteHeader />
+        <main>{children}</main>
+        <SiteFooter />
       </body>
     </html>
   );

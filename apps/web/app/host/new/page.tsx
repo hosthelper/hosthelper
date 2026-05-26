@@ -1,10 +1,9 @@
 import Link from 'next/link';
-import { Wrap, Nav, Hero, Button } from '@hosthelper/ui';
+import { Wrap, Hero, Button } from '@hosthelper/ui';
 
 export default function HostNewPage() {
   return (
     <Wrap>
-      <Nav />
       <Hero
         title="호스트로 시작"
         subtitle="휴대폰 인증 후 바로 예약할 수 있습니다."

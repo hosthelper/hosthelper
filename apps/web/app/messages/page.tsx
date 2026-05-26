@@ -3,8 +3,7 @@
 import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Wrap, Section, Card, ListItem, Button, Badge, Footer } from '@hosthelper/ui';
-import { AppNav } from '../nav';
+import { Wrap, Section, Card, ListItem, Button, Badge } from '@hosthelper/ui';
 import {
   getJobs,
   getJob,
@@ -17,7 +16,7 @@ import {
 
 export default function MessagesPage() {
   return (
-    <Suspense fallback={<Wrap><AppNav /><Section title="메시지" /></Wrap>}>
+    <Suspense fallback={<Wrap><Section title="메시지" /></Wrap>}>
       <MessagesInner />
     </Suspense>
   );
@@ -36,7 +35,6 @@ function ThreadList() {
 
   return (
     <Wrap>
-      <AppNav />
       <Section title="메시지" />
       <Card>
         {threads.length === 0 ? (
@@ -59,7 +57,6 @@ function ThreadList() {
           ))
         )}
       </Card>
-      <Footer />
     </Wrap>
   );
 }
@@ -81,7 +78,6 @@ function Thread({ jobId, initialRole }: { jobId: string; initialRole: Role }) {
   if (!job) {
     return (
       <Wrap>
-        <AppNav />
         <Section title="메시지" />
         <Card>
           <div className="hh-list-item__meta">대화를 찾을 수 없습니다.</div>
@@ -97,8 +93,6 @@ function Thread({ jobId, initialRole }: { jobId: string; initialRole: Role }) {
 
   return (
     <Wrap>
-      <AppNav />
-
       <div style={{ paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
         <div>
           <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>{job.property}</div>
@@ -157,8 +151,6 @@ function Thread({ jobId, initialRole }: { jobId: string; initialRole: Role }) {
           보내기
         </Button>
       </div>
-
-      <Footer />
     </Wrap>
   );
 }
