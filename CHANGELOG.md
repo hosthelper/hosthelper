@@ -8,6 +8,10 @@
 - 브랜드 약속 "시간을 효율적으로 아껴드립니다" UI 적용
 
 ### 추가
+- **영상 요약·분석**: 링크 입력 → 영상 내용 추출(유튜브 자막/메타·웹 OG) → 한국어 요약 + 중요 포인트
+  - `packages/ai/src/video.ts` `analyzeVideo()` (프롬프트 캐싱·adaptive thinking·zod 검증)
+  - `apps/api` `POST /ai/video/analyze`, `GET /ai/video` (LLMCall 토큰 회계 + `VideoAnalysis` 영속화)
+  - `apps/web/app/video` 링크 입력 페이지
 - `apps/web` 미니멀 UI: 랜딩, 로그인(OTP), 호스트 대시보드, 예약·견적, 청소사 일감 목록
 - `apps/api` 검증 통과: typecheck/test/build 전체 그린
 - `apps/api` 통합 테스트 완료: health, pricing/quote, auth OTP, matching/candidates

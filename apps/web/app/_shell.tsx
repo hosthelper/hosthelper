@@ -12,6 +12,7 @@ const CATS: { href: Route; label: string }[] = [
   { href: '/cleaner', label: '일감 보드' },
   { href: '/messages', label: '메시지' },
   { href: '/live', label: '실시간' },
+  { href: '/video', label: '영상 분석' },
 ];
 
 function isActive(path: string, href: string): boolean {
