@@ -63,6 +63,9 @@ jobs:
       - name: Apply migrations
         run: pnpm --filter @hosthelper/db exec prisma migrate deploy
 
+      - name: Seed baseline data
+        run: pnpm --filter @hosthelper/db seed
+
       - name: Build apps
         run: pnpm build
 
