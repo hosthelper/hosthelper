@@ -39,14 +39,28 @@ export const VideoAnalysisOutputSchema = z.object({
 
 export type VideoAnalysisOutput = z.infer<typeof VideoAnalysisOutputSchema>;
 
+export const VIDEO_PLATFORMS = [
+  'youtube',
+  'instagram',
+  'tiktok',
+  'facebook',
+  'twitter',
+  'vimeo',
+  'web',
+] as const;
+
+export const VideoPlatformEnum = z.enum(VIDEO_PLATFORMS);
+export type VideoPlatform = z.infer<typeof VideoPlatformEnum>;
+
 // API 응답 — 추출 메타 + 분석 결과.
 export const VideoAnalysisResponseSchema = z.object({
   id: z.string(),
   sourceUrl: z.string(),
-  platform: z.enum(['youtube', 'web']),
+  platform: VideoPlatformEnum,
   videoTitle: z.string().nullable(),
   author: z.string().nullable(),
   hasTranscript: z.boolean(),
+  transcriptSource: z.enum(['captions', 'speech', 'metadata']).describe('자막 출처'),
   analysis: VideoAnalysisOutputSchema,
   createdAt: z.string(),
 });

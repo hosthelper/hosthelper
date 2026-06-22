@@ -1,9 +1,10 @@
 // 영상 콘텐츠 추출기 — URL → (제목/작성자/설명/자막).
 // LLM은 영상을 직접 보지 못하므로, 여기서 텍스트(자막·메타)를 뽑아 @hosthelper/ai 에 넘깁니다.
 // 네트워크 의존부와 순수 파싱부를 분리해 파싱부는 단위 테스트로 100% 커버합니다.
+import type { VideoPlatform } from '@hosthelper/shared';
 
 export interface ExtractedVideo {
-  platform: 'youtube' | 'web';
+  platform: VideoPlatform;
   sourceUrl: string;
   videoId?: string;
   title?: string;
@@ -12,9 +13,37 @@ export interface ExtractedVideo {
   transcript?: string;
   transcriptLanguage?: string;
   durationLabel?: string;
+  // 자막·설명으로 텍스트를 못 얻음 → 음성 인식(STT)이 필요함을 표시.
+  needsTranscription?: boolean;
 }
 
 export class VideoExtractionError extends Error {}
+
+// 호스트명 → 플랫폼. 알려진 영상 플랫폼은 자막/HTML 스크랩이 막혀 STT 경로로 보냅니다.
+const PLATFORM_HOSTS: Record<string, VideoPlatform> = {
+  'instagram.com': 'instagram',
+  'www.instagram.com': 'instagram',
+  'tiktok.com': 'tiktok',
+  'www.tiktok.com': 'tiktok',
+  'vm.tiktok.com': 'tiktok',
+  'facebook.com': 'facebook',
+  'www.facebook.com': 'facebook',
+  'fb.watch': 'facebook',
+  'twitter.com': 'twitter',
+  'www.twitter.com': 'twitter',
+  'x.com': 'twitter',
+  'vimeo.com': 'vimeo',
+  'www.vimeo.com': 'vimeo',
+};
+
+export function classifyPlatform(url: string): VideoPlatform {
+  if (isYouTubeUrl(url)) return 'youtube';
+  try {
+    return PLATFORM_HOSTS[new URL(url).hostname.toLowerCase()] ?? 'web';
+  } catch {
+    return 'web';
+  }
+}
 
 const FETCH_TIMEOUT_MS = 12_000;
 const DESKTOP_UA =
@@ -227,28 +256,25 @@ async function fetchYouTube(url: string, videoId: string): Promise<ExtractedVide
     /* watch 페이지 스크랩 실패 — 메타만으로 진행 */
   }
 
-  if (!result.title && !result.description && !result.transcript) {
-    throw new VideoExtractionError(
-      '유튜브 영상 정보를 가져오지 못했습니다. 비공개 영상이거나 일시적 차단일 수 있습니다.',
-    );
+  // 자막/설명을 못 얻었으면 음성 인식(STT)으로 보완 가능하도록 표시.
+  if (!result.transcript && !result.description) {
+    result.needsTranscription = true;
   }
   return result;
 }
 
 async function fetchWeb(url: string): Promise<ExtractedVideo> {
-  let res: Response;
+  let html = '';
   try {
-    res = await fetchWithTimeout(url);
+    const res = await fetchWithTimeout(url);
+    if (res.ok) html = await res.text();
   } catch {
-    throw new VideoExtractionError('페이지를 가져오지 못했습니다. URL을 확인해주세요.');
+    /* 스크랩 실패 — STT 경로로 넘김 */
   }
-  if (!res.ok) {
-    throw new VideoExtractionError(`페이지 응답 오류 (HTTP ${res.status})`);
-  }
-  const html = await res.text();
-  const meta = parseHtmlMeta(html);
+  const meta = html ? parseHtmlMeta(html) : {};
   if (!meta.title && !meta.description) {
-    throw new VideoExtractionError('이 링크에서 분석할 텍스트를 찾지 못했습니다.');
+    // 텍스트를 못 얻음 → 영상 페이지일 수 있으니 STT 시도 대상으로.
+    return { platform: 'web', sourceUrl: url, needsTranscription: true };
   }
   return {
     platform: 'web',
@@ -260,7 +286,17 @@ async function fetchWeb(url: string): Promise<ExtractedVideo> {
 }
 
 export async function extractVideo(url: string): Promise<ExtractedVideo> {
-  const videoId = parseYouTubeId(url);
-  if (videoId) return fetchYouTube(url, videoId);
+  const platform = classifyPlatform(url);
+
+  if (platform === 'youtube') {
+    const videoId = parseYouTubeId(url);
+    if (videoId) return fetchYouTube(url, videoId);
+  }
+
+  // 인스타그램·틱톡 등은 자막/HTML 스크랩이 막혀 있어 곧바로 STT 경로로.
+  if (platform !== 'web') {
+    return { platform, sourceUrl: url, needsTranscription: true };
+  }
+
   return fetchWeb(url);
 }

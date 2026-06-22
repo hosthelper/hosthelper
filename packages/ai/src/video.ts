@@ -2,6 +2,7 @@ import {
   VIDEO_CONTENT_TYPES,
   VideoAnalysisOutputSchema,
   type VideoAnalysisOutput,
+  type VideoPlatform,
 } from '@hosthelper/shared';
 import type { AiClient } from './client';
 import { estimateCostUsd, type TokenUsage } from './budget';
@@ -9,7 +10,7 @@ import { estimateCostUsd, type TokenUsage } from './budget';
 // 추출된 영상 콘텐츠 (자막/설명/메타). 추출은 API 레이어 책임,
 // 이 함수는 순수하게 "텍스트 → 구조화 분석"만 담당합니다.
 export interface VideoAnalyzeInput {
-  platform: 'youtube' | 'web';
+  platform: VideoPlatform;
   sourceUrl: string;
   title?: string;
   author?: string;
@@ -18,6 +19,16 @@ export interface VideoAnalyzeInput {
   transcript?: string;
   transcriptLanguage?: string;
 }
+
+const PLATFORM_LABEL: Record<VideoPlatform, string> = {
+  youtube: '유튜브',
+  instagram: '인스타그램',
+  tiktok: '틱톡',
+  facebook: '페이스북',
+  twitter: 'X(트위터)',
+  vimeo: '비메오',
+  web: '웹',
+};
 
 // 토큰 폭주 방지 — 자막/설명은 상한까지만 사용.
 const MAX_TRANSCRIPT_CHARS = 24_000;
@@ -64,7 +75,7 @@ function truncate(s: string, max: number): string {
 
 function buildUserPrompt(input: VideoAnalyzeInput): string {
   const lines: string[] = ['# 영상 정보', ''];
-  lines.push(`- 출처: ${input.platform === 'youtube' ? '유튜브' : '웹'}`);
+  lines.push(`- 출처: ${PLATFORM_LABEL[input.platform] ?? '웹'}`);
   lines.push(`- URL: ${input.sourceUrl}`);
   if (input.title) lines.push(`- 제목: ${input.title}`);
   if (input.author) lines.push(`- 채널/작성자: ${input.author}`);

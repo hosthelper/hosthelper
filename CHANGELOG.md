@@ -12,6 +12,9 @@
   - `packages/ai/src/video.ts` `analyzeVideo()` (프롬프트 캐싱·adaptive thinking·zod 검증)
   - `apps/api` `POST /ai/video/analyze`, `GET /ai/video` (LLMCall 토큰 회계 + `VideoAnalysis` 영속화)
   - `apps/web/app/video` 링크 입력 페이지
+- **`@hosthelper/media`**: 영상 음성 인식(STT) 파이프라인 — yt-dlp(다운로드) + ffmpeg + whisper(로컬). 외부 npm 의존성 0.
+  - 인스타그램·틱톡 등 공개 자막이 없는 영상도 음성→자막 전사로 분석. 자막 출처(captions/speech/metadata) 기록.
+  - env 게이트(`HOSTHELPER_STT_ENABLED`). 미구성 시 친절한 안내로 폴백. 서버리스 불가(바이너리 필요).
 - `apps/web` 미니멀 UI: 랜딩, 로그인(OTP), 호스트 대시보드, 예약·견적, 청소사 일감 목록
 - `apps/api` 검증 통과: typecheck/test/build 전체 그린
 - `apps/api` 통합 테스트 완료: health, pricing/quote, auth OTP, matching/candidates

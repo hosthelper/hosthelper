@@ -550,9 +550,10 @@ model VideoAnalysis {
   platform      String // "youtube" | "web"
   videoTitle    String?
   author        String?
-  language      String? // 자막/원어 추정
-  hasTranscript Boolean  @default(false)
-  tldr          String   @db.Text
+  language        String? // 자막/원어 추정
+  hasTranscript   Boolean  @default(false)
+  transcriptSource String  @default("metadata") // captions | speech | metadata
+  tldr            String   @db.Text
   summary       String   @db.Text
   keyPoints     Json // string[]
   topics        Json // string[]

@@ -1,11 +1,34 @@
 import {
   isYouTubeUrl,
   parseYouTubeId,
+  classifyPlatform,
   secondsToLabel,
   pickCaptionTrack,
   parseJson3Transcript,
   parseHtmlMeta,
 } from './extractor';
+
+describe('classifyPlatform', () => {
+  it('유튜브', () => {
+    expect(classifyPlatform('https://youtu.be/abc')).toBe('youtube');
+    expect(classifyPlatform('https://www.youtube.com/watch?v=abc')).toBe('youtube');
+  });
+  it('인스타그램', () => {
+    expect(classifyPlatform('https://www.instagram.com/reel/Cxyz/')).toBe('instagram');
+  });
+  it('틱톡', () => {
+    expect(classifyPlatform('https://vm.tiktok.com/ZAbc/')).toBe('tiktok');
+  });
+  it('x.com → twitter', () => {
+    expect(classifyPlatform('https://x.com/user/status/1')).toBe('twitter');
+  });
+  it('그 외는 web', () => {
+    expect(classifyPlatform('https://example.com/article')).toBe('web');
+  });
+  it('잘못된 URL은 web', () => {
+    expect(classifyPlatform('not a url')).toBe('web');
+  });
+});
 
 describe('parseYouTubeId', () => {
   it('watch?v= 형식', () => {

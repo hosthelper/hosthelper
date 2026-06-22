@@ -5,6 +5,12 @@ import { Wrap, Section, Card, Field, TextInput, Button, Badge } from '@hosthelpe
 import type { VideoAnalysisResponse, VideoContentType } from '@hosthelper/shared';
 import { DEMO } from '../demo';
 
+const SOURCE_LABEL: Record<'captions' | 'speech' | 'metadata', string> = {
+  captions: '자막 기반',
+  speech: '음성 인식(STT)',
+  metadata: '제목·설명 기반(추정)',
+};
+
 const CONTENT_TYPE_LABEL: Record<VideoContentType, string> = {
   educational: '교육',
   tutorial: '튜토리얼',
@@ -25,6 +31,7 @@ function buildDemoResult(url: string): VideoAnalysisResponse {
     videoTitle: '데모 영상 — 에어비앤비 슈퍼호스트의 청소 루틴',
     author: '데모 채널',
     hasTranscript: true,
+    transcriptSource: 'captions',
     analysis: {
       tldr: '체크아웃 후 90분 안에 끝내는 표준 청소 동선과 사진 검수 팁을 소개하는 영상입니다.',
       summary:
@@ -92,7 +99,8 @@ export default function VideoAnalyzePage() {
     <Wrap>
       <Section title="영상 요약 · 분석" />
       <p className="hh-list-item__meta" style={{ marginTop: '-0.5rem', marginBottom: '1rem' }}>
-        유튜브 등 영상 링크를 붙여넣으면 내용을 추출해 한국어 요약과 중요 포인트로 정리해드립니다.
+        유튜브·인스타그램·틱톡 등 영상 링크를 붙여넣으면 내용을 추출해 한국어 요약과 중요 포인트로 정리해드립니다.
+        자막이 없는 영상은 음성 인식(STT)으로 분석하며, 이 경우 시간이 더 걸릴 수 있습니다.
       </p>
 
       <Card>
@@ -124,8 +132,8 @@ export default function VideoAnalyzePage() {
           <Card>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
               <Badge>{CONTENT_TYPE_LABEL[result.analysis.contentType]}</Badge>
-              <Badge tone={result.hasTranscript ? 'live' : 'warn'}>
-                {result.hasTranscript ? '자막 기반' : '제목·설명 기반(추정)'}
+              <Badge tone={result.transcriptSource === 'metadata' ? 'warn' : 'live'}>
+                {SOURCE_LABEL[result.transcriptSource]}
               </Badge>
               <Badge>원어 {result.analysis.language}</Badge>
               <Badge>신뢰도 {Math.round(result.analysis.confidence * 100)}%</Badge>

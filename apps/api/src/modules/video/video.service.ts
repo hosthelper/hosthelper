@@ -7,10 +7,23 @@ import {
 import { analyzeVideo, type AiClient, type TokenBudget, type VideoAnalyzeInput } from '@hosthelper/ai';
 import type { VideoAnalysisResponse } from '@hosthelper/shared';
 import type { PrismaClient, VideoAnalysis } from '@hosthelper/db';
+import {
+  transcribeFromUrl,
+  loadSttConfig,
+  SttUnavailableError,
+} from '@hosthelper/media';
 import { PRISMA } from '../prisma/prisma.module';
 import { AI_CLIENT } from '../ai/ai-gateway.provider';
 import { TOKEN_BUDGET } from '../ai/token-budget.provider';
-import { extractVideo, VideoExtractionError } from './extractor';
+import { extractVideo, secondsToLabel, VideoExtractionError } from './extractor';
+
+type TranscriptSource = 'captions' | 'speech' | 'metadata';
+
+// 인스타·틱톡 등 STT가 꺼져 있을 때 사용자에게 보여줄 안내.
+const STT_DISABLED_MESSAGE =
+  '이 링크는 공개 자막이 없어 음성 인식(STT)이 필요합니다. ' +
+  '현재 서버에 음성 인식 기능이 켜져 있지 않습니다. ' +
+  '유튜브 링크는 바로 분석되며, 인스타그램·틱톡 등은 STT 설정 후 이용할 수 있습니다.';
 
 @Injectable()
 export class VideoService {
@@ -36,6 +49,32 @@ export class VideoService {
     } catch (e) {
       if (e instanceof VideoExtractionError) throw new BadRequestException(e.message);
       throw new BadRequestException('영상 내용을 추출하지 못했습니다.');
+    }
+
+    // 자막 출처 결정: 공개 자막 → 음성 인식 → 메타데이터 순.
+    let transcriptSource: TranscriptSource = extracted.transcript ? 'captions' : 'metadata';
+
+    if (!extracted.transcript && extracted.needsTranscription) {
+      const sttCfg = loadSttConfig();
+      if (!sttCfg.enabled) {
+        throw new BadRequestException(STT_DISABLED_MESSAGE);
+      }
+      try {
+        const t = await transcribeFromUrl(url, sttCfg);
+        extracted.transcript = t.transcript;
+        extracted.transcriptLanguage = t.language;
+        extracted.title ??= t.title;
+        if (!extracted.durationLabel && t.durationSec) {
+          extracted.durationLabel = secondsToLabel(t.durationSec);
+        }
+        transcriptSource = 'speech';
+      } catch (e) {
+        if (e instanceof SttUnavailableError) {
+          throw new BadRequestException(STT_DISABLED_MESSAGE);
+        }
+        const msg = e instanceof Error ? e.message : 'unknown';
+        throw new BadRequestException(`음성 인식에 실패했습니다: ${msg}`);
+      }
     }
 
     const input: VideoAnalyzeInput = {
@@ -94,6 +133,7 @@ export class VideoService {
         author: extracted.author ?? null,
         language: out.language,
         hasTranscript: Boolean(extracted.transcript),
+        transcriptSource,
         tldr: out.tldr,
         summary: out.summary,
         keyPoints: out.keyPoints as never,
@@ -123,10 +163,11 @@ export class VideoService {
     return {
       id: row.id,
       sourceUrl: row.sourceUrl,
-      platform: row.platform as 'youtube' | 'web',
+      platform: row.platform as VideoAnalysisResponse['platform'],
       videoTitle: row.videoTitle,
       author: row.author,
       hasTranscript: row.hasTranscript,
+      transcriptSource: (row.transcriptSource as TranscriptSource) ?? 'metadata',
       analysis: output ?? {
         tldr: row.tldr,
         summary: row.summary,
