@@ -534,8 +534,35 @@ model LLMCall {
   errorMessage             String?
   createdAt                DateTime  @default(now())
 
-  decision Decision?
+  decision      Decision?
+  videoAnalysis VideoAnalysis?
 
   @@index([purpose, createdAt])
   @@index([model, createdAt])
+}
+
+// 영상 요약/분석 (범용 도구) — 링크 입력 → 내용 추출 → 한국어 요약·핵심 포인트.
+// Decision(운영 의사결정)과 분리: 운영 결정이 아니라 사용자 유틸리티이므로 별도 테이블.
+// 토큰 회계는 LLMCall로 일관 유지 (CLAUDE.md §3.4).
+model VideoAnalysis {
+  id            String   @id @default(cuid())
+  sourceUrl     String   @db.Text
+  platform      String // "youtube" | "web"
+  videoTitle    String?
+  author        String?
+  language        String? // 자막/원어 추정
+  hasTranscript   Boolean  @default(false)
+  transcriptSource String  @default("metadata") // captions | speech | metadata
+  tldr            String   @db.Text
+  summary       String   @db.Text
+  keyPoints     Json // string[]
+  topics        Json // string[]
+  contentType   String
+  confidence    Decimal? @db.Decimal(4, 3)
+  payload       Json // 전체 출력 + 추출 메타
+  llmCallId     String?  @unique
+  llmCall       LLMCall? @relation(fields: [llmCallId], references: [id])
+  createdAt     DateTime @default(now())
+
+  @@index([platform, createdAt])
 }

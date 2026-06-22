@@ -14,6 +14,7 @@
   "dependencies": {
     "@hosthelper/ai": "workspace:*",
     "@hosthelper/db": "workspace:*",
+    "@hosthelper/media": "workspace:*",
     "@hosthelper/shared": "workspace:*",
     "@nestjs/common": "^10.3.0",
     "@nestjs/config": "^3.2.0",

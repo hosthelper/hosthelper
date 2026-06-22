@@ -90,6 +90,32 @@
 .hh-stack { display: flex; flex-direction: column; gap: 0.75rem; }
 .hh-inline { display: flex; gap: 0.5rem; }
 
+/* 예약 캘린더 (월 단위 페이지, 30일 롤링 윈도우) */
+.hh-cal { border: 1px solid var(--hh-line); border-radius: var(--hh-radius); padding: 0.75rem; }
+.hh-cal__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+.hh-cal__title { font-weight: 700; font-size: 1rem; }
+.hh-cal__nav {
+  width: 2.2rem; height: 2.2rem; border-radius: var(--hh-radius);
+  border: 1px solid var(--hh-line); background: transparent; cursor: pointer;
+  font-size: 1.2rem; line-height: 1; display: inline-flex; align-items: center; justify-content: center;
+}
+.hh-cal__nav[disabled] { opacity: 0.3; cursor: not-allowed; }
+.hh-cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.25rem; }
+.hh-cal__weekdays { margin-bottom: 0.25rem; }
+.hh-cal__wd { text-align: center; font-size: 0.75rem; color: var(--hh-muted); padding: 0.25rem 0; }
+.hh-cal__cell {
+  aspect-ratio: 1 / 1; border: 1px solid transparent; border-radius: var(--hh-radius);
+  background: transparent; cursor: pointer; font-size: 0.9rem; color: var(--hh-fg);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.hh-cal__cell:hover:not([disabled]) { border-color: var(--hh-line); }
+.hh-cal__cell--out { color: var(--hh-line); }
+.hh-cal__cell--today { font-weight: 700; box-shadow: inset 0 0 0 1px var(--hh-line); }
+.hh-cal__cell--selected { background: var(--hh-accent); color: var(--hh-accent-fg); }
+.hh-cal__cell--selected:hover { border-color: transparent; }
+.hh-cal__cell[disabled] { color: #d4d4d4; cursor: not-allowed; }
+.hh-cal__footnote { margin-top: 0.6rem; font-size: 0.8rem; color: var(--hh-muted); }
+
 @media (max-width: 560px) {
   .hh-hero { padding: 4rem 0 2rem; }
   .hh-hero__title { font-size: 2rem; }

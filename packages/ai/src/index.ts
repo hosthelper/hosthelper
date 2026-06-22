@@ -12,6 +12,11 @@ export {
   type DisputeOutput,
   DisputeOutputSchema,
 } from './dispute';
+export {
+  analyzeVideo,
+  type VideoAnalyzeInput,
+  type AnalyzeVideoResult,
+} from './video';
 
 export const AI_VERSION = '0.1.0';
 export const DEFAULT_MODEL = 'claude-opus-4-7' as const;

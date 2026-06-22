@@ -53,6 +53,7 @@
 |---|---|---|
 | `@hosthelper/ui` | **독립 ★★★★★** | 한국어 최적화 미니멀 디자인 시스템. 다른 SaaS로 이식 가능 |
 | `@hosthelper/shared` | 독립 ★★★★ | zod 기반 도메인 스키마. 검증 로직 라이브러리화 가능 |
+| `@hosthelper/media` | **독립 ★★★★★** | 영상 URL → 오디오(yt-dlp) → 음성 인식(whisper) 전사. 외부 의존성 0, 어떤 영상-자막 제품에도 이식 |
 | `@hosthelper/db` | 결합 ★★★ | Prisma 도메인 모델. STR 청소 도메인 데이터 모델 IP |
 | `apps/api` matching | 분리 ★★★★ | V1→V3 매칭 알고리즘 (`scoring.ts` 순수함수). 별도 ML 회사로 이전 가능 |
 | `apps/api` pricing | 분리 ★★★★ | 한국 시장 가격 정책 엔진. 다른 서비스업에 적용 가능 |

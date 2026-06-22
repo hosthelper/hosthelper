@@ -8,6 +8,7 @@ import { PricingModule } from './modules/pricing/pricing.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { AiModule } from './modules/ai/ai.module';
+import { VideoModule } from './modules/video/video.module';
 import { EventsModule } from './modules/events/events.module';
 
 @Module({
@@ -21,6 +22,7 @@ import { EventsModule } from './modules/events/events.module';
     BookingModule,
     PaymentModule,
     AiModule,
+    VideoModule,
   ],
   controllers: [HealthController],
 })

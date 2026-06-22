@@ -1,8 +1,8 @@
 {
-  "name": "@hosthelper/ai",
+  "name": "@hosthelper/media",
   "version": "0.1.0",
   "private": false,
-  "description": "hosthelper AI 게이트웨이. Anthropic Claude SDK 래퍼 + 토큰 예산 가드레일. M&A 분리 가능.",
+  "description": "hosthelper 미디어 처리. 영상 URL → 오디오 다운로드(yt-dlp) → 음성 인식(whisper) 전사. 외부 의존성 0, M&A 분리 가능.",
   "license": "UNLICENSED",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -20,12 +20,6 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "clean": "rm -rf dist"
-  },
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.88.0",
-    "@hosthelper/shared": "workspace:*",
-    "ioredis": "^5.3.0",
-    "zod": "^3.23.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",

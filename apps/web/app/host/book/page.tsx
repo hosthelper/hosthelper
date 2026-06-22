@@ -1,8 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Wrap, Section, Card, Field, TextInput, Button, ListItem } from '@hosthelper/ui';
+import { Wrap, Section, Card, Field, TextInput, Button, ListItem, Calendar } from '@hosthelper/ui';
+import {
+  WEEKDAY_LABELS,
+  BOOKING_WINDOW_DAYS,
+  buildMonthGrid,
+  canGoPrevMonth,
+  canGoNextMonth,
+  monthLabel,
+  formatKoreanDate,
+} from '@hosthelper/shared';
 import { DEMO } from '../../demo';
 import { addJob, PLATFORM_FEE } from '../../demo-store';
 
@@ -12,17 +21,49 @@ interface Quote {
   cleanerPayout: number;
 }
 
+const TIME_OPTIONS = [
+  '09:00', '10:00', '11:00', '12:00', '13:00',
+  '14:00', '15:00', '16:00', '17:00', '18:00',
+];
+
 export default function BookPage() {
   const [property, setProperty] = useState('청담 스카이뷰 #301');
   const [district, setDistrict] = useState('강남구');
-  const [time, setTime] = useState('내일 14:00');
   const [pyeong, setPyeong] = useState(22);
   const [bedrooms, setBedrooms] = useState(2);
   const [quote, setQuote] = useState<Quote | null>(null);
   const [loading, setLoading] = useState(false);
   const [posted, setPosted] = useState(false);
 
+  // 예약 캘린더 — 오늘부터 30일 롤링, 월 단위 페이지.
+  const today = useMemo(() => new Date(), []);
+  const [view, setView] = useState(() => ({ y: today.getFullYear(), m: today.getMonth() }));
+  const [selectedIso, setSelectedIso] = useState('');
+  const [clock, setClock] = useState('11:00');
+
   const api = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
+
+  const cells = useMemo(
+    () =>
+      buildMonthGrid(view.y, view.m, today).map((d) => ({
+        key: d.iso,
+        day: d.day,
+        inMonth: d.inMonth,
+        isToday: d.isToday,
+        selectable: d.selectable,
+        selected: d.iso === selectedIso,
+      })),
+    [view, today, selectedIso],
+  );
+
+  function shiftMonth(delta: number) {
+    setView((v) => {
+      const d = new Date(v.y, v.m + delta, 1);
+      return { y: d.getFullYear(), m: d.getMonth() };
+    });
+  }
+
+  const timeLabel = selectedIso ? `${formatKoreanDate(selectedIso)} ${clock}` : '';
 
   async function getQuote() {
     if (DEMO) {
@@ -45,11 +86,11 @@ export default function BookPage() {
   }
 
   function post() {
-    if (!quote) return;
+    if (!quote || !selectedIso) return;
     addJob({
       property,
       district,
-      time,
+      time: timeLabel,
       payout: quote.cleanerPayout,
       total: quote.total,
       status: 'open',
@@ -67,7 +108,7 @@ export default function BookPage() {
             청소 일감이 등록되었습니다 — 청소사 모집 중 ✓
           </div>
           <ListItem left="숙소" right={<span>{property}</span>} />
-          <ListItem left="지역 · 일시" right={<span>{district} · {time}</span>} />
+          <ListItem left="지역 · 일시" right={<span>{district} · {timeLabel}</span>} />
           <ListItem left="청소사 정산액" right={<span>₩{quote?.cleanerPayout.toLocaleString()}</span>} />
           <p className="hh-list-item__meta" style={{ marginTop: '0.75rem' }}>
             청소사가 수락하면 알림과 함께 메시지를 주고받을 수 있습니다.
@@ -93,14 +134,9 @@ export default function BookPage() {
         <Field label="숙소" htmlFor="property">
           <TextInput id="property" value={property} onChange={(e) => setProperty(e.target.value)} />
         </Field>
-        <div className="hh-row">
-          <Field label="지역(구)" htmlFor="district">
-            <TextInput id="district" value={district} onChange={(e) => setDistrict(e.target.value)} />
-          </Field>
-          <Field label="청소 시각" htmlFor="time">
-            <TextInput id="time" value={time} onChange={(e) => setTime(e.target.value)} />
-          </Field>
-        </div>
+        <Field label="지역(구)" htmlFor="district">
+          <TextInput id="district" value={district} onChange={(e) => setDistrict(e.target.value)} />
+        </Field>
         <div className="hh-row">
           <Field label="평수" htmlFor="pyeong">
             <TextInput id="pyeong" type="number" value={pyeong} onChange={(e) => setPyeong(Number(e.target.value))} min={1} />
@@ -109,6 +145,38 @@ export default function BookPage() {
             <TextInput id="bedrooms" type="number" value={bedrooms} onChange={(e) => setBedrooms(Number(e.target.value))} min={0} />
           </Field>
         </div>
+
+        <Field label="청소 날짜" htmlFor="cal">
+          <Calendar
+            monthLabel={monthLabel(view.y, view.m)}
+            weekdayLabels={WEEKDAY_LABELS}
+            cells={cells}
+            onSelect={setSelectedIso}
+            onPrev={() => shiftMonth(-1)}
+            onNext={() => shiftMonth(1)}
+            canPrev={canGoPrevMonth(view.y, view.m, today)}
+            canNext={canGoNextMonth(view.y, view.m, today)}
+            footnote={`오늘부터 ${BOOKING_WINDOW_DAYS}일 이내만 예약할 수 있어요.`}
+          />
+        </Field>
+
+        <Field label="청소 시각" htmlFor="clock">
+          <select
+            id="clock"
+            className="hh-field__input"
+            value={clock}
+            onChange={(e) => setClock(e.target.value)}
+          >
+            {TIME_OPTIONS.map((t) => (
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
+        </Field>
+
+        <p className="hh-list-item__meta" style={{ margin: '0 0 0.75rem' }}>
+          {selectedIso ? `선택: ${timeLabel}` : '날짜를 선택하세요.'}
+        </p>
+
         <Button variant="ghost" block onClick={getQuote} disabled={loading}>
           {loading ? '계산 중...' : '견적 보기'}
         </Button>
@@ -121,7 +189,9 @@ export default function BookPage() {
             <ListItem left="플랫폼 수수료" right={<span className="hh-list-item__meta">₩{quote.platformFee.toLocaleString()}</span>} />
             <ListItem left="청소사 정산" right={<span className="hh-list-item__meta">₩{quote.cleanerPayout.toLocaleString()}</span>} />
             <div style={{ marginTop: '1rem' }}>
-              <Button block onClick={post}>일감 등록 (청소사 모집)</Button>
+              <Button block onClick={post} disabled={!selectedIso}>
+                {selectedIso ? '일감 등록 (청소사 모집)' : '날짜를 먼저 선택하세요'}
+              </Button>
             </div>
           </Card>
         </div>
