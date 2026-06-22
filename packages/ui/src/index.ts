@@ -29,4 +29,7 @@ export type { FooterProps } from './components/Footer';
 export { Wrap } from './components/Wrap';
 export type { WrapProps } from './components/Wrap';
 
+export { Calendar } from './components/Calendar';
+export type { CalendarProps, CalendarCell } from './components/Calendar';
+
 export const UI_VERSION = '0.1.0';
