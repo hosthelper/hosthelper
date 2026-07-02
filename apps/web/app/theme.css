@@ -1,17 +1,19 @@
-/* hosthelper web 전용 새단장 테마 — 코럴 레드 브랜드 + 헤더/히어로/카드.
+/* hosthelper web 전용 새단장 테마 — 연그린(프레시 그린) 브랜드 + 헤더/히어로/카드.
+   청소 = 깨끗함·신뢰 → 그린 계열. 버튼은 흰 글자 대비 확보를 위해 green-600/700,
+   연그린 감성은 배경(--ha-soft)·아이콘 소프트 톤으로 표현.
    @hosthelper/ui(미니멀) 위에 레이어링. ui는 그대로 두어 분리 매각성 유지. */
 :root {
-  --ha-primary: #ff5a5f;
-  --ha-primary-d: #e84a50;
-  --ha-ink: #222222;
-  --ha-muted: #717171;
-  --ha-line: #ebebeb;
-  --ha-soft: #f7f7f8;
+  --ha-primary: #16a34a;
+  --ha-primary-d: #15803d;
+  --ha-ink: #1f2a24;
+  --ha-muted: #6b7671;
+  --ha-line: #e6ede8;
+  --ha-soft: #f3faf5;
   --ha-radius: 14px;
-  --ha-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --ha-shadow: 0 1px 2px rgba(20, 60, 40, 0.04), 0 8px 24px rgba(20, 60, 40, 0.06);
 
   /* 기존 ui 토큰 덮어쓰기 → 버튼/뱃지 등도 브랜드 컬러로 통일 */
-  --hh-accent: #ff5a5f;
+  --hh-accent: #16a34a;
   --hh-radius: 12px;
 }
 
@@ -77,7 +79,7 @@ body { background: var(--ha-bg, #fff); color: var(--ha-ink); }
 .cols-4 { grid-template-columns: repeat(4, 1fr); }
 .site-card { display: block; background: #fff; border: 1px solid var(--ha-line); border-radius: var(--ha-radius); padding: 1.4rem; box-shadow: var(--ha-shadow); transition: transform 0.12s, box-shadow 0.12s; }
 a.site-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08), 0 18px 40px rgba(0, 0, 0, 0.09); }
-.site-card__ic { width: 2.7rem; height: 2.7rem; border-radius: 12px; background: #fff0f0; color: var(--ha-primary); display: grid; place-items: center; font-weight: 800; font-size: 1.1rem; margin-bottom: 0.9rem; }
+.site-card__ic { width: 2.7rem; height: 2.7rem; border-radius: 12px; background: #e6f6ec; color: var(--ha-primary); display: grid; place-items: center; font-weight: 800; font-size: 1.1rem; margin-bottom: 0.9rem; }
 .site-card h3 { font-size: 1.05rem; font-weight: 700; }
 .site-card p { color: var(--ha-muted); font-size: 0.92rem; margin-top: 0.35rem; }
 
@@ -91,7 +93,7 @@ a.site-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0, 
 .site-chip:hover { border-color: var(--ha-primary); color: var(--ha-primary); }
 
 /* ── 하단 CTA 배너 ── */
-.site-promo { background: linear-gradient(135deg, #ff7a5f, #ff5a8f); color: #fff; border-radius: 18px; padding: 2.6rem; text-align: center; }
+.site-promo { background: linear-gradient(135deg, #4ade80, #16a34a); color: #fff; border-radius: 18px; padding: 2.6rem; text-align: center; }
 .site-promo h2 { font-size: 1.7rem; font-weight: 800; }
 .site-promo p { opacity: 0.95; margin-top: 0.5rem; }
 
