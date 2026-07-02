@@ -3,10 +3,9 @@ import type { PrismaClient } from '@hosthelper/db';
 import type { QuoteInput, QuoteOutput } from '@hosthelper/shared';
 import { PRISMA } from '../prisma/prisma.module';
 
-// 수익 모델: 건당 정액 수수료 ₩10,000
-// 청소사 정산 = 결제액 - 플랫폼수수료 - 원천세(3.3%)
-export const PLATFORM_FEE_KRW = 10_000;
-export const WITHHOLDING_TAX_RATE = 0.033;
+// 수익 모델 상수는 ./constants 로 분리 (순수 함수 테스트용). 기존 import 경로 호환 유지.
+export { PLATFORM_FEE_KRW, WITHHOLDING_TAX_RATE } from './constants';
+import { PLATFORM_FEE_KRW, WITHHOLDING_TAX_RATE } from './constants';
 
 @Injectable()
 export class PricingService {

@@ -7,6 +7,9 @@ import { MatchingModule } from './modules/matching/matching.module';
 import { PricingModule } from './modules/pricing/pricing.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { ScheduleModule } from './modules/schedule/schedule.module';
+import { OfferModule } from './modules/offer/offer.module';
+import { JobModule } from './modules/job/job.module';
 import { AiModule } from './modules/ai/ai.module';
 import { EventsModule } from './modules/events/events.module';
 
@@ -20,6 +23,9 @@ import { EventsModule } from './modules/events/events.module';
     PricingModule,
     BookingModule,
     PaymentModule,
+    ScheduleModule,
+    OfferModule,
+    JobModule,
     AiModule,
   ],
   controllers: [HealthController],

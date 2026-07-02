@@ -99,6 +99,29 @@ async function main() {
     },
   });
 
+  // 키퍼 가용 스케줄: 오늘부터 14일간 매일 08:00~20:00 (KST 기준 근사)
+  // 없으면 매칭 availability 필터가 후보 0명을 반환하므로 데모 필수.
+  const cleanerProfile = await prisma.cleanerProfile.findUniqueOrThrow({
+    where: { userId: cleaner.id },
+  });
+  const existing = await prisma.availability.count({
+    where: { cleanerId: cleanerProfile.id },
+  });
+  if (existing === 0) {
+    const days = Array.from({ length: 14 }, (_, i) => i);
+    await prisma.availability.createMany({
+      data: days.map((i) => {
+        const day = new Date();
+        day.setDate(day.getDate() + i);
+        const startsAt = new Date(day);
+        startsAt.setHours(8, 0, 0, 0);
+        const endsAt = new Date(day);
+        endsAt.setHours(20, 0, 0, 0);
+        return { cleanerId: cleanerProfile.id, startsAt, endsAt };
+      }),
+    });
+  }
+
   console.log('Seed complete:', { host: host.id, cleaner: cleaner.id });
 }
 
