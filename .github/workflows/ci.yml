@@ -63,6 +63,10 @@ jobs:
       - name: Apply migrations
         run: pnpm --filter @hosthelper/db exec prisma migrate deploy
 
+      # 스모크 테스트가 PricingRule 등 기준 데이터를 요구하므로 시드 필수
+      - name: Seed
+        run: pnpm --filter @hosthelper/db seed
+
       - name: Build apps
         run: pnpm build
 
