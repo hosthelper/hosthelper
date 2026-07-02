@@ -19,11 +19,22 @@ const TYPE_LABEL: Record<PlatformEvent['type'], string> = {
   'offer.accepted': '오퍼 수락',
   'offer.declined': '오퍼 거절',
   'job.matched': '매칭 완료',
+  'job.started': '작업 시작',
+  'job.submitted': '완료 제출',
+  'job.approved': '작업 승인',
+  'payout.scheduled': '정산 예약',
   'dispute.triaged': '분쟁',
 };
 
 function toneFor(type: PlatformEvent['type']): 'live' | 'warn' | undefined {
-  if (type === 'offer.accepted' || type === 'job.matched' || type === 'payment.confirmed') return 'live';
+  if (
+    type === 'offer.accepted' ||
+    type === 'job.matched' ||
+    type === 'payment.confirmed' ||
+    type === 'job.approved' ||
+    type === 'payout.scheduled'
+  )
+    return 'live';
   if (type === 'offer.declined' || type === 'dispute.triaged') return 'warn';
   return undefined;
 }

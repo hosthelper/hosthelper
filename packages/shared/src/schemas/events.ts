@@ -15,6 +15,10 @@ export const PlatformEventTypeSchema = z.enum([
   'offer.accepted',
   'offer.declined',
   'job.matched',
+  'job.started',
+  'job.submitted',
+  'job.approved',
+  'payout.scheduled',
   'dispute.triaged',
 ]);
 export type PlatformEventType = z.infer<typeof PlatformEventTypeSchema>;
@@ -66,6 +70,31 @@ export const PlatformEventSchema = z.discriminatedUnion('type', [
     ...envelope,
     type: z.literal('job.matched'),
     data: z.object({ jobId: z.string(), cleanerId: z.string() }),
+  }),
+  z.object({
+    ...envelope,
+    type: z.literal('job.started'),
+    data: z.object({ jobId: z.string(), cleanerId: z.string() }),
+  }),
+  z.object({
+    ...envelope,
+    type: z.literal('job.submitted'),
+    data: z.object({ jobId: z.string(), cleanerId: z.string() }),
+  }),
+  z.object({
+    ...envelope,
+    type: z.literal('job.approved'),
+    data: z.object({ jobId: z.string(), cleanerId: z.string() }),
+  }),
+  z.object({
+    ...envelope,
+    type: z.literal('payout.scheduled'),
+    data: z.object({
+      jobId: z.string(),
+      cleanerId: z.string(),
+      net: z.number().int(),
+      scheduledFor: z.string(),
+    }),
   }),
   z.object({
     ...envelope,
