@@ -4,9 +4,20 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { PrismaClient } from '@hosthelper/db';
+import type {
+  Booking,
+  CleaningJob,
+  OfferRound,
+  PrismaClient,
+  Property,
+} from '@hosthelper/db';
 import { PRISMA } from '../prisma/prisma.module';
 import { PlatformEventsService } from '../events/platform-events.service';
+
+// 명시적 반환 타입 (TS2742 방지 — Prisma 중첩 include 추론 타입은 이식 불가)
+export type PendingOffer = OfferRound & {
+  job: CleaningJob & { booking: Booking & { property: Property } };
+};
 
 // 오퍼 응답 처리. 워커(matching-offer.processor)가 라운드별로 오퍼를 발행하고,
 // 키퍼가 여기서 수락/거절한다. 수락 = 잡 배정 확정(MATCHED).
@@ -18,7 +29,7 @@ export class OfferService {
   ) {}
 
   // 키퍼별 응답 대기 중 오퍼 (만료 전)
-  async listPending(cleanerId: string) {
+  async listPending(cleanerId: string): Promise<PendingOffer[]> {
     return this.prisma.offerRound.findMany({
       where: { cleanerId, status: 'PENDING', expiresAt: { gt: new Date() } },
       include: {

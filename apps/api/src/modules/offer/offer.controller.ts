@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { OfferService } from './offer.service';
+import { OfferService, type PendingOffer } from './offer.service';
 
 @ApiTags('offers')
 @Controller('offers')
@@ -8,7 +8,9 @@ export class OfferController {
   constructor(private readonly offers: OfferService) {}
 
   @Get()
-  async listPending(@Query('cleanerId') cleanerId: string) {
+  async listPending(
+    @Query('cleanerId') cleanerId: string,
+  ): Promise<{ cleanerId: string; offers: PendingOffer[] }> {
     const offers = await this.offers.listPending(cleanerId);
     return { cleanerId, offers };
   }
