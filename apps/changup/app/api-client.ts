@@ -58,9 +58,23 @@ const post = <T>(p: string, body: unknown) =>
 const patch = <T>(p: string, body: unknown) =>
   request<T>(p, { method: 'PATCH', body: JSON.stringify(body) });
 
+// 설문 접수만 별도 엔드포인트로 보낼 수 있다 (예: Supabase Edge Function).
+// 미설정 시 기본 API(/api/changup/leads) 사용.
+const LEADS_ENDPOINT = process.env.NEXT_PUBLIC_LEADS_ENDPOINT;
+
 export const api = {
-  submitSurvey: (input: BuyerLeadSurvey) =>
-    post<{ ok: true; id?: string }>('/changup/leads', input),
+  submitSurvey: async (input: BuyerLeadSurvey) => {
+    if (LEADS_ENDPOINT) {
+      const res = await fetch(LEADS_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) throw new Error(`API ${res.status}: ${(await res.text()).slice(0, 300)}`);
+      return (await res.json()) as { ok: true; id?: string };
+    }
+    return post<{ ok: true; id?: string }>('/changup/leads', input);
+  },
   listLeads: (status?: LeadStatus) =>
     get<BuyerLeadRow[]>(`/changup/leads${status ? `?status=${status}` : ''}`),
   getLead: (id: string) => get<BuyerLeadRow>(`/changup/leads/${id}`),
