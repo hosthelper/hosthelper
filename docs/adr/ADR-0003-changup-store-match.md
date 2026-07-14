@@ -32,6 +32,10 @@ hosthelper의 `MatchCandidate`는 오퍼 라운드 상태머신의 입력이라 
 
 `POST /changup/leads`는 공개(SNS 링크). 스팸 완화는 숨김 `website` 필드 허니팟 — 값이 있으면 성공 응답만 주고 저장 생략.
 
+### 새 리드 알림 = 범용 웹훅
+
+리드 저장 직후 `CHANGUP_NOTIFY_WEBHOOK_URL`로 fire-and-forget POST (`{text, content, lead}` — 슬랙·디스코드·카카오워크·Make/Zapier 호환). 알림 실패는 로그만 남기고 설문 접수에 영향 없음. 허니팟 제출은 알림도 없음. 채널 고정(알림톡·SMS)은 키 확보 후 별도 어댑터로.
+
 ## Deferred (의도적 유예)
 
 - **인증**: 저장소 전체가 아직 무인증이라 `/ops`·변경 API도 동일. 설문 링크 공개 배포 전 `x-ops-key` 헤더 가드(env `CHANGUP_OPS_KEY`) 추가.

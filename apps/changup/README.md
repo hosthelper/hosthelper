@@ -17,6 +17,8 @@ pnpm --filter @hosthelper/changup dev   # 웹 :3002
 
 `NEXT_PUBLIC_API_BASE_URL`로 API 주소 지정 (기본 `http://localhost:4000`). 정적 배포는 `STATIC_EXPORT=1 pnpm build` (빌드 시점에 API 주소 주입 필요).
 
+새 설문이 접수되면 API가 `CHANGUP_NOTIFY_WEBHOOK_URL`(슬랙/디스코드/카카오워크/Make 등 웹훅 URL)로 리드 요약을 보냅니다 — 비워두면 알림 없음.
+
 ## 설계 결정
 
 docs/adr/ADR-0003-changup-store-match.md 참조. 매칭 점수는 `apps/api/src/modules/changup/scoring.ts` 순수 함수 (Jest 100% 커버).

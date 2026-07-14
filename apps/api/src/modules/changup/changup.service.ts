@@ -1,7 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { BuyerLead, PrismaClient, StoreListing } from '@hosthelper/db';
 import {
+  CONTACT_CHANNEL_LABELS,
   DEFAULT_CHANGUP_WEIGHTS,
+  OPERATION_TYPE_LABELS,
   type BuyerLeadSurvey,
   type LeadStatus,
   type StoreListingStatus,
@@ -33,8 +35,14 @@ function toSnapshot(l: StoreListing): ListingSnapshot {
   };
 }
 
+function fmtMan(won: number | null): string {
+  return won === null ? '무관' : `${Math.round(won / 10_000).toLocaleString('ko-KR')}만원`;
+}
+
 @Injectable()
 export class ChangupService {
+  private readonly logger = new Logger(ChangupService.name);
+
   constructor(@Inject(PRISMA) private readonly prisma: PrismaClient) {}
 
   // ---------- 리드 (예비창업자 설문) ----------
@@ -44,7 +52,34 @@ export class ChangupService {
     if (input.website) return { ok: true as const };
     const { website: _website, ...data } = input;
     const lead = await this.prisma.buyerLead.create({ data });
+    void this.notifyNewLead(lead); // fire-and-forget — 알림 실패가 설문 접수를 막으면 안 됨
     return { ok: true as const, id: lead.id };
+  }
+
+  // 새 설문 알림 — CHANGUP_NOTIFY_WEBHOOK_URL로 POST.
+  // 슬랙({text})·디스코드({content})·Make/Zapier(전체 JSON) 모두 호환되는 페이로드.
+  private async notifyNewLead(lead: BuyerLead) {
+    const url = process.env.CHANGUP_NOTIFY_WEBHOOK_URL;
+    if (!url) return;
+    const text = [
+      `📥 창업이지 새 설문 리드: ${lead.name} (${lead.phone}, ${CONTACT_CHANNEL_LABELS[lead.contactChannel]})`,
+      `운영방식: ${lead.operationTypes.map((o) => OPERATION_TYPE_LABELS[o]).join('·') || '무관'}`,
+      `업종: ${lead.industries.join(', ') || '무관'} / 지역: ${lead.regions.join(', ') || '무관'}`,
+      `보증금 ${fmtMan(lead.depositMax)} · 월세 ${fmtMan(lead.rentMax)} · 권리금 ${fmtMan(lead.premiumMax)}`,
+      lead.notes ? `메모: ${lead.notes}` : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ text, content: text, lead }),
+      });
+      if (!res.ok) this.logger.warn(`리드 알림 웹훅 응답 ${res.status}`);
+    } catch (err) {
+      this.logger.warn(`리드 알림 웹훅 실패: ${err instanceof Error ? err.message : err}`);
+    }
   }
 
   listLeads(status?: LeadStatus) {
