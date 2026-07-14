@@ -84,9 +84,11 @@ export default function SurveyPage() {
         <p style={{ color: '#6b7280', lineHeight: 1.6 }}>
           희망 조건을 잘 받았습니다.
           <br />
-          조건에 맞는 매물이 준비되는 대로
+          1~2일 내에 순차적으로
           <br />
-          담당자가 연락드립니다.
+          <b style={{ color: '#374151' }}>김태욱 컨설턴트 (010-8249-4002)</b>가
+          <br />
+          연락드립니다.
         </p>
       </main>
     );
@@ -95,12 +97,13 @@ export default function SurveyPage() {
   return (
     <main style={{ maxWidth: 480, margin: '0 auto', padding: '1.5rem 1.25rem 3rem' }}>
       <header style={{ margin: '0.5rem 0 1.5rem' }}>
-        <div style={{ fontWeight: 700, color: BRAND }}>창업이지</div>
+        <div style={{ fontWeight: 700, color: BRAND }}>창업정보 모임</div>
         <h1 style={{ fontSize: '1.35rem', margin: '0.5rem 0' }}>
           어떤 가게를 찾고 계신가요?
         </h1>
         <p style={{ color: '#6b7280', fontSize: '0.9rem', margin: 0, lineHeight: 1.6 }}>
           희망 조건을 남겨주시면 딱 맞는 창업 매물이 나왔을 때 가장 먼저 알려드립니다.
+          설문 작성 후 1~2일 내에 순차적으로 연락드립니다.
         </p>
       </header>
 
@@ -249,6 +252,8 @@ export default function SurveyPage() {
           </Btn>
         </div>
         <p style={{ color: '#9ca3af', fontSize: '0.75rem', marginTop: '0.75rem', lineHeight: 1.5 }}>
+          설문 접수 후 1~2일 내에 김태욱 컨설턴트(010-8249-4002)가 순차적으로 연락드립니다.
+          <br />
           남겨주신 연락처는 매물 안내 목적으로만 사용됩니다.
         </p>
       </form>
