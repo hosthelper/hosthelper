@@ -2,11 +2,13 @@ import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common
 import { ApiTags } from '@nestjs/swagger';
 import {
   BuyerLeadSurveySchema,
+  LeadScheduleUpdateSchema,
   LeadStatusSchema,
   LeadStatusUpdateSchema,
   StoreListingStatusSchema,
   StoreListingUpsertSchema,
   type BuyerLeadSurvey,
+  type LeadScheduleUpdate,
   type LeadStatusUpdate,
   type StoreListingUpsert,
 } from '@hosthelper/shared';
@@ -40,6 +42,20 @@ export class ChangupController {
     @Body(new ZodPipe(LeadStatusUpdateSchema)) body: LeadStatusUpdate,
   ) {
     return this.changup.updateLeadStatus(id, body.status);
+  }
+
+  @Patch('leads/:id/schedule')
+  updateLeadSchedule(
+    @Param('id') id: string,
+    @Body(new ZodPipe(LeadScheduleUpdateSchema)) body: LeadScheduleUpdate,
+  ) {
+    return this.changup.updateLeadSchedule(id, body);
+  }
+
+  @Get('schedule')
+  schedule(@Query('days') days?: string) {
+    const n = Number(days);
+    return this.changup.schedule(Number.isInteger(n) && n > 0 && n <= 90 ? n : 14);
   }
 
   @Get('leads/:id/matches')

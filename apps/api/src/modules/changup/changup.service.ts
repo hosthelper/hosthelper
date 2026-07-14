@@ -5,6 +5,7 @@ import {
   DEFAULT_CHANGUP_WEIGHTS,
   OPERATION_TYPE_LABELS,
   type BuyerLeadSurvey,
+  type LeadScheduleUpdate,
   type LeadStatus,
   type StoreListingStatus,
   type StoreListingUpsert,
@@ -99,6 +100,42 @@ export class ChangupService {
   async updateLeadStatus(id: string, status: LeadStatus) {
     await this.getLead(id);
     return this.prisma.buyerLead.update({ where: { id }, data: { status } });
+  }
+
+  // 전화상담/회사방문 일정 등록·변경 (null = 해제)
+  async updateLeadSchedule(id: string, input: LeadScheduleUpdate) {
+    await this.getLead(id);
+    const data: { phoneAt?: Date | null; visitAt?: Date | null } = {};
+    if (input.phoneAt !== undefined) data.phoneAt = input.phoneAt ? new Date(input.phoneAt) : null;
+    if (input.visitAt !== undefined) data.visitAt = input.visitAt ? new Date(input.visitAt) : null;
+    return this.prisma.buyerLead.update({ where: { id }, data });
+  }
+
+  // 캘린더: 앞으로 N일간의 전화·방문 일정 (임박순)
+  async schedule(days = 14) {
+    const from = new Date(Date.now() - 24 * 3600 * 1000); // 어제부터 (지난 일정 하루치 포함)
+    const to = new Date(Date.now() + days * 24 * 3600 * 1000);
+    const leads = await this.prisma.buyerLead.findMany({
+      where: {
+        OR: [
+          { phoneAt: { gte: from, lte: to } },
+          { visitAt: { gte: from, lte: to } },
+        ],
+      },
+      take: 200,
+    });
+    const items = leads.flatMap((l) =>
+      (
+        [
+          ['PHONE_CALL', l.phoneAt],
+          ['OFFICE_VISIT', l.visitAt],
+        ] as const
+      )
+        .filter(([, at]) => at && at >= from && at <= to)
+        .map(([kind, at]) => ({ kind, at: at!, lead: l })),
+    );
+    items.sort((a, b) => a.at.getTime() - b.at.getTime());
+    return items;
   }
 
   // 리드 → ACTIVE 매물 랭킹 (조회 시 계산, ADR-0003)

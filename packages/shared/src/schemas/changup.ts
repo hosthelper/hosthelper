@@ -80,6 +80,12 @@ export const LeadStatusUpdateSchema = z.object({
   status: LeadStatusSchema,
 });
 
+// 전화상담/회사방문 일정 (ISO 문자열, null = 일정 해제)
+export const LeadScheduleUpdateSchema = z.object({
+  phoneAt: z.string().datetime({ offset: true }).nullable().optional(),
+  visitAt: z.string().datetime({ offset: true }).nullable().optional(),
+});
+
 export const ListingMatchScoreSchema = z.object({
   listingId: z.string(),
   score: z.number().min(0).max(1),
@@ -113,5 +119,6 @@ export type ContactChannel = z.infer<typeof ContactChannelSchema>;
 export type BuyerLeadSurvey = z.infer<typeof BuyerLeadSurveySchema>;
 export type StoreListingUpsert = z.infer<typeof StoreListingUpsertSchema>;
 export type LeadStatusUpdate = z.infer<typeof LeadStatusUpdateSchema>;
+export type LeadScheduleUpdate = z.infer<typeof LeadScheduleUpdateSchema>;
 export type ListingMatchScore = z.infer<typeof ListingMatchScoreSchema>;
 export type ChangupWeights = z.infer<typeof ChangupWeightsSchema>;
