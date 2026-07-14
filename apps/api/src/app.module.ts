@@ -9,6 +9,7 @@ import { BookingModule } from './modules/booking/booking.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { AiModule } from './modules/ai/ai.module';
 import { EventsModule } from './modules/events/events.module';
+import { ChangupModule } from './modules/changup/changup.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { EventsModule } from './modules/events/events.module';
     BookingModule,
     PaymentModule,
     AiModule,
+    ChangupModule,
   ],
   controllers: [HealthController],
 })
