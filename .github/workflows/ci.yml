@@ -63,6 +63,10 @@ jobs:
       - name: Apply migrations
         run: pnpm --filter @hosthelper/db exec prisma migrate deploy
 
+      # smoke의 pricing/quote는 기본 PricingRule이 필요 (seed는 upsert라 멱등)
+      - name: Seed
+        run: pnpm --filter @hosthelper/db seed
+
       - name: Build apps
         run: pnpm build
 

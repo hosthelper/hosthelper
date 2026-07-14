@@ -58,6 +58,7 @@
 | `apps/api` pricing | 분리 ★★★★ | 한국 시장 가격 정책 엔진. 다른 서비스업에 적용 가능 |
 | `apps/api` payment | 결합 ★★ | 토스페이먼츠 통합 + 에스크로. STR 도메인 결합 약함 → 이식 용이 |
 | `apps/worker` payout | 결합 ★★ | T+2 정산, 한국 원천세 처리 로직 |
+| `apps/api` changup + `apps/changup` | **독립 ★★★★★** | 창업이지 점포 양도 중개 리드↔매물 매칭. hosthelper 모델과 FK 0개 — 테이블 2개+API 모듈+앱 통째 분리 가능 |
 
 ## 4. 데이터 모델 요약
 

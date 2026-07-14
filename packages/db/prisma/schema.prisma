@@ -539,3 +539,73 @@ model LLMCall {
   @@index([purpose, createdAt])
   @@index([model, createdAt])
 }
+
+// =========================================
+// Changup (창업이지) — 점포 양도 매물·예비창업자 리드 매칭
+// hosthelper 모델과 FK 없음 (분리 매각 가능, CLAUDE.md §6)
+// 참조: docs/adr/ADR-0003-changup-store-match.md
+// =========================================
+
+enum OperationType {
+  DIRECT       // 직영
+  FULL_AUTO    // 풀오토
+  CONSIGNMENT  // 위탁
+  FRANCHISE_HQ // 본사
+}
+
+enum StoreListingStatus {
+  ACTIVE
+  RESERVED
+  SOLD
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  MEETING_SET
+  CLOSED
+}
+
+enum ContactChannel {
+  PHONE
+  SMS
+  KAKAO
+}
+
+// 양도 대상 점포 매물
+model StoreListing {
+  id            String             @id @default(cuid())
+  title         String
+  description   String?            @db.Text
+  industry      String // 업종 (자유 입력, 예: "카페")
+  region        String // 지역 (구 단위, Property.district 관례)
+  operationType OperationType
+  deposit       Int // 보증금 (원)
+  monthlyRent   Int // 월세 (원)
+  premium       Int // 권리금 (원)
+  status        StoreListingStatus @default(ACTIVE)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([status, region])
+}
+
+// 예비창업자(매수자) 설문 리드
+model BuyerLead {
+  id             String          @id @default(cuid())
+  name           String
+  phone          String
+  contactChannel ContactChannel  @default(PHONE)
+  operationTypes OperationType[] @default([]) // 희망 운영 방식 (복수)
+  industries     String[]        @default([]) // 희망 업종 (복수)
+  regions        String[]        @default([]) // 희망 지역 (복수)
+  depositMax     Int? // 보증금 상한 (원, null = 무제한)
+  rentMax        Int? // 월세 상한 (원)
+  premiumMax     Int? // 권리금 상한 (원)
+  notes          String?         @db.Text
+  status         LeadStatus      @default(NEW)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([status, createdAt])
+}
