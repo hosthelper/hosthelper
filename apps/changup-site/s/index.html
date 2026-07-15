@@ -39,6 +39,8 @@ textarea{min-height:76px;resize:vertical}
 .chip{padding:.55rem 1rem;border-radius:999px;border:1px solid var(--hair);background:var(--card);color:var(--slate);
   font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.01em}
 .chip.on{background:var(--brass);border-color:var(--brass);color:#fff}
+.subgroup{margin-top:.4rem}
+.subgroup .sgl{font-size:.8rem;font-weight:700;color:var(--brass);margin:.75rem 0 .45rem}
 .agree{display:flex;gap:.55rem;align-items:flex-start;margin-top:1.3rem;font-size:.78rem;color:var(--slate);line-height:1.6}
 .agree input{width:auto;margin-top:.15rem;accent-color:var(--brass)}
 .btn{margin-top:1.4rem;width:100%;padding:1.05rem;border-radius:999px;border:none;cursor:pointer;
@@ -81,8 +83,11 @@ a:focus-visible,.chip:focus-visible,.btn:focus-visible{outline:2px solid var(--b
       <button type="button" class="chip" data-v="CONSIGNMENT">위탁</button>
       <button type="button" class="chip" data-v="FRANCHISE_HQ">본사</button>
     </div>
-    <label for="industries">희망 업종 <span class="hint">(쉼표로 구분 · 예: 카페, 치킨)</span></label>
-    <input id="industries" placeholder="무관이면 비워두세요">
+    <span class="lb">희망 종류 <span class="hint">(대분류 · 복수 선택)</span></span>
+    <div class="chips" id="cats"></div>
+    <div id="subwrap"></div>
+    <label for="industries">기타 희망 업종 <span class="hint">(목록에 없으면 직접 입력 · 쉼표로 구분)</span></label>
+    <input id="industries" placeholder="예: 밀키트, 애견카페 (무관이면 비워두세요)">
     <label for="regions">희망 지역 <span class="hint">(예: 마포구, 강남구)</span></label>
     <input id="regions" placeholder="무관이면 비워두세요">
     <label for="deposit">보증금 최대 <span class="hint">(만원)</span></label>
@@ -126,6 +131,63 @@ document.getElementById('ops').addEventListener('click',function(e){
 var tags=function(s){return s.split(',').map(function(t){return t.trim();}).filter(Boolean);};
 var man=function(s){var n=Number(s.replace(/[^0-9]/g,''));return (s.trim()===''||isNaN(n)||n<=0)?null:n*10000;};
 var g=function(id){return document.getElementById(id);};
+
+// 종류(대분류) → 업종(소분류) 의존 선택
+var CATS={
+  '외식·음식점':['한식','분식','고기·구이','치킨','피자','햄버거','중식','일식','양식','아시안','족발·보쌈','국밥·찌개','도시락'],
+  '카페·디저트':['카페','커피전문점','베이커리','디저트','아이스크림·빙수','브런치','무인카페'],
+  '주점·술집':['호프·맥주','이자카야','포차','바(Bar)','와인'],
+  '판매·소매':['편의점','무인점포','마트·식자재','반찬·식품','화장품','의류·패션','문구·팬시'],
+  '서비스':['세탁','인쇄·출력','수리','렌탈','부동산'],
+  '뷰티·건강':['미용실','네일','피부·왁싱','헬스·PT','필라테스·요가','마사지'],
+  '교육':['입시학원','공부방·교습소','유아·어린이','예체능','코딩'],
+  '숙박':['모텔·호텔','게스트하우스','펜션','파티룸'],
+  '오락·스포츠':['PC방','코인노래방','스크린골프','당구장','볼링','실내스포츠']
+};
+var selCats=[], selSubs={};
+var catsEl=g('cats'), subWrap=g('subwrap');
+Object.keys(CATS).forEach(function(c){
+  var b=document.createElement('button');
+  b.type='button'; b.className='chip'; b.textContent=c; b.dataset.cat=c;
+  catsEl.appendChild(b);
+});
+catsEl.addEventListener('click',function(e){
+  var b=e.target.closest('.chip'); if(!b)return;
+  var c=b.dataset.cat, i=selCats.indexOf(c);
+  if(i>=0){selCats.splice(i,1);delete selSubs[c];b.classList.remove('on');}
+  else{selCats.push(c);selSubs[c]=selSubs[c]||[];b.classList.add('on');}
+  renderSubs();
+});
+function renderSubs(){
+  subWrap.innerHTML='';
+  selCats.forEach(function(c){
+    var wrap=document.createElement('div'); wrap.className='subgroup';
+    var lbl=document.createElement('div'); lbl.className='sgl'; lbl.textContent=c+' 세부 업종'; wrap.appendChild(lbl);
+    var chips=document.createElement('div'); chips.className='chips';
+    CATS[c].forEach(function(s){
+      var sb=document.createElement('button');
+      sb.type='button'; sb.className='chip'+(selSubs[c].indexOf(s)>=0?' on':''); sb.textContent=s;
+      sb.addEventListener('click',function(){
+        var j=selSubs[c].indexOf(s);
+        if(j>=0){selSubs[c].splice(j,1);sb.classList.remove('on');}
+        else{selSubs[c].push(s);sb.classList.add('on');}
+      });
+      chips.appendChild(sb);
+    });
+    wrap.appendChild(chips); subWrap.appendChild(wrap);
+  });
+}
+// 소분류 선택 시 그 라벨을, 대분류만 고르면 대분류 라벨을 + 직접 입력 태그
+function collectIndustries(){
+  var out=[];
+  selCats.forEach(function(c){
+    var subs=selSubs[c]||[];
+    if(subs.length===0){out.push(c);} else {subs.forEach(function(s){out.push(s);});}
+  });
+  tags(g('industries').value).forEach(function(t){out.push(t);});
+  return out;
+}
+
 g('f').addEventListener('submit',function(e){
   e.preventDefault();
   var err=g('err');
@@ -134,7 +196,7 @@ g('f').addEventListener('submit',function(e){
   err.hidden=true; g('submit').disabled=true; g('submit').textContent='접수 중…';
   fetch(LEADS_URL,{method:'POST',headers:{'content-type':'application/json'},
     body:JSON.stringify({name:g('name').value,phone:g('phone').value,contactChannel:g('channel').value,
-      operationTypes:ops,industries:tags(g('industries').value),regions:tags(g('regions').value),
+      operationTypes:ops,industries:collectIndustries(),regions:tags(g('regions').value),
       depositMax:man(g('deposit').value),rentMax:man(g('rent').value),premiumMax:man(g('premium').value),
       notes:g('notes').value.trim()||undefined,website:g('website').value})})
   .then(function(res){if(!res.ok)throw new Error('제출 실패 — 잠시 후 다시 시도해주세요');
