@@ -33,6 +33,9 @@ main{max-width:600px;margin:0 auto;padding:0 1.25rem 7rem}
 .brand-id{display:flex;align-items:center;gap:.55rem;text-decoration:none;color:var(--ink);font-weight:800;font-size:1.05rem;letter-spacing:-.02em}
 .logo{width:32px;height:32px;border-radius:9px;background:var(--brand);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1rem}
 .navcta{font-size:.85rem;font-weight:700;color:#fff;background:var(--brand);padding:.55rem 1.05rem;border-radius:999px;text-decoration:none}
+.nav{display:flex;align-items:center;gap:1.1rem}
+.nav .lnk{font-size:.92rem;font-weight:700;color:var(--ink);text-decoration:none}
+.nav .lnk:hover{color:var(--brand)}
 
 /* 히어로 */
 .hero{padding:2.6rem 0 1rem;text-align:center}
@@ -100,6 +103,10 @@ h2 .g{color:var(--brand)}
 .faq .a{padding:0 1.2rem 1.15rem;color:var(--sub);font-size:.9rem;line-height:1.7}
 
 /* 콘텐츠 */
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1.3rem}
+.sec-head h2{margin:0}
+.seemore{font-size:.86rem;font-weight:700;color:var(--brand);text-decoration:none;white-space:nowrap}
+.feed{display:grid;gap:.8rem}
 .article{display:block;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.3rem;text-decoration:none;color:var(--ink);box-shadow:var(--shadow);transition:transform .12s ease}
 .article:hover{transform:translateY(-2px)}
 .article .meta{color:var(--brand);font-size:.78rem;font-weight:700}
@@ -133,7 +140,10 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--brand);outline-off
 
 <div class="bar"><div class="row">
   <a class="brand-id" href="./"><span class="logo">창</span>창업정보 모임</a>
-  <a class="navcta" href="./s/">무료 설문</a>
+  <nav class="nav">
+    <a class="lnk" href="./posts/">정보</a>
+    <a class="navcta" href="./s/">무료 설문</a>
+  </nav>
 </div></div>
 
 <main>
@@ -202,13 +212,30 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--brand);outline-off
   </section>
 
   <section>
-    <h2>오늘의 <span class="g">창업 정보</span></h2>
-    <a class="article" href="./posts/2026-07-15-sajeonbojeung.html">
-      <div class="meta">2026.07.15 · 정책자금</div>
-      <div class="title">계약 전에 대출 한도부터 확정하는 법</div>
-      <p class="excerpt">권리금·보증금은 정책자금 대출이 되지 않습니다. 사업자등록 전에 대출 가능액을 확정하는 공식 절차.</p>
-      <span class="more">자세히 읽기 →</span>
-    </a>
+    <div class="sec-head">
+      <h2>창업 <span class="g">정보</span></h2>
+      <a class="seemore" href="./posts/">전체 보기 →</a>
+    </div>
+    <div class="feed">
+      <a class="article" href="./posts/2026-07-15-sajeonbojeung.html">
+        <div class="meta">2026.07.15 · 정책자금</div>
+        <div class="title">계약 전에 대출 한도부터 확정하는 법</div>
+        <p class="excerpt">권리금·보증금은 정책자금 대출이 되지 않습니다. 사업자등록 전에 대출 가능액을 확정하는 공식 절차.</p>
+        <span class="more">자세히 읽기 →</span>
+      </a>
+      <a class="article" href="./posts/2026-07-14-gwolligeum.html">
+        <div class="meta">2026.07.14 · 권리금</div>
+        <div class="title">권리금, 얼마가 적정한지 판단하는 4가지 기준</div>
+        <p class="excerpt">바닥·영업·시설 권리금의 차이와, 매출 대비 적정 권리금을 가늠하는 현실적 기준.</p>
+        <span class="more">자세히 읽기 →</span>
+      </a>
+      <a class="article" href="./posts/2026-07-13-unyoung-bangsik.html">
+        <div class="meta">2026.07.13 · 운영방식</div>
+        <div class="title">직영·풀오토·위탁·본사, 무엇이 다른가</div>
+        <p class="excerpt">내 시간과 자본에 맞는 운영 방식 고르기. 수익률과 리스크는 어떻게 갈리나.</p>
+        <span class="more">자세히 읽기 →</span>
+      </a>
+    </div>
   </section>
 
   <div class="transfer">
