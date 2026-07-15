@@ -1,0 +1,6 @@
+{
+  "name": "changup-content-bot",
+  "private": true,
+  "type": "module",
+  "description": "창업정보 모임 자동 콘텐츠 생성기 (독립 실행 — @hosthelper/ai 미의존)"
+}
