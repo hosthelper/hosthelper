@@ -11,13 +11,25 @@ import {
   OPERATION_TYPE_LABELS,
 } from '@hosthelper/shared';
 import { api, type BuyerLeadRow, type ListingMatchRow } from '../../../api-client';
-import { ScoreBar, Shell, card, fmtWon, pill, td, th } from '../../../ui';
+import { Btn, ScoreBar, Shell, card, fmtWon, input, label, pill, td, th } from '../../../ui';
+
+// ISO ↔ datetime-local 변환
+function isoToLocal(iso?: string | null): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+const localToIso = (v: string) => (v ? new Date(v).toISOString() : null);
 
 function LeadDetail() {
   const id = useSearchParams().get('id');
   const [lead, setLead] = useState<BuyerLeadRow | null>(null);
   const [matches, setMatches] = useState<ListingMatchRow[]>([]);
   const [error, setError] = useState('');
+  const [phoneLocal, setPhoneLocal] = useState('');
+  const [visitLocal, setVisitLocal] = useState('');
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -26,6 +38,8 @@ function LeadDetail() {
       .then((r) => {
         setLead(r.lead);
         setMatches(r.matches);
+        setPhoneLocal(isoToLocal(r.lead.phoneAt));
+        setVisitLocal(isoToLocal(r.lead.visitAt));
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'API 연결 실패'));
   }, [id]);
@@ -59,6 +73,54 @@ function LeadDetail() {
             </div>
             {lead.notes ? <div style={{ color: '#6b7280' }}>메모: {lead.notes}</div> : null}
           </dl>
+        </div>
+      ) : null}
+
+      {lead ? (
+        <div style={{ ...card, marginBottom: '1.25rem' }}>
+          <h2 style={{ fontSize: '1rem', marginTop: 0 }}>영업 일정</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div>
+              <label style={{ ...label, marginTop: 0 }} htmlFor="phoneAt">📞 전화상담 일시</label>
+              <input
+                id="phoneAt"
+                type="datetime-local"
+                style={input}
+                value={phoneLocal}
+                onChange={(e) => setPhoneLocal(e.target.value)}
+              />
+            </div>
+            <div>
+              <label style={{ ...label, marginTop: 0 }} htmlFor="visitAt">🏢 방문 브리핑 일시</label>
+              <input
+                id="visitAt"
+                type="datetime-local"
+                style={input}
+                value={visitLocal}
+                onChange={(e) => setVisitLocal(e.target.value)}
+              />
+            </div>
+          </div>
+          <div style={{ marginTop: '0.9rem', display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+            <Btn
+              onClick={() => {
+                if (!id) return;
+                void api
+                  .updateLeadSchedule(id, {
+                    phoneAt: localToIso(phoneLocal),
+                    visitAt: localToIso(visitLocal),
+                  })
+                  .then(() => {
+                    setSaved(true);
+                    setTimeout(() => setSaved(false), 2000);
+                  })
+                  .catch((err) => setError(err instanceof Error ? err.message : '저장 실패'));
+              }}
+            >
+              일정 저장
+            </Btn>
+            {saved ? <span style={{ color: '#16a34a', fontSize: '0.85rem' }}>저장됨 ✓</span> : null}
+          </div>
         </div>
       ) : null}
 

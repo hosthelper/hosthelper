@@ -10,6 +10,7 @@ const NAV = [
   { href: '/s', label: '설문' },
   { href: '/ops/leads', label: '리드' },
   { href: '/ops/listings', label: '매물' },
+  { href: '/ops/calendar', label: '일정' },
 ];
 
 export const card: CSSProperties = {

@@ -32,8 +32,16 @@ export interface BuyerLeadRow {
   premiumMax: number | null;
   notes?: string | null;
   status: LeadStatus;
+  phoneAt?: string | null; // 전화상담 예약
+  visitAt?: string | null; // 회사 방문(브리핑) 예약
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ScheduleItem {
+  kind: 'PHONE_CALL' | 'OFFICE_VISIT';
+  at: string;
+  lead: BuyerLeadRow;
 }
 
 export type ListingMatchRow = ListingMatchScore & { listing: StoreListingRow };
@@ -80,6 +88,9 @@ export const api = {
   getLead: (id: string) => get<BuyerLeadRow>(`/changup/leads/${id}`),
   updateLeadStatus: (id: string, status: LeadStatus) =>
     patch<BuyerLeadRow>(`/changup/leads/${id}/status`, { status }),
+  updateLeadSchedule: (id: string, body: { phoneAt?: string | null; visitAt?: string | null }) =>
+    patch<BuyerLeadRow>(`/changup/leads/${id}/schedule`, body),
+  getSchedule: (days = 14) => get<ScheduleItem[]>(`/changup/schedule?days=${days}`),
   matchesForLead: (id: string) =>
     get<{ lead: BuyerLeadRow; matches: ListingMatchRow[] }>(`/changup/leads/${id}/matches`),
   listListings: (status?: StoreListingStatus) =>

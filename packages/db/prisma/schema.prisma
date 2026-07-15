@@ -604,8 +604,12 @@ model BuyerLead {
   premiumMax     Int? // 권리금 상한 (원)
   notes          String?         @db.Text
   status         LeadStatus      @default(NEW)
+  phoneAt        DateTime? // 전화상담 예약 일시
+  visitAt        DateTime? // 회사 방문(매물 브리핑) 예약 일시
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
   @@index([status, createdAt])
+  @@index([phoneAt])
+  @@index([visitAt])
 }
