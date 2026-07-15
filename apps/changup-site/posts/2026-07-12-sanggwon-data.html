@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>무료 공공데이터로 상권을 검증하는 법 — 창업정보 모임</title>
-<meta name="description" content="상권정보시스템·인허가 데이터로 유동인구와 폐업률을 직접 확인하는 순서.">
+<title>감으로 자리 고르지 마라… 무료 공공데이터로 상권 검증하는 4단계 — 창업정보 모임</title>
+<meta name="description" content="상권정보시스템·지방행정 인허가데이터·통계청 SGIS로 유동인구와 폐업률을 직접 확인하는 상권분석 순서를 정리했다.">
 <style>
 :root{
   --bg:#fbfaf7; --card:#ffffff; --ink:#1b2430; --sub:#5a6472; --brand:#0e7358; --brand-d:#0b5a45;
@@ -27,17 +27,21 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Pretendard','Ap
 .nav .lnk{font-size:.9rem;font-weight:700;color:var(--ink);text-decoration:none}
 .nav .lnk:hover,.nav .lnk[aria-current]{color:var(--brand)}
 .navcta{font-size:.83rem;font-weight:700;color:#fff;background:var(--brand);padding:.5rem 1rem;border-radius:999px;text-decoration:none}
-main{max-width:560px;margin:0 auto;padding:.5rem 1.5rem 3rem}
-.back{display:inline-block;margin-top:1.2rem;font-size:.82rem;color:var(--brand);text-decoration:none;font-weight:700}
+main{max-width:600px;margin:0 auto;padding:.5rem 1.5rem 3rem}
 .cat{display:inline-block;margin:1.4rem 0 .5rem;background:var(--tint);color:var(--brand-d);font-size:.74rem;font-weight:700;padding:.28rem .7rem;border-radius:999px}
-.date{color:var(--mute);font-size:.78rem;margin:0 0 .3rem}
-h1{font-size:1.62rem;line-height:1.36;letter-spacing:-.015em;font-weight:800;margin:.2rem 0 1.4rem;text-wrap:balance}
-.point{display:grid;grid-template-columns:auto 1fr;gap:1rem;padding:1.15rem 0;border-top:1px solid var(--line);align-items:baseline}
-.point .no{font-family:Georgia,serif;font-size:1.05rem;color:var(--brand);font-weight:700;font-variant-numeric:tabular-nums}
-.point b{display:block;font-size:1rem;font-weight:800;margin-bottom:.3rem;color:var(--ink)}
-.point p{margin:0;color:var(--sub);font-size:.92rem;line-height:1.7}
-.source{color:var(--mute);font-size:.76rem;line-height:1.7;margin:1.6rem 0 0;padding-top:1.2rem;border-top:1px solid var(--line)}
+.date{color:var(--mute);font-size:.78rem;margin:0 0 .5rem}
+h1{font-size:1.7rem;line-height:1.35;letter-spacing:-.02em;font-weight:800;margin:.2rem 0 1.1rem;text-wrap:balance}
+.lead{font-size:1.05rem;line-height:1.75;color:var(--ink);font-weight:600;margin:0 0 1.6rem;padding-bottom:1.4rem;border-bottom:1px solid var(--line)}
+h2{font-size:1.18rem;font-weight:800;letter-spacing:-.01em;margin:2rem 0 .7rem}
+main p{color:var(--sub);font-size:1rem;line-height:1.85;margin:0 0 1.1rem}
+main p b{color:var(--ink);font-weight:700}
+.summary{margin:2rem 0 0;background:var(--tint);border-radius:var(--r);padding:1.3rem 1.4rem}
+.summary b{display:block;color:var(--brand-d);font-size:.92rem;font-weight:800;margin-bottom:.6rem}
+.summary ul{margin:0;padding-left:1.1rem}
+.summary li{color:var(--ink);font-size:.94rem;line-height:1.7;margin-bottom:.4rem}
+.source{color:var(--mute);font-size:.78rem;line-height:1.75;margin:1.8rem 0 0;padding-top:1.2rem;border-top:1px solid var(--line)}
 .btn{display:block;text-align:center;margin-top:1.8rem;padding:1rem 1.4rem;border-radius:999px;background:var(--brand);color:#fff;font-weight:800;text-decoration:none;box-shadow:0 8px 22px rgba(14,115,88,.28)}
+.back{display:inline-block;margin-top:1.2rem;font-size:.82rem;color:var(--brand);text-decoration:none;font-weight:700}
 a:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
 </style>
 </head>
@@ -51,14 +55,21 @@ a:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
 </div></div>
 <main>
   <span class="cat">상권분석</span>
-  <p class="date">2026.07.12</p>
-  <h1>감으로 자리를 고르지 마세요.<br>공짜 데이터가 이미 다 알려줍니다.</h1>
-  <div class="point"><div class="no">01</div><div><b>상권정보시스템 — 매출·유동인구 추정</b><p>소상공인시장진흥공단 상권정보시스템(sg.sbiz.or.kr)에서 업종별 점포 수, 추정 매출, 유동인구, 증감 추세를 무료로 볼 수 있습니다. 후보지 스크리닝의 출발점입니다.</p></div></div>
-  <div class="point"><div class="no">02</div><div><b>지방행정 인허가데이터 — 개·폐업 이력</b><p>localdata.go.kr에서 해당 자리·업종의 개업과 폐업 이력을 확인하세요. 폐업이 반복된 자리는 임대료·동선·상권에 이유가 있는 경우가 많습니다.</p></div></div>
-  <div class="point"><div class="no">03</div><div><b>배후세대·생활인구 — 누가 지나가나</b><p>통계청 SGIS(sgis.kostat.go.kr)로 주거·오피스 배후와 시간대별 생활인구를 봅니다. 유동인구의 '성격'이 내 업종과 맞는지가 절대량보다 중요합니다.</p></div></div>
-  <div class="point"><div class="no">04</div><div><b>데이터 다음은 반드시 임장</b><p>데이터로 후보를 좁힌 뒤, 요일·시간대를 바꿔 직접 방문해 눈으로 검증하세요. 추정치와 현장은 다를 수 있습니다. 이 순서를 지키면 실패 확률이 크게 줄어듭니다.</p></div></div>
-  <p class="source">근거: 소상공인시장진흥공단 상권정보시스템, 행정안전부 지방행정인허가데이터(LOCALDATA), 통계청 SGIS. 모두 추정·이력 데이터이므로 최종 판단 전 현장 확인이 필요합니다.</p>
-  <a class="btn" href="../s/">내 조건에 맞는 매물 추천받기 (30초 설문)</a>
+  <p class="date">2026.07.12 · 창업정보 모임</p>
+  <h1>감으로 자리 고르지 마라… 무료 공공데이터로 상권 검증하는 4단계</h1>
+  <p class="lead">창업 실패의 상당수는 '자리'에서 갈린다. 그런데 좋은 자리를 고르는 일은 감이나 발품에만 기댈 문제가 아니다. 정부와 지자체가 무료로 공개하는 상권 데이터만 제대로 활용해도 후보지의 위험 신호를 상당 부분 미리 걸러낼 수 있다.</p>
+  <p>출발점은 소상공인시장진흥공단의 <b>상권정보시스템(sg.sbiz.or.kr)</b>이다. 관심 지역과 업종을 넣으면 점포 수, 추정 매출, 유동인구, 증감 추세를 무료로 확인할 수 있다. 서울이라면 서울시 <b>우리마을가게 상권분석 서비스(golmok.seoul.go.kr)</b>가 더 촘촘한 데이터를 제공한다. 이 단계의 목적은 정밀한 예측이 아니라, 여러 후보지를 같은 잣대로 비교해 '가망 없는 자리'를 빠르게 걸러내는 것이다.</p>
+  <p>다음은 행정안전부 <b>지방행정 인허가데이터(localdata.go.kr)</b>다. 특정 자리와 업종의 <b>개업·폐업 이력</b>을 열람할 수 있는데, 같은 자리에서 폐업이 반복됐다면 임대료·동선·상권 구조에 그럴 만한 이유가 있는 경우가 많다. 반대로 특정 업종의 개업이 최근 급증했다면 경쟁 과열 신호일 수 있다. 숫자로 남은 이력은 부동산 중개인의 설명보다 정직하다.</p>
+  <p>유동인구는 양보다 성격이 중요하다. 통계청 <b>SGIS(sgis.kostat.go.kr)</b>로 주거·오피스 배후와 시간대별 생활인구를 확인하면, 그 흐름이 내 업종과 맞는지 판단할 수 있다. 점심 장사가 핵심인 업종이 저녁·주말형 상권에 들어가면 아무리 유동인구가 많아도 매출로 이어지지 않는다. '누가, 언제, 왜 이 거리를 지나가는가'를 데이터로 확인하는 단계다.</p>
+  <p>데이터로 후보를 2~3곳으로 좁혔다면 마지막은 <b>임장</b>이다. 요일과 시간대를 바꿔 직접 방문해 실제 유동, 경쟁 점포의 붐빔, 주차·접근성, 공실 상황을 눈으로 확인해야 한다. 추정 데이터와 현장은 다를 수 있기 때문이다. '데이터로 좁히고 발로 검증한다'는 순서를 지키면, 감에만 의존할 때보다 실패 확률을 크게 낮출 수 있다.</p>
+  <div class="summary"><b>핵심 요약</b><ul>
+    <li>상권정보시스템·서울 우리마을가게로 매출·유동인구를 먼저 비교한다.</li>
+    <li>인허가데이터(localdata)로 개·폐업 이력을 확인해 위험 자리를 거른다.</li>
+    <li>SGIS로 배후세대·시간대별 생활인구의 '성격'이 업종과 맞는지 본다.</li>
+    <li>데이터로 후보를 좁힌 뒤 요일·시간대를 바꿔 임장으로 최종 검증한다.</li>
+  </ul></div>
+  <p class="source">근거: 소상공인시장진흥공단 상권정보시스템, 서울시 우리마을가게 상권분석서비스, 행정안전부 지방행정인허가데이터(LOCALDATA), 통계청 SGIS. 모두 추정·이력 데이터이므로 최종 판단 전 현장 확인이 필요하다.</p>
+  <a class="btn" href="../s/">내 조건에 맞는 매물 추천받기 (30초 설문)</a><br>
   <a class="back" href="./">← 창업 정보 전체보기</a>
 </main>
 </body>
