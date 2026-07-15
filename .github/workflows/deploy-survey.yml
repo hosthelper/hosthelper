@@ -38,3 +38,4 @@ jobs:
         uses: actions/deploy-pages@v4
 
 # retrigger: Pages 환경 정책(No restriction) 변경 후 재배포
+# retrigger2: Pages Source=GitHub Actions 설정 후 재배포
