@@ -3,106 +3,179 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>창업정보 모임 — 사장님이 되는 가장 빠른 길</title>
-<meta name="description" content="데이터로 검증하고, 조건에 맞는 가게를 연결합니다. 30초 설문을 남기면 조건에 맞는 매물이 나왔을 때 가장 먼저 알려드립니다.">
+<title>창업정보 모임 — 데이터로 검증하고, 조건으로 연결합니다</title>
+<meta name="description" content="가게를 양도하려는 사장님과 창업을 준비하는 분을 데이터로 검증해 연결하는 무료 자문 서비스. 30초 설문을 남기면 조건에 맞는 매물을 가장 먼저 안내합니다.">
 <style>
-:root{--bg:#0b0f1a;--panel:#121a2c;--line:#232e47;--gold:#e3c26a;--gold-d:#b8963f;--txt:#ece9df;--sub:#9aa3b8}
+:root{
+  --paper:#f7f5f0; --card:#ffffff; --ink:#16233c; --ink-soft:#26324c;
+  --brass:#9c7b3f; --brass-d:#7d6230; --slate:#5b6172; --hair:#e4dfd4; --mute:#8b8578;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{--paper:#10141c; --card:#161c28; --ink:#eef0f3; --ink-soft:#c9cedb;
+    --brass:#c9a35f; --brass-d:#b08c48; --slate:#9aa1b2; --hair:#26303f; --mute:#6a7385; color-scheme:dark;}
+}
+:root[data-theme="dark"]{--paper:#10141c; --card:#161c28; --ink:#eef0f3; --ink-soft:#c9cedb;
+  --brass:#c9a35f; --brass-d:#b08c48; --slate:#9aa1b2; --hair:#26303f; --mute:#6a7385; color-scheme:dark;}
+:root[data-theme="light"]{--paper:#f7f5f0; --card:#ffffff; --ink:#16233c; --ink-soft:#26324c;
+  --brass:#9c7b3f; --brass-d:#7d6230; --slate:#5b6172; --hair:#e4dfd4; --mute:#8b8578; color-scheme:light;}
+
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--txt);font-family:'Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif}
-main{max-width:560px;margin:0 auto;padding:0 1.25rem 4rem}
-.top{position:sticky;top:0;z-index:9;display:flex;align-items:center;justify-content:space-between;
-  padding:.8rem 1.25rem;background:rgba(11,15,26,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
-.brand{font-weight:800;color:var(--gold);letter-spacing:.5px;text-decoration:none;font-size:1rem}
-.top a.mini{background:var(--gold);color:#161307;font-weight:800;font-size:.8rem;padding:.45rem .9rem;border-radius:999px;text-decoration:none}
-.hero{padding:2.6rem 0 1.6rem}
-.kicker{color:var(--gold);font-weight:700;font-size:.85rem;letter-spacing:2px}
-h1{font-size:1.85rem;line-height:1.35;margin:.6rem 0 1rem;font-weight:900}
-h1 .g{color:var(--gold)}
-.sub{color:var(--sub);font-size:.95rem;line-height:1.7;margin:0}
-.cta{display:block;text-align:center;margin:1.6rem 0 .6rem;padding:1rem 1.4rem;border-radius:12px;
-  background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#161307;font-weight:900;font-size:1.05rem;
-  text-decoration:none;box-shadow:0 6px 24px rgba(227,194,106,.25)}
-.cta small{display:block;font-weight:600;font-size:.75rem;opacity:.8;margin-top:.25rem}
-.badges{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center}
-.badge{font-size:.72rem;padding:.22rem .65rem;border-radius:999px;border:1px solid var(--line);color:var(--sub)}
-.strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem;margin:1.8rem 0}
-.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.9rem .5rem;text-align:center}
-.stat b{display:block;color:var(--gold);font-size:1.15rem}
-.stat span{font-size:.72rem;color:var(--sub);line-height:1.4;display:block;margin-top:.25rem}
-h2{font-size:1.15rem;margin:2.2rem 0 .9rem;font-weight:800}
-h2 .g{color:var(--gold)}
-.step{display:flex;gap:.9rem;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem;margin-bottom:.6rem;align-items:flex-start}
-.step .n{flex:0 0 2rem;height:2rem;border-radius:999px;background:var(--gold);color:#161307;font-weight:900;text-align:center;line-height:2rem}
-.step b{display:block;margin-bottom:.2rem}
-.step p{margin:0;color:var(--sub);font-size:.85rem;line-height:1.6}
-.post{display:block;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem 1.1rem;margin-bottom:.7rem;text-decoration:none;color:var(--txt)}
-.post .d{color:var(--gold);font-size:.72rem;font-weight:700;letter-spacing:1px}
-.post .t{font-weight:800;margin:.3rem 0;line-height:1.45}
-.post .p{color:var(--sub);font-size:.84rem;margin:0;line-height:1.6}
-.lock{background:linear-gradient(160deg,#141c30,#0e1526);border:1px solid #37425f;border-radius:14px;padding:1.2rem}
-.lock .row{display:flex;justify-content:space-between;align-items:center;border-bottom:1px dashed var(--line);padding:.65rem 0;font-size:.88rem}
-.lock .row:last-of-type{border-bottom:none}
-.lock .tag{color:var(--gold);font-weight:700}
-.lock .blur{filter:blur(5px);user-select:none;color:#cfd6e6}
-.lock .note{color:var(--sub);font-size:.78rem;margin:.8rem 0 0;line-height:1.6}
-.lock a{display:block;text-align:center;margin-top:.9rem;padding:.8rem;border-radius:10px;background:var(--gold);color:#161307;font-weight:800;text-decoration:none;font-size:.92rem}
-.seller{margin-top:2.2rem;padding:1.1rem;border:1px dashed #3a4664;border-radius:12px;font-size:.85rem;color:var(--sub);line-height:1.7;background:var(--panel)}
-.seller b{color:var(--txt)}
-.seller a{color:var(--gold);font-weight:700}
-footer{color:#5b6478;font-size:.72rem;margin-top:3rem;line-height:1.7}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.6}
+.serif{font-family:Georgia,'Times New Roman',serif}
+.wrap{max-width:600px;margin:0 auto;padding:0 1.5rem}
+main{max-width:600px;margin:0 auto;padding:0 1.5rem 4rem}
+
+/* 상단 바 */
+.bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--hair)}
+.bar .row{max-width:600px;margin:0 auto;padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:800;letter-spacing:-.01em;font-size:1rem;color:var(--ink);cursor:pointer;text-decoration:none}
+.brand .dot{color:var(--brass)}
+.navcta{font-size:.8rem;font-weight:700;color:var(--paper);background:var(--ink);
+  padding:.5rem 1rem;border-radius:2px;text-decoration:none;letter-spacing:.01em}
+
+/* 히어로 */
+.hero{padding:3.2rem 0 2.4rem}
+.eyebrow{font-family:Georgia,serif;font-style:italic;font-size:.82rem;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--brass);margin:0 0 1.1rem}
+h1{font-size:2.1rem;line-height:1.28;letter-spacing:-.02em;font-weight:800;margin:0 0 1.2rem;text-wrap:balance}
+h1 .b{color:var(--brass)}
+.lead{color:var(--slate);font-size:1rem;line-height:1.75;margin:0;max-width:34em}
+.actions{margin:2rem 0 0;display:flex;flex-direction:column;gap:.9rem}
+.btn{display:block;text-align:center;padding:1rem 1.4rem;border-radius:2px;font-weight:800;font-size:1rem;
+  text-decoration:none;border:1px solid var(--ink);transition:transform .12s ease,background .12s ease}
+.btn-solid{background:var(--ink);color:var(--paper)}
+.btn-solid:hover{transform:translateY(-1px)}
+.btn-solid .sub{display:block;font-weight:500;font-size:.76rem;opacity:.72;margin-top:.25rem;letter-spacing:.01em}
+.assurances{display:flex;flex-wrap:wrap;gap:1.2rem;margin-top:1.3rem;padding-top:1.3rem;border-top:1px solid var(--hair)}
+.assurance{font-size:.8rem;color:var(--slate);letter-spacing:.01em}
+.assurance b{color:var(--ink);font-weight:700}
+
+/* 지표 */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--hair);border-radius:3px;overflow:hidden;margin:2.6rem 0}
+.metric{padding:1.3rem .8rem;text-align:center;border-right:1px solid var(--hair);background:var(--card)}
+.metric:last-child{border-right:none}
+.metric .fig{font-family:Georgia,serif;font-size:1.7rem;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.metric .cap{font-size:.72rem;color:var(--slate);margin-top:.3rem;line-height:1.45;letter-spacing:.02em}
+
+/* 섹션 공통 */
+section{padding:2.2rem 0;border-top:1px solid var(--hair)}
+.klabel{font-family:Georgia,serif;font-style:italic;font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin:0 0 .5rem}
+h2{font-size:1.32rem;font-weight:800;letter-spacing:-.015em;margin:0 0 1.3rem}
+
+/* 프로세스 */
+.step{display:grid;grid-template-columns:auto 1fr;gap:1.1rem;padding:1.1rem 0;border-top:1px solid var(--hair);align-items:baseline}
+.step:first-of-type{border-top:none}
+.step .no{font-family:Georgia,serif;font-size:1.05rem;color:var(--brass);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.step h3{font-size:1rem;font-weight:800;margin:0 0 .3rem}
+.step p{margin:0;color:var(--slate);font-size:.9rem;line-height:1.65}
+
+/* 매물 장부 */
+.ledger{border:1px solid var(--hair);border-radius:3px;background:var(--card);overflow:hidden}
+.ledger .lr{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.95rem 1.1rem;border-top:1px solid var(--hair)}
+.ledger .lr:first-child{border-top:none}
+.ledger .region{font-weight:800;font-size:.92rem;letter-spacing:.01em;white-space:nowrap}
+.ledger .detail{color:var(--slate);font-size:.86rem;filter:blur(4.5px);user-select:none;flex:1;text-align:right;margin-right:.7rem}
+.ledger .sealed{font-family:Georgia,serif;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);
+  border:1px solid var(--brass);border-radius:2px;padding:.18rem .5rem;white-space:nowrap}
+.ledger-note{color:var(--slate);font-size:.8rem;line-height:1.6;margin:.9rem 0 0}
+.ledger-note b{color:var(--ink)}
+.textlink{display:inline-block;margin-top:1rem;color:var(--brass);font-weight:800;font-size:.92rem;text-decoration:none;cursor:pointer;border-bottom:1px solid var(--brass);padding-bottom:1px}
+
+/* 콘텐츠 */
+.article{display:block;background:var(--card);border:1px solid var(--hair);border-radius:3px;padding:1.2rem 1.3rem;text-decoration:none;color:var(--ink);cursor:pointer;transition:border-color .12s ease}
+.article:hover{border-color:var(--brass)}
+.article .meta{font-family:Georgia,serif;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--brass)}
+.article .title{font-weight:800;font-size:1.02rem;line-height:1.45;margin:.4rem 0 .4rem}
+.article .excerpt{color:var(--slate);font-size:.86rem;line-height:1.6;margin:0}
+.article .more{display:inline-block;margin-top:.7rem;font-size:.82rem;font-weight:700;color:var(--brass)}
+
+/* 양도 문의 */
+.transfer{margin-top:2rem;padding:1.3rem;border:1px solid var(--hair);border-left:3px solid var(--brass);border-radius:3px;background:var(--card)}
+.transfer .t-k{font-family:Georgia,serif;font-style:italic;font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);margin:0 0 .4rem}
+.transfer h3{font-size:1rem;font-weight:800;margin:0 0 .4rem}
+.transfer p{margin:0;color:var(--slate);font-size:.88rem;line-height:1.65}
+.transfer a{color:var(--ink);font-weight:800;text-decoration:none;border-bottom:1px solid var(--brass)}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--hair);color:var(--mute);font-size:.74rem;line-height:1.7}
+footer b{color:var(--slate);font-weight:700}
+a:focus-visible,.textlink:focus-visible,.article:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
 </style>
 </head>
 <body>
-<div class="top">
-  <a class="brand" href="./">창업정보 모임</a>
-  <a class="mini" href="./s/">무료 설문</a>
-</div>
+
+<div class="bar"><div class="row">
+  <a class="brand" href="./">창업정보 모임<span class="dot">.</span></a>
+  <a class="navcta" href="./s/">무료 설문</a>
+</div></div>
+
 <main>
 
-<section class="hero">
-  <div class="kicker">START-UP MANAGER</div>
-  <h1>월급의 속도로는<br>사장님이 될 수 없습니다.<br><span class="g">데이터와 매물</span>로 지름길을 엽니다.</h1>
-  <p class="sub">저희는 가게를 양도하려는 사장님과 창업을 준비하는 분을 <b style="color:var(--txt)">직접 연결</b>하는 무료 서비스입니다. 공공데이터로 검증한 창업 정보를 매일 발행합니다.</p>
-  <a class="cta" href="./s/">지금 30초 설문하고 매물 먼저 받기<small>조건에 맞는 매물이 나오면 가장 먼저 연락드립니다</small></a>
-  <div class="badges"><span class="badge">상담비 무료</span><span class="badge">가입비 없음</span><span class="badge">원치 않으면 연락 중단 OK</span></div>
-</section>
+  <section class="hero" style="border-top:none">
+    <p class="eyebrow">Start-up Manager</p>
+    <h1>월급의 속도로는 닿지 않는 자리.<br><span class="b">데이터</span>로 검증하고, <span class="b">조건</span>으로 연결합니다.</h1>
+    <p class="lead">저희는 가게를 양도하려는 사장님과 창업을 준비하는 분을 공공데이터로 검증해 직접 연결하는 무료 자문 서비스입니다. 조건에 맞는 매물이 나왔을 때 가장 먼저 안내드립니다.</p>
+    <div class="actions">
+      <a class="btn btn-solid" href="./s/">30초 설문하고 매물 먼저 받기<span class="sub">전화 강요 없음 · 조건에 맞을 때만 연락</span></a>
+    </div>
+    <div class="assurances">
+      <span class="assurance"><b>상담비</b> 무료</span>
+      <span class="assurance"><b>가입비</b> 없음</span>
+      <span class="assurance"><b>연락 중단</b> 언제든</span>
+    </div>
+  </section>
 
-<section class="strip">
-  <div class="stat"><b>5종</b><span>공공데이터<br>기반 분석</span></div>
-  <div class="stat"><b>0원</b><span>상담·매칭<br>비용</span></div>
-  <div class="stat"><b>1:1</b><span>전담 컨설턴트<br>동행</span></div>
-</section>
-
-<section>
-  <h2>사장님이 되는 <span class="g">3단계</span></h2>
-  <div class="step"><div class="n">1</div><div><b>30초 설문</b><p>운영방식·업종·지역·예산(보증금/월세/권리금)만 남기세요. 전화 강요 없습니다.</p></div></div>
-  <div class="step"><div class="n">2</div><div><b>조건 매칭</b><p>등록된 양도 매물 중 조건에 맞는 것만 골라 연락드립니다. 예산 초과 매물은 권하지 않습니다.</p></div></div>
-  <div class="step"><div class="n">3</div><div><b>브리핑 미팅</b><p>상권 데이터·정책자금 로드맵과 함께 매물을 브리핑합니다. 결정은 대표님이 하시면 됩니다.</p></div></div>
-</section>
-
-<section>
-  <h2>이번 주 <span class="g">연결 가능 매물</span></h2>
-  <div class="lock">
-    <div class="row"><span class="tag">🔒 마포권</span><span class="blur">카페 · 보증금 3,000 · 월 200</span></div>
-    <div class="row"><span class="tag">🔒 강남권</span><span class="blur">외식업 · 권리금 협의 가능</span></div>
-    <div class="row"><span class="tag">🔒 성동권</span><span class="blur">풀오토 · 위탁 운영 가능</span></div>
-    <p class="note">매물 상세는 양도인 보호를 위해 <b style="color:var(--txt)">설문을 남긴 분께만</b> 공개됩니다.</p>
-    <a href="./s/">설문 남기고 상세 조건 받기 →</a>
+  <div class="metrics">
+    <div class="metric"><div class="fig">5</div><div class="cap">공공데이터<br>기반 분석</div></div>
+    <div class="metric"><div class="fig">0</div><div class="cap">상담·매칭<br>비용 (원)</div></div>
+    <div class="metric"><div class="fig">1:1</div><div class="cap">전담 컨설턴트<br>동행</div></div>
   </div>
-</section>
 
-<section>
-  <h2>오늘의 <span class="g">창업정보</span></h2>
-  <a class="post" href="./posts/2026-07-15-sajeonbojeung.html">
-    <div class="d">2026.07.15 · 정책자금</div>
-    <div class="t">계약하기 전에 대출 한도부터 확정하는 법 — 예비창업자 사전보증</div>
-    <p class="p">권리금·보증금은 대출이 안 된다는 사실, 계약 직전에 알면 늦습니다. 사업자등록 전에 대출 가능액을 확정하는 공식 절차.</p>
-  </a>
-</section>
+  <section>
+    <p class="klabel">Process</p>
+    <h2>사장님이 되기까지, 세 단계</h2>
+    <div class="step"><div class="no serif">01</div><div><h3>조건 설문</h3><p>운영 방식·업종·지역·예산(보증금·월세·권리금)만 남기시면 됩니다. 30초면 충분합니다.</p></div></div>
+    <div class="step"><div class="no serif">02</div><div><h3>조건 매칭</h3><p>등록된 양도 매물 중 조건에 맞는 것만 선별해 연락드립니다. 예산을 넘는 매물은 권하지 않습니다.</p></div></div>
+    <div class="step"><div class="no serif">03</div><div><h3>브리핑 미팅</h3><p>상권 데이터와 정책자금 로드맵을 함께 놓고 매물을 브리핑합니다. 결정은 대표님의 몫입니다.</p></div></div>
+  </section>
 
-<div class="seller">🏪 <b>가게를 양도하고 싶은 사장님이신가요?</b><br>운영 중인 가게를 조건 맞는 예비창업자에게 연결해드립니다. 지역·업종·희망 조건을 문자로 → <a href="sms:010-9433-4557">010-9433-4557</a></div>
+  <section>
+    <p class="klabel">This Week</p>
+    <h2>이번 주 연결 가능한 매물</h2>
+    <div class="ledger">
+      <div class="lr"><span class="region">마포권</span><span class="detail">카페 · 보증금 3,000 · 월 200</span><span class="sealed">비공개</span></div>
+      <div class="lr"><span class="region">강남권</span><span class="detail">외식업 · 권리금 협의 가능</span><span class="sealed">비공개</span></div>
+      <div class="lr"><span class="region">성동권</span><span class="detail">풀오토 · 위탁 운영 가능</span><span class="sealed">비공개</span></div>
+    </div>
+    <p class="ledger-note">매물 상세는 양도인 보호를 위해 <b>설문을 남긴 분께만</b> 개별 안내드립니다.</p>
+    <a class="textlink" href="./s/">설문 남기고 상세 조건 확인하기</a>
+  </section>
 
-<footer>창업정보 모임 · 상담: 김태욱 컨설턴트 010-9433-4557<br>본 사이트의 데이터는 공공데이터(소상공인시장진흥공단·서울시·공정거래위원회 등)에 근거하며, 특정 수익을 보장하지 않습니다. 임대차 계약은 개업공인중개사를 통해 진행됩니다. 수집된 개인정보는 매물 안내 목적 외 사용되지 않습니다.</footer>
+  <section>
+    <p class="klabel">Journal</p>
+    <h2>오늘의 창업 정보</h2>
+    <a class="article" href="./posts/2026-07-15-sajeonbojeung.html">
+      <div class="meta">2026.07.15 · 정책자금</div>
+      <div class="title">계약 전에 대출 한도부터 확정하는 법 — 예비창업자 사전보증</div>
+      <p class="excerpt">권리금과 보증금은 정책자금 대출이 되지 않습니다. 계약 직전에 알면 늦습니다. 사업자등록 전에 대출 가능액을 확정하는 공식 절차를 정리했습니다.</p>
+      <span class="more">자세히 읽기 →</span>
+    </a>
+  </section>
+
+  <div class="transfer">
+    <p class="t-k">For Sellers</p>
+    <h3>가게를 양도하려는 사장님이신가요?</h3>
+    <p>운영 중인 가게를 조건에 맞는 예비창업자에게 연결해 드립니다. 지역·업종·희망 조건을 문자로 보내주세요. <a href="sms:010-9433-4557">010-9433-4557</a></p>
+  </div>
+
+  <footer>
+    창업정보 모임 · 상담 <b>김태욱 컨설턴트 010-9433-4557</b><br>
+    본 사이트의 데이터는 공공데이터(소상공인시장진흥공단·서울시·공정거래위원회 등)에 근거하며, 특정 수익을 보장하지 않습니다. 임대차 계약은 개업공인중개사를 통해 진행됩니다. 수집된 개인정보는 매물 안내 목적 외에 사용되지 않습니다.
+  </footer>
+
 </main>
 </body>
 </html>

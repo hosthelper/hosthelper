@@ -6,38 +6,47 @@
 <title>계약 전에 대출 한도부터 확정하는 법 — 창업정보 모임</title>
 <meta name="description" content="예비창업자 사전보증: 사업자등록 전에 대출 가능액을 확정하는 공식 절차.">
 <style>
-:root{--bg:#0b0f1a;--panel:#121a2c;--line:#232e47;--gold:#e3c26a;--gold-d:#b8963f;--txt:#ece9df;--sub:#9aa3b8}
+:root{
+  --paper:#f7f5f0; --card:#ffffff; --ink:#16233c; --brass:#9c7b3f;
+  --slate:#5b6172; --hair:#e4dfd4; --mute:#8b8578; color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{--paper:#10141c;--card:#161c28;--ink:#eef0f3;--brass:#c9a35f;--slate:#9aa1b2;--hair:#26303f;--mute:#6a7385;color-scheme:dark;}
+}
+:root[data-theme="dark"]{--paper:#10141c;--card:#161c28;--ink:#eef0f3;--brass:#c9a35f;--slate:#9aa1b2;--hair:#26303f;--mute:#6a7385;color-scheme:dark;}
+:root[data-theme="light"]{--paper:#f7f5f0;--card:#ffffff;--ink:#16233c;--brass:#9c7b3f;--slate:#5b6172;--hair:#e4dfd4;--mute:#8b8578;color-scheme:light;}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--txt);font-family:'Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif}
-main{max-width:560px;margin:0 auto;padding:1.4rem 1.25rem 3rem}
-.brand{font-weight:800;color:var(--gold);text-decoration:none;font-size:.95rem}
-.d{color:var(--gold);font-size:.78rem;font-weight:700;letter-spacing:1px;margin-top:.9rem}
-h1{font-size:1.4rem;margin:.4rem 0 1.2rem;line-height:1.45;font-weight:900}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1.15rem 1.2rem;margin-bottom:.7rem;line-height:1.75;font-size:.94rem;color:var(--txt)}
-.card b{color:var(--gold)}
-.n{display:inline-block;width:1.5rem;height:1.5rem;border-radius:999px;background:var(--gold);color:#161307;text-align:center;line-height:1.5rem;font-size:.8rem;font-weight:900;margin-right:.4rem}
-.src{color:#5b6478;font-size:.74rem;line-height:1.65;margin-top:1.4rem}
-.cta{display:block;text-align:center;margin:1.6rem 0 0;padding:.9rem 1.4rem;border-radius:11px;
-  background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#161307;font-weight:900;text-decoration:none}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.6}
+main{max-width:560px;margin:0 auto;padding:1.6rem 1.5rem 3rem}
+.back{font-size:.82rem;color:var(--brass);text-decoration:none;font-weight:700;letter-spacing:.02em}
+.meta{font-family:Georgia,serif;font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);margin:1.4rem 0 .4rem}
+h1{font-size:1.62rem;line-height:1.36;letter-spacing:-.015em;font-weight:800;margin:0 0 1.4rem;text-wrap:balance}
+.point{display:grid;grid-template-columns:auto 1fr;gap:1rem;padding:1.15rem 0;border-top:1px solid var(--hair);align-items:baseline}
+.point .no{font-family:Georgia,serif;font-size:1.05rem;color:var(--brass);font-weight:700;font-variant-numeric:tabular-nums}
+.point b{display:block;font-size:1rem;font-weight:800;margin-bottom:.3rem;color:var(--ink)}
+.point p{margin:0;color:var(--slate);font-size:.92rem;line-height:1.7}
+.source{color:var(--mute);font-size:.76rem;line-height:1.7;margin:1.6rem 0 0;padding-top:1.2rem;border-top:1px solid var(--hair)}
+.btn{display:block;text-align:center;margin-top:1.8rem;padding:1rem 1.4rem;border-radius:2px;
+  background:var(--ink);color:var(--paper);font-weight:800;text-decoration:none;border:1px solid var(--ink);letter-spacing:.01em}
+a:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
 </style>
 </head>
 <body>
 <main>
-<a class="brand" href="../">← 창업정보 모임</a>
-<div class="d">2026.07.15 · 정책자금 시리즈 ①</div>
-<h1>권리금 5천 내고 계약한 뒤에야<br>대출이 안 된다는 걸 알았다면?</h1>
+  <a class="back" href="../">← 창업정보 모임</a>
+  <p class="meta">2026.07.15 · 정책자금 시리즈 01</p>
+  <h1>권리금 5천을 치른 뒤에야<br>대출이 안 된다는 걸 알았다면?</h1>
 
-<div class="card"><span class="n">1</span><b>권리금·보증금은 정책자금 대출이 안 됩니다.</b><br>소상공인 정책자금은 시설자금(인테리어·설비)과 운전자금(재료비·인건비) 용도입니다. 권리금과 임차보증금은 자기자본으로 준비해야 합니다.</div>
+  <div class="point"><div class="no">01</div><div><b>권리금·보증금은 정책자금 대출이 되지 않습니다.</b><p>소상공인 정책자금은 시설자금(인테리어·설비)과 운전자금(재료비·인건비) 용도입니다. 권리금과 임차보증금은 자기자본으로 준비해야 합니다.</p></div></div>
+  <div class="point"><div class="no">02</div><div><b>그런데 대부분 계약 후에야 은행에 갑니다.</b><p>정책자금은 사업자등록 후 영업 중이어야 신청할 수 있습니다. 계약이 먼저, 대출은 나중. 이 순서 때문에 자금 계획이 어긋나는 창업자가 많습니다.</p></div></div>
+  <div class="point"><div class="no">03</div><div><b>해결책은 예비창업자 사전보증입니다.</b><p>신용보증기금·지역신용보증재단의 공식 절차로, 사업자등록 전에 사전심사를 받아 보증예정통지를 받아둘 수 있습니다. 즉, 계약하기 전에 내 대출 가능액이 확정됩니다.</p></div></div>
+  <div class="point"><div class="no">04</div><div><b>올바른 순서</b><p>조건 정리 → 지역신용보증재단 사전보증 상담(한도 확정) → 매물 계약·사업자등록 → 보증서 대출 실행(시설·운전자금) → 개업. 이 순서면 자금이 모자라 계약을 파기하는 일이 없습니다.</p></div></div>
 
-<div class="card"><span class="n">2</span><b>그런데 대부분 계약 후에야 은행에 갑니다.</b><br>정책자금은 "사업자등록 후 영업 중"이어야 신청 가능 — 계약 먼저, 대출은 나중. 이 순서 때문에 자금 계획이 어긋나는 창업자가 많습니다.</div>
+  <p class="source">근거: 소상공인시장진흥공단 정책자금 안내(ols.semas.or.kr), 신용보증기금 창업단계 지원 프로그램, 중소벤처24 예비창업자 사전보증. 수익과 대출 승인을 보장하지 않으며, 자금별 세부 조건은 기관 확인이 필요합니다.</p>
 
-<div class="card"><span class="n">3</span><b>해결책: 예비창업자 사전보증.</b><br>신용보증기금·지역신용보증재단의 공식 절차로, <b>사업자등록 전에</b> 사전심사를 받아 "보증예정통지"를 받아둘 수 있습니다. 즉, 계약하기 전에 내 대출 가능액이 확정됩니다.</div>
-
-<div class="card"><span class="n">4</span><b>올바른 순서</b><br>희망 조건 정리 → 지역신보 사전보증 상담(대출 한도 확정) → 매물 계약 + 사업자등록 → 보증서 대출 실행(시설·운전자금) → 오픈. 이 순서면 "돈이 모자라서 계약 파기"가 없습니다.</div>
-
-<p class="src">근거: 소상공인시장진흥공단 정책자금 안내(ols.semas.or.kr), 신용보증기금 창업단계 지원 프로그램, 중소벤처24 예비창업자 사전보증. 수익·대출 승인을 보장하지 않으며, 자금별 세부 조건은 기관 확인이 필요합니다.</p>
-
-<a class="cta" href="../s/">내 조건에 맞는 매물 추천받기 (30초 설문)</a>
+  <a class="btn" href="../s/">내 조건에 맞는 매물 추천받기 (30초 설문)</a>
 </main>
 </body>
 </html>
