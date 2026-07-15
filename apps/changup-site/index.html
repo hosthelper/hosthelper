@@ -4,67 +4,76 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>창업정보 모임 — 데이터로 검증하고, 조건으로 연결합니다</title>
-<meta name="description" content="가게를 양도하려는 사장님과 창업을 준비하는 분을 데이터로 검증해 연결하는 무료 자문 서비스. 30초 설문을 남기면 조건에 맞는 매물을 가장 먼저 안내합니다.">
+<meta name="description" content="가게를 양도하려는 사장님과 창업을 준비하는 분을 공공데이터로 검증해 연결하는 무료 자문 서비스. 30초 설문을 남기면 조건에 맞는 매물을 가장 먼저 안내합니다.">
 <style>
 :root{
   --paper:#f7f5f0; --card:#ffffff; --ink:#16233c; --ink-soft:#26324c;
   --brass:#9c7b3f; --brass-d:#7d6230; --slate:#5b6172; --hair:#e4dfd4; --mute:#8b8578;
+  --shadow:0 1px 2px rgba(22,35,60,.04),0 8px 24px rgba(22,35,60,.05);
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
-  :root{--paper:#10141c; --card:#161c28; --ink:#eef0f3; --ink-soft:#c9cedb;
-    --brass:#c9a35f; --brass-d:#b08c48; --slate:#9aa1b2; --hair:#26303f; --mute:#6a7385; color-scheme:dark;}
+  :root{--paper:#0f1219; --card:#171d29; --ink:#eef0f3; --ink-soft:#c9cedb;
+    --brass:#c9a35f; --brass-d:#b08c48; --slate:#9aa1b2; --hair:#25303f; --mute:#6a7385;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35); color-scheme:dark;}
 }
-:root[data-theme="dark"]{--paper:#10141c; --card:#161c28; --ink:#eef0f3; --ink-soft:#c9cedb;
-  --brass:#c9a35f; --brass-d:#b08c48; --slate:#9aa1b2; --hair:#26303f; --mute:#6a7385; color-scheme:dark;}
-:root[data-theme="light"]{--paper:#f7f5f0; --card:#ffffff; --ink:#16233c; --ink-soft:#26324c;
-  --brass:#9c7b3f; --brass-d:#7d6230; --slate:#5b6172; --hair:#e4dfd4; --mute:#8b8578; color-scheme:light;}
+:root[data-theme="dark"]{--paper:#0f1219;--card:#171d29;--ink:#eef0f3;--ink-soft:#c9cedb;--brass:#c9a35f;--brass-d:#b08c48;--slate:#9aa1b2;--hair:#25303f;--mute:#6a7385;--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);color-scheme:dark;}
+:root[data-theme="light"]{--paper:#f7f5f0;--card:#ffffff;--ink:#16233c;--ink-soft:#26324c;--brass:#9c7b3f;--brass-d:#7d6230;--slate:#5b6172;--hair:#e4dfd4;--mute:#8b8578;--shadow:0 1px 2px rgba(22,35,60,.04),0 8px 24px rgba(22,35,60,.05);color-scheme:light;}
 
 *{box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{margin:0;background:var(--paper);color:var(--ink);
   font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;line-height:1.6}
-.serif{font-family:Georgia,'Times New Roman',serif}
-.wrap{max-width:600px;margin:0 auto;padding:0 1.5rem}
+.topaccent{height:3px;background:linear-gradient(90deg,var(--brass),var(--brass-d))}
 main{max-width:600px;margin:0 auto;padding:0 1.5rem 4rem}
 
-/* 상단 바 */
-.bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);
-  backdrop-filter:blur(8px);border-bottom:1px solid var(--hair)}
-.bar .row{max-width:600px;margin:0 auto;padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
-.brand{font-weight:800;letter-spacing:-.01em;font-size:1rem;color:var(--ink);cursor:pointer;text-decoration:none}
-.brand .dot{color:var(--brass)}
+/* 상단 바 + 엠블럼 */
+.bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 90%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--hair)}
+.bar .row{max-width:600px;margin:0 auto;padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.identity{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--ink)}
+.seal{width:34px;height:34px;flex:0 0 34px}
+.wordmark{font-weight:800;letter-spacing:-.01em;font-size:.98rem;line-height:1.1}
+.wordmark .sub{display:block;font-family:Georgia,serif;font-style:italic;font-size:.62rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--brass);font-weight:400;margin-top:.1rem}
 .navcta{font-size:.8rem;font-weight:700;color:var(--paper);background:var(--ink);
   padding:.5rem 1rem;border-radius:2px;text-decoration:none;letter-spacing:.01em}
 
 /* 히어로 */
-.hero{padding:3.2rem 0 2.4rem}
+.hero{padding:3rem 0 2.2rem}
 .eyebrow{font-family:Georgia,serif;font-style:italic;font-size:.82rem;letter-spacing:.24em;
   text-transform:uppercase;color:var(--brass);margin:0 0 1.1rem}
 h1{font-size:2.1rem;line-height:1.28;letter-spacing:-.02em;font-weight:800;margin:0 0 1.2rem;text-wrap:balance}
 h1 .b{color:var(--brass)}
-.lead{color:var(--slate);font-size:1rem;line-height:1.75;margin:0;max-width:34em}
-.actions{margin:2rem 0 0;display:flex;flex-direction:column;gap:.9rem}
-.btn{display:block;text-align:center;padding:1rem 1.4rem;border-radius:2px;font-weight:800;font-size:1rem;
-  text-decoration:none;border:1px solid var(--ink);transition:transform .12s ease,background .12s ease}
-.btn-solid{background:var(--ink);color:var(--paper)}
-.btn-solid:hover{transform:translateY(-1px)}
-.btn-solid .sub{display:block;font-weight:500;font-size:.76rem;opacity:.72;margin-top:.25rem;letter-spacing:.01em}
+.lead{color:var(--slate);font-size:1rem;line-height:1.78;margin:0;max-width:34em}
+.btn{display:block;text-align:center;margin-top:2rem;padding:1.05rem 1.4rem;border-radius:2px;font-weight:800;font-size:1rem;
+  text-decoration:none;border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+  transition:transform .12s ease,box-shadow .12s ease;box-shadow:var(--shadow)}
+.btn:hover{transform:translateY(-1px)}
+.btn .sub{display:block;font-weight:500;font-size:.76rem;opacity:.72;margin-top:.25rem;letter-spacing:.01em}
 .assurances{display:flex;flex-wrap:wrap;gap:1.2rem;margin-top:1.3rem;padding-top:1.3rem;border-top:1px solid var(--hair)}
-.assurance{font-size:.8rem;color:var(--slate);letter-spacing:.01em}
+.assurance{font-size:.8rem;color:var(--slate)}
 .assurance b{color:var(--ink);font-weight:700}
 
 /* 지표 */
-.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--hair);border-radius:3px;overflow:hidden;margin:2.6rem 0}
-.metric{padding:1.3rem .8rem;text-align:center;border-right:1px solid var(--hair);background:var(--card)}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--hair);border-radius:3px;overflow:hidden;margin:2.6rem 0;background:var(--card);box-shadow:var(--shadow)}
+.metric{padding:1.35rem .8rem;text-align:center;border-right:1px solid var(--hair)}
 .metric:last-child{border-right:none}
-.metric .fig{font-family:Georgia,serif;font-size:1.7rem;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.metric .fig{font-family:Georgia,serif;font-size:1.75rem;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .metric .cap{font-size:.72rem;color:var(--slate);margin-top:.3rem;line-height:1.45;letter-spacing:.02em}
 
-/* 섹션 공통 */
-section{padding:2.2rem 0;border-top:1px solid var(--hair)}
+/* 섹션 */
+section{padding:2.4rem 0;border-top:1px solid var(--hair)}
 .klabel{font-family:Georgia,serif;font-style:italic;font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin:0 0 .5rem}
-h2{font-size:1.32rem;font-weight:800;letter-spacing:-.015em;margin:0 0 1.3rem}
+h2{font-size:1.34rem;font-weight:800;letter-spacing:-.015em;margin:0 0 1.3rem;text-wrap:balance}
+
+/* 투명성(왜 무료) */
+.why{display:grid;gap:0;border:1px solid var(--hair);border-radius:3px;overflow:hidden;background:var(--card);box-shadow:var(--shadow)}
+.why .w{padding:1.15rem 1.2rem;border-top:1px solid var(--hair)}
+.why .w:first-child{border-top:none}
+.why .w b{display:block;font-size:.96rem;font-weight:800;margin-bottom:.25rem}
+.why .w p{margin:0;color:var(--slate);font-size:.88rem;line-height:1.65}
 
 /* 프로세스 */
 .step{display:grid;grid-template-columns:auto 1fr;gap:1.1rem;padding:1.1rem 0;border-top:1px solid var(--hair);align-items:baseline}
@@ -74,22 +83,41 @@ h2{font-size:1.32rem;font-weight:800;letter-spacing:-.015em;margin:0 0 1.3rem}
 .step p{margin:0;color:var(--slate);font-size:.9rem;line-height:1.65}
 
 /* 매물 장부 */
-.ledger{border:1px solid var(--hair);border-radius:3px;background:var(--card);overflow:hidden}
+.ledger{border:1px solid var(--hair);border-radius:3px;background:var(--card);overflow:hidden;box-shadow:var(--shadow)}
 .ledger .lr{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.95rem 1.1rem;border-top:1px solid var(--hair)}
 .ledger .lr:first-child{border-top:none}
-.ledger .region{font-weight:800;font-size:.92rem;letter-spacing:.01em;white-space:nowrap}
+.ledger .region{font-weight:800;font-size:.92rem;white-space:nowrap}
 .ledger .detail{color:var(--slate);font-size:.86rem;filter:blur(4.5px);user-select:none;flex:1;text-align:right;margin-right:.7rem}
 .ledger .sealed{font-family:Georgia,serif;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);
   border:1px solid var(--brass);border-radius:2px;padding:.18rem .5rem;white-space:nowrap}
 .ledger-note{color:var(--slate);font-size:.8rem;line-height:1.6;margin:.9rem 0 0}
 .ledger-note b{color:var(--ink)}
-.textlink{display:inline-block;margin-top:1rem;color:var(--brass);font-weight:800;font-size:.92rem;text-decoration:none;cursor:pointer;border-bottom:1px solid var(--brass);padding-bottom:1px}
+.textlink{display:inline-block;margin-top:1rem;color:var(--brass);font-weight:800;font-size:.92rem;text-decoration:none;border-bottom:1px solid var(--brass);padding-bottom:1px}
+
+/* 컨설턴트 카드 */
+.advisor{display:flex;gap:1.1rem;align-items:center;padding:1.4rem;border:1px solid var(--hair);border-radius:3px;background:var(--card);box-shadow:var(--shadow)}
+.advisor .mono{flex:0 0 62px;width:62px;height:62px;border:1.5px solid var(--brass);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:1.5rem;font-weight:700;color:var(--brass)}
+.advisor .who .nm{font-size:1.05rem;font-weight:800}
+.advisor .who .rl{font-size:.82rem;color:var(--slate);margin:.15rem 0 .5rem}
+.advisor .who a{font-family:Georgia,serif;font-size:1rem;font-weight:700;color:var(--ink);text-decoration:none;font-variant-numeric:tabular-nums;letter-spacing:.02em;border-bottom:1px solid var(--brass);padding-bottom:1px}
+
+/* FAQ */
+.faq{border:1px solid var(--hair);border-radius:3px;overflow:hidden;background:var(--card);box-shadow:var(--shadow)}
+.faq details{border-top:1px solid var(--hair)}
+.faq details:first-child{border-top:none}
+.faq summary{list-style:none;cursor:pointer;padding:1.05rem 1.2rem;font-weight:800;font-size:.94rem;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .q{font-family:Georgia,serif;color:var(--brass);font-weight:700;margin-right:.2rem}
+.faq summary .pm{color:var(--brass);font-weight:700;font-size:1.2rem;line-height:1}
+.faq details[open] summary .pm{transform:rotate(45deg)}
+.faq .a{padding:0 1.2rem 1.15rem;color:var(--slate);font-size:.88rem;line-height:1.7}
 
 /* 콘텐츠 */
-.article{display:block;background:var(--card);border:1px solid var(--hair);border-radius:3px;padding:1.2rem 1.3rem;text-decoration:none;color:var(--ink);cursor:pointer;transition:border-color .12s ease}
+.article{display:block;background:var(--card);border:1px solid var(--hair);border-radius:3px;padding:1.2rem 1.3rem;text-decoration:none;color:var(--ink);transition:border-color .12s ease;box-shadow:var(--shadow)}
 .article:hover{border-color:var(--brass)}
 .article .meta{font-family:Georgia,serif;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--brass)}
-.article .title{font-weight:800;font-size:1.02rem;line-height:1.45;margin:.4rem 0 .4rem}
+.article .title{font-weight:800;font-size:1.02rem;line-height:1.45;margin:.4rem 0}
 .article .excerpt{color:var(--slate);font-size:.86rem;line-height:1.6;margin:0}
 .article .more{display:inline-block;margin-top:.7rem;font-size:.82rem;font-weight:700;color:var(--brass)}
 
@@ -100,15 +128,29 @@ h2{font-size:1.32rem;font-weight:800;letter-spacing:-.015em;margin:0 0 1.3rem}
 .transfer p{margin:0;color:var(--slate);font-size:.88rem;line-height:1.65}
 .transfer a{color:var(--ink);font-weight:800;text-decoration:none;border-bottom:1px solid var(--brass)}
 
-footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--hair);color:var(--mute);font-size:.74rem;line-height:1.7}
-footer b{color:var(--slate);font-weight:700}
-a:focus-visible,.textlink:focus-visible,.article:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+/* 회사 정보 푸터 */
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--hair)}
+.corp{display:grid;grid-template-columns:auto 1fr;gap:.35rem 1rem;font-size:.76rem;color:var(--slate);line-height:1.6;margin-bottom:1.2rem}
+.corp dt{color:var(--mute);font-weight:600}
+.corp dd{margin:0;color:var(--slate)}
+.corp dd b{color:var(--ink);font-weight:700}
+.legal{color:var(--mute);font-size:.72rem;line-height:1.7}
+a:focus-visible,.textlink:focus-visible,.article:focus-visible,summary:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
+<div class="topaccent"></div>
 
 <div class="bar"><div class="row">
-  <a class="brand" href="./">창업정보 모임<span class="dot">.</span></a>
+  <a class="identity" href="./">
+    <svg class="seal" viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="24" r="22" fill="none" stroke="var(--brass)" stroke-width="1"/>
+      <circle cx="24" cy="24" r="17.5" fill="none" stroke="var(--brass)" stroke-width="1.5"/>
+      <text x="24" y="29.5" text-anchor="middle" font-family="Georgia,serif" font-size="17" font-weight="700" fill="var(--brass)">창</text>
+    </svg>
+    <span class="wordmark">창업정보 모임<span class="sub">Start-up Manager</span></span>
+  </a>
   <a class="navcta" href="./s/">무료 설문</a>
 </div></div>
 
@@ -117,10 +159,8 @@ a:focus-visible,.textlink:focus-visible,.article:focus-visible{outline:2px solid
   <section class="hero" style="border-top:none">
     <p class="eyebrow">Start-up Manager</p>
     <h1>월급의 속도로는 닿지 않는 자리.<br><span class="b">데이터</span>로 검증하고, <span class="b">조건</span>으로 연결합니다.</h1>
-    <p class="lead">저희는 가게를 양도하려는 사장님과 창업을 준비하는 분을 공공데이터로 검증해 직접 연결하는 무료 자문 서비스입니다. 조건에 맞는 매물이 나왔을 때 가장 먼저 안내드립니다.</p>
-    <div class="actions">
-      <a class="btn btn-solid" href="./s/">30초 설문하고 매물 먼저 받기<span class="sub">전화 강요 없음 · 조건에 맞을 때만 연락</span></a>
-    </div>
+    <p class="lead">저희는 가게를 양도하려는 사장님과 창업을 준비하는 분을 공공데이터로 검증해 직접 연결하는 무료 자문 서비스입니다. 조건에 맞는 매물이 나왔을 때, 가장 먼저 안내드립니다.</p>
+    <a class="btn" href="./s/">30초 설문하고 매물 먼저 받기<span class="sub">전화 강요 없음 · 조건에 맞을 때만 연락</span></a>
     <div class="assurances">
       <span class="assurance"><b>상담비</b> 무료</span>
       <span class="assurance"><b>가입비</b> 없음</span>
@@ -135,11 +175,21 @@ a:focus-visible,.textlink:focus-visible,.article:focus-visible{outline:2px solid
   </div>
 
   <section>
+    <p class="klabel">Why Free</p>
+    <h2>왜 무료로 도와드릴까요?</h2>
+    <div class="why">
+      <div class="w"><b>수수료는 계약이 성사될 때, 매도인 측에서 발생합니다.</b><p>매수 고객님께는 상담·매칭 비용을 받지 않습니다. 좋은 연결이 저희의 수익이므로, 맞지 않는 매물을 억지로 권할 이유가 없습니다.</p></div>
+      <div class="w"><b>계약은 개업공인중개사를 통해 진행합니다.</b><p>저희는 조건에 맞는 매물과 예비창업자를 연결하고 자문하는 역할입니다. 임대차·양수도 계약의 법적 절차는 공인중개사가 담당합니다.</p></div>
+      <div class="w"><b>연락처는 매물 안내 목적에만 씁니다.</b><p>제3자에게 제공하지 않으며, 원치 않으시면 언제든 연락을 중단합니다. 강매·반복 전화는 하지 않습니다.</p></div>
+    </div>
+  </section>
+
+  <section>
     <p class="klabel">Process</p>
     <h2>사장님이 되기까지, 세 단계</h2>
-    <div class="step"><div class="no serif">01</div><div><h3>조건 설문</h3><p>운영 방식·업종·지역·예산(보증금·월세·권리금)만 남기시면 됩니다. 30초면 충분합니다.</p></div></div>
-    <div class="step"><div class="no serif">02</div><div><h3>조건 매칭</h3><p>등록된 양도 매물 중 조건에 맞는 것만 선별해 연락드립니다. 예산을 넘는 매물은 권하지 않습니다.</p></div></div>
-    <div class="step"><div class="no serif">03</div><div><h3>브리핑 미팅</h3><p>상권 데이터와 정책자금 로드맵을 함께 놓고 매물을 브리핑합니다. 결정은 대표님의 몫입니다.</p></div></div>
+    <div class="step"><div class="no">01</div><div><h3>조건 설문</h3><p>운영 방식·업종·지역·예산(보증금·월세·권리금)만 남기시면 됩니다. 30초면 충분합니다.</p></div></div>
+    <div class="step"><div class="no">02</div><div><h3>조건 매칭</h3><p>등록된 양도 매물 중 조건에 맞는 것만 선별해 연락드립니다. 예산을 넘는 매물은 권하지 않습니다.</p></div></div>
+    <div class="step"><div class="no">03</div><div><h3>브리핑 미팅</h3><p>상권 데이터와 정책자금 로드맵을 함께 놓고 매물을 브리핑합니다. 결정은 대표님의 몫입니다.</p></div></div>
   </section>
 
   <section>
@@ -152,6 +202,29 @@ a:focus-visible,.textlink:focus-visible,.article:focus-visible{outline:2px solid
     </div>
     <p class="ledger-note">매물 상세는 양도인 보호를 위해 <b>설문을 남긴 분께만</b> 개별 안내드립니다.</p>
     <a class="textlink" href="./s/">설문 남기고 상세 조건 확인하기</a>
+  </section>
+
+  <section>
+    <p class="klabel">Your Advisor</p>
+    <h2>담당 컨설턴트</h2>
+    <div class="advisor">
+      <div class="mono">김</div>
+      <div class="who">
+        <div class="nm">김태욱 컨설턴트</div>
+        <div class="rl">창업이지 · 점포 양수도 자문</div>
+        <a href="tel:010-9433-4557">010 9433 4557</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="klabel">FAQ</p>
+    <h2>자주 묻는 질문</h2>
+    <div class="faq">
+      <details><summary><span><span class="q">Q.</span>정말 비용이 안 드나요?</span><span class="pm">+</span></summary><div class="a">네. 매수(창업) 고객님께는 상담비·매칭비·가입비가 없습니다. 수수료는 계약 성사 시 매도인 측에서 발생합니다.</div></details>
+      <details><summary><span><span class="q">Q.</span>연락하면 계속 전화가 오나요?</span><span class="pm">+</span></summary><div class="a">아니요. 조건에 맞는 매물이 있을 때만 연락드리고, 원치 않으시면 즉시 연락을 중단합니다. 반복 전화·강매는 하지 않습니다.</div></details>
+      <details><summary><span><span class="q">Q.</span>개인정보는 안전한가요?</span><span class="pm">+</span></summary><div class="a">성함·연락처·희망 조건만 받으며, 매물 안내 목적 외에는 사용하지 않습니다. 제3자에게 제공하지 않고, 동의를 철회하시면 즉시 파기합니다.</div></details>
+    </div>
   </section>
 
   <section>
@@ -172,8 +245,13 @@ a:focus-visible,.textlink:focus-visible,.article:focus-visible{outline:2px solid
   </div>
 
   <footer>
-    창업정보 모임 · 상담 <b>김태욱 컨설턴트 010-9433-4557</b><br>
-    본 사이트의 데이터는 공공데이터(소상공인시장진흥공단·서울시·공정거래위원회 등)에 근거하며, 특정 수익을 보장하지 않습니다. 임대차 계약은 개업공인중개사를 통해 진행됩니다. 수집된 개인정보는 매물 안내 목적 외에 사용되지 않습니다.
+    <dl class="corp">
+      <dt>상호</dt><dd><b>창업이지</b> (Start-up Manager)</dd>
+      <dt>담당</dt><dd>김태욱 컨설턴트 · <b>010-9433-4557</b></dd>
+      <dt>주소</dt><dd>서울특별시 강남구 테헤란로 13길 12, 5층 (역삼동, 한주빌딩)</dd>
+      <dt>사업자</dt><dd>사업자등록번호 000-00-00000 <span style="color:var(--mute)">(등록 후 표기)</span></dd>
+    </dl>
+    <p class="legal">본 사이트의 데이터는 공공데이터(소상공인시장진흥공단·서울시·공정거래위원회 등)에 근거하며, 특정 수익을 보장하지 않습니다. 임대차·양수도 계약은 개업공인중개사를 통해 진행됩니다. 수집된 개인정보는 매물 안내 목적 외에 사용되지 않습니다.</p>
   </footer>
 
 </main>
