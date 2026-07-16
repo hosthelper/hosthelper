@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>창업 정보 — 창업정보 모임</title>
+<meta name="description" content="예비창업자를 위한 창업 정보: 정책자금, 권리금, 운영방식, 상권분석. 계약 전에 꼭 알아야 할 자료를 무료로 모았습니다.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e7358'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="창업정보 모임">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="창업 정보">
+<meta property="og:description" content="예비창업자를 위한 창업 정보: 정책자금, 권리금, 운영방식, 상권분석. 계약 전에 꼭 알아야 할 자료를 무료로 모았습니다.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="창업 정보">
+<meta name="twitter:description" content="예비창업자를 위한 창업 정보: 정책자금, 권리금, 운영방식, 상권분석. 계약 전에 꼭 알아야 할 자료를 무료로 모았습니다.">
+<style>
+:root{
+  --bg:#fbfaf7; --card:#ffffff; --ink:#1b2430; --sub:#5a6472; --brand:#0e7358; --brand-d:#0b5a45;
+  --tint:#e7f4ee; --line:#ececec; --mute:#9aa2ad; --shadow:0 2px 4px rgba(27,36,48,.04),0 12px 28px rgba(27,36,48,.06);
+  --r:16px; color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0f1512;--card:#161d19;--ink:#eef1ee;--sub:#9aa6a0;--brand:#2ba982;--brand-d:#238c6b;--tint:#16241d;--line:#243029;--mute:#6b776f;--shadow:0 2px 4px rgba(0,0,0,.3),0 14px 34px rgba(0,0,0,.4);color-scheme:dark;}
+}
+:root[data-theme="dark"]{--bg:#0f1512;--card:#161d19;--ink:#eef1ee;--sub:#9aa6a0;--brand:#2ba982;--brand-d:#238c6b;--tint:#16241d;--line:#243029;--mute:#6b776f;--shadow:0 2px 4px rgba(0,0,0,.3),0 14px 34px rgba(0,0,0,.4);color-scheme:dark;}
+:root[data-theme="light"]{--bg:#fbfaf7;--card:#ffffff;--ink:#1b2430;--sub:#5a6472;--brand:#0e7358;--brand-d:#0b5a45;--tint:#e7f4ee;--line:#ececec;--mute:#9aa2ad;--shadow:0 2px 4px rgba(27,36,48,.04),0 12px 28px rgba(27,36,48,.06);color-scheme:light;}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6;word-break:keep-all}
+main{max-width:600px;margin:0 auto;padding:0 1.25rem 5rem}
+
+.bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.bar .row{max-width:600px;margin:0 auto;padding:.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between}
+.brand-id{display:flex;align-items:center;gap:.55rem;text-decoration:none;color:var(--ink);font-weight:800;font-size:1rem;letter-spacing:-.02em}
+.logo{width:30px;height:30px;border-radius:9px;background:var(--brand);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.95rem}
+.nav{display:flex;align-items:center;gap:1.1rem}
+.nav .lnk{font-size:.9rem;font-weight:700;color:var(--ink);text-decoration:none}
+.nav .lnk:hover,.nav .lnk[aria-current]{color:var(--brand)}
+.navcta{font-size:.83rem;font-weight:700;color:#fff;background:var(--brand);padding:.5rem 1rem;border-radius:999px;text-decoration:none}
+
+.head{padding:2.4rem 0 1.4rem}
+.eyebrow{color:var(--brand);font-weight:700;font-size:.8rem;letter-spacing:.06em}
+h1{font-size:2rem;line-height:1.25;letter-spacing:-.03em;font-weight:800;margin:.5rem 0 .6rem;text-wrap:balance}
+.sub{color:var(--sub);font-size:.98rem;line-height:1.7;margin:0;max-width:30em}
+
+.filters{display:flex;gap:.5rem;flex-wrap:wrap;margin:0 0 1.4rem;position:sticky;top:53px;z-index:10;background:var(--bg);padding:.6rem 0}
+.fchip{padding:.45rem .95rem;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--sub);font-size:.86rem;font-weight:700;cursor:pointer;font-family:inherit}
+.fchip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+
+.feed{display:grid;gap:.85rem}
+.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.35rem;text-decoration:none;color:var(--ink);box-shadow:var(--shadow);transition:transform .12s ease}
+.card:hover{transform:translateY(-2px)}
+.card .top{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem}
+.card .cat{background:var(--tint);color:var(--brand-d);font-size:.72rem;font-weight:700;padding:.24rem .62rem;border-radius:999px}
+.card .date{color:var(--mute);font-size:.76rem;font-variant-numeric:tabular-nums}
+.card .title{font-weight:800;font-size:1.16rem;line-height:1.4;margin:.1rem 0 .4rem;letter-spacing:-.01em}
+.card .excerpt{color:var(--sub);font-size:.9rem;line-height:1.65;margin:0}
+.card .more{display:inline-block;margin-top:.75rem;font-size:.84rem;font-weight:800;color:var(--brand)}
+.empty{color:var(--mute);text-align:center;padding:2rem 0;font-size:.9rem}
+
+.promo{margin-top:2rem;background:var(--tint);border-radius:var(--r);padding:1.5rem;text-align:center}
+.promo h2{font-size:1.15rem;font-weight:800;margin:0 0 .4rem}
+.promo p{margin:0 0 1rem;color:var(--sub);font-size:.9rem;line-height:1.6}
+.promo a{display:inline-block;padding:.85rem 1.5rem;border-radius:999px;background:var(--brand);color:#fff;font-weight:800;text-decoration:none;box-shadow:0 8px 22px rgba(14,115,88,.28)}
+
+footer{margin-top:2.6rem;padding-top:1.4rem;border-top:1px solid var(--line);color:var(--mute);font-size:.74rem;line-height:1.7}
+a:focus-visible,.fchip:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div class="bar"><div class="row">
+  <a class="brand-id" href="../"><span class="logo">창</span>창업정보 모임</a>
+  <nav class="nav">
+    <a class="lnk" href="./" aria-current="page">정보</a>
+    <a class="navcta" href="../s/">무료 설문</a>
+  </nav>
+</div></div>
+
+<main>
+  <div class="head">
+    <p class="eyebrow">창업 정보</p>
+    <h1>계약 전에 알았다면<br>달랐을 이야기들</h1>
+    <p class="sub">예비창업자가 가장 많이 놓치는 정책자금·권리금·운영방식·상권을 공공데이터 근거로 정리했습니다. 매주 업데이트됩니다.</p>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="fchip on" data-cat="전체">전체</button>
+    <button class="fchip" data-cat="정책자금">정책자금</button>
+    <button class="fchip" data-cat="권리금">권리금</button>
+    <button class="fchip" data-cat="운영방식">운영방식</button>
+    <button class="fchip" data-cat="상권분석">상권분석</button>
+  </div>
+
+  <div class="feed" id="feed">
+    <!--FEED:START (자동 발행 삽입 지점 — 이 주석과 FEED:END 사이에 최신 글 카드가 추가됩니다)-->
+    <a class="card" data-cat="권리금" href="./2026-07-16-imdaecha.html">
+      <div class="top"><span class="cat">권리금</span><span class="date">2026.07.16</span></div>
+      <div class="title">계약서 도장 찍기 전, 상가 임대차에서 반드시 확인할 5가지</div>
+      <p class="excerpt">환산보증금·계약갱신요구권·제소전화해·원상복구·권리금 회수까지 — 초보가 놓치는 독소조항.</p>
+      <span class="more">자세히 읽기 →</span>
+    </a>
+    <a class="card" data-cat="정책자금" href="./2026-07-15-sajeonbojeung.html">
+      <div class="top"><span class="cat">정책자금</span><span class="date">2026.07.15</span></div>
+      <div class="title">계약 전에 대출 한도부터 확정하는 법</div>
+      <p class="excerpt">권리금·보증금은 정책자금 대출이 되지 않습니다. 사업자등록 전에 대출 가능액을 확정하는 공식 절차.</p>
+      <span class="more">자세히 읽기 →</span>
+    </a>
+    <a class="card" data-cat="권리금" href="./2026-07-14-gwolligeum.html">
+      <div class="top"><span class="cat">권리금</span><span class="date">2026.07.14</span></div>
+      <div class="title">권리금, 얼마가 적정한지 판단하는 4가지 기준</div>
+      <p class="excerpt">바닥·영업·시설 권리금의 차이와, 매출 대비 적정 권리금을 가늠하는 현실적 기준.</p>
+      <span class="more">자세히 읽기 →</span>
+    </a>
+    <a class="card" data-cat="운영방식" href="./2026-07-13-unyoung-bangsik.html">
+      <div class="top"><span class="cat">운영방식</span><span class="date">2026.07.13</span></div>
+      <div class="title">직영·풀오토·위탁·본사, 무엇이 다른가</div>
+      <p class="excerpt">내 시간과 자본에 맞는 운영 방식 고르기. 수익률과 리스크는 어떻게 갈리나.</p>
+      <span class="more">자세히 읽기 →</span>
+    </a>
+    <a class="card" data-cat="상권분석" href="./2026-07-12-sanggwon-data.html">
+      <div class="top"><span class="cat">상권분석</span><span class="date">2026.07.12</span></div>
+      <div class="title">무료 공공데이터로 상권을 검증하는 법</div>
+      <p class="excerpt">상권정보시스템·인허가 데이터로 유동인구와 폐업률을 직접 확인하는 순서.</p>
+      <span class="more">자세히 읽기 →</span>
+    </a>
+    <!--FEED:END-->
+  </div>
+  <p class="empty" id="empty" hidden>해당 주제의 글이 아직 없습니다.</p>
+
+  <div class="promo">
+    <h2>글만 읽고 끝내지 마세요</h2>
+    <p>30초 설문을 남기면 조건에 맞는 매물이 나왔을 때 가장 먼저 안내드립니다.</p>
+    <a href="../s/">무료로 매물 추천받기</a>
+  </div>
+
+  <footer>
+    창업이지 · 김태욱 컨설턴트 010-9433-4557 · 서울특별시 강남구 테헤란로 13길 12, 5층<br>
+    본 정보는 공공데이터에 근거하며 특정 수익·승인을 보장하지 않습니다. 임대차·양수도 계약은 개업공인중개사를 통해 진행됩니다.
+  </footer>
+</main>
+
+<script>
+var filters=document.getElementById('filters');
+var cards=[].slice.call(document.querySelectorAll('#feed .card'));
+var empty=document.getElementById('empty');
+filters.addEventListener('click',function(e){
+  var b=e.target.closest('.fchip'); if(!b)return;
+  [].forEach.call(filters.children,function(c){c.classList.toggle('on',c===b);});
+  var cat=b.dataset.cat, shown=0;
+  cards.forEach(function(card){
+    var ok=(cat==='전체'||card.dataset.cat===cat);
+    card.style.display=ok?'':'none';
+    if(ok)shown++;
+  });
+  empty.hidden=shown>0;
+});
+</script>
+</body>
+</html>

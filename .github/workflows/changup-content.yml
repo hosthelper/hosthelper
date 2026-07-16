@@ -1,0 +1,72 @@
+name: 창업정보 모임 자동 콘텐츠
+
+# 5시간마다 AI로 원본 창업 정보 기사를 생성해 초안 PR로 올립니다.
+# (안전을 위해 main 직접 커밋이 아니라 PR로 올립니다 — 승인 시 게시)
+#
+# 필요 설정(사용자):
+#   1) 저장소 Settings → Secrets and variables → Actions → New secret:
+#        ANTHROPIC_API_KEY = <Anthropic API 키>
+#   2) Settings → Actions → General → Workflow permissions:
+#        "Allow GitHub Actions to create and approve pull requests" 체크
+#   * 예약(schedule)·수동 실행(dispatch)은 기본 브랜치(main)에 병합된 뒤부터 동작합니다.
+
+on:
+  schedule:
+    - cron: '0 */5 * * *'   # 5시간마다 (UTC 정각 기준)
+  workflow_dispatch:        # 수동 실행 버튼
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: changup-content
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'hosthelper/hosthelper' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install generator deps
+        working-directory: apps/changup-site/scripts
+        run: npm install --no-save @anthropic-ai/sdk zod
+
+      - name: Generate article
+        id: gen
+        working-directory: apps/changup-site/scripts
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CHANGUP_AI_MODEL: ${{ vars.CHANGUP_AI_MODEL || 'claude-opus-4-7' }}
+        run: node generate-post.mjs
+
+      - name: Open draft PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          BRANCH="content/auto-$(date -u +%Y%m%d-%H%M)"
+          git config user.name "changup-content-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add apps/changup-site/posts apps/changup-site/index.html
+          if git diff --cached --quiet; then
+            echo "변경 없음 — 스킵"; exit 0
+          fi
+          git commit -m "content(changup-site): 자동 발행 — ${{ steps.gen.outputs.title }} (${{ steps.gen.outputs.cat }})"
+          git push -u origin "$BRANCH"
+          printf '%s\n\n%s\n%s\n\n%s\n' \
+            "5시간 주기 자동 생성 초안입니다. 사실·분량(≥500자) 확인 후 병합하세요." \
+            "- 파일: ${{ steps.gen.outputs.file }}" \
+            "- 카테고리: ${{ steps.gen.outputs.cat }}" \
+            "공공(공공누리) 자료 근거의 원본 글입니다. 언론 전재가 아닙니다." > /tmp/pr-body.md
+          gh pr create --draft \
+            --base main --head "$BRANCH" \
+            --title "자동 창업 정보: ${{ steps.gen.outputs.title }}" \
+            --body-file /tmp/pr-body.md

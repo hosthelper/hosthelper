@@ -3,122 +3,216 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>창업정보 모임 — 30초 설문</title>
-<meta name="description" content="희망 조건을 남기면 조건에 맞는 매물이 나왔을 때 가장 먼저 알려드립니다. 1~2일 내 순차 연락.">
+<title>창업정보 모임 — 조건 설문</title>
+<meta name="description" content="희망 조건을 남기면 조건에 맞는 매물이 나왔을 때 가장 먼저 안내드립니다. 1~2일 내 순차 연락.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e7358'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="창업정보 모임">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="창업정보 모임 — 조건 설문">
+<meta property="og:description" content="희망 조건을 남기면 조건에 맞는 매물이 나왔을 때 가장 먼저 안내드립니다. 1~2일 내 순차 연락.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="창업정보 모임 — 조건 설문">
+<meta name="twitter:description" content="희망 조건을 남기면 조건에 맞는 매물이 나왔을 때 가장 먼저 안내드립니다. 1~2일 내 순차 연락.">
 <style>
-:root{--bg:#0b0f1a;--panel:#121a2c;--line:#232e47;--gold:#e3c26a;--gold-d:#b8963f;--txt:#ece9df;--sub:#9aa3b8}
+:root{
+  --paper:#fbfaf7; --card:#ffffff; --ink:#1b2430; --brass:#0e7358; --brass-d:#0b5a45;
+  --slate:#5a6472; --hair:#ececec; --mute:#9aa2ad; --tint:#e7f4ee; color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{--paper:#0f1512; --card:#161d19; --ink:#eef1ee; --brass:#2ba982; --brass-d:#238c6b;
+    --slate:#9aa6a0; --hair:#243029; --mute:#6b776f; --tint:#16241d; color-scheme:dark;}
+}
+:root[data-theme="dark"]{--paper:#0f1512;--card:#161d19;--ink:#eef1ee;--brass:#2ba982;--brass-d:#238c6b;--slate:#9aa6a0;--hair:#243029;--mute:#6b776f;--tint:#16241d;color-scheme:dark;}
+:root[data-theme="light"]{--paper:#fbfaf7;--card:#ffffff;--ink:#1b2430;--brass:#0e7358;--brass-d:#0b5a45;--slate:#5a6472;--hair:#ececec;--mute:#9aa2ad;--tint:#e7f4ee;color-scheme:light;}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--txt);font-family:'Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif}
-main{max-width:480px;margin:0 auto;padding:1.4rem 1.25rem 3rem}
-.brand{font-weight:800;color:var(--gold);text-decoration:none;font-size:.95rem}
-h1{font-size:1.4rem;margin:.6rem 0;font-weight:900}
-.sub{color:var(--sub);font-size:.9rem;line-height:1.65;margin:0}
-.badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.8rem}
-.badge{font-size:.72rem;padding:.22rem .65rem;border-radius:999px;border:1px solid var(--line);color:var(--sub)}
-label,.lb{display:block;font-size:.85rem;font-weight:700;color:var(--txt);margin:1.1rem 0 .35rem}
-.hint{color:#6d7891;font-weight:400}
-input,select,textarea{width:100%;padding:.65rem .8rem;border:1px solid var(--line);border-radius:9px;font-size:.95rem;
-  background:var(--panel);color:var(--txt)}
-input::placeholder,textarea::placeholder{color:#5b6478}
-textarea{min-height:80px;resize:vertical}
-select{appearance:auto}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.6;word-break:keep-all}
+main{max-width:480px;margin:0 auto;padding:1.6rem 1.5rem 3rem}
+.back{font-size:.82rem;color:var(--brass);text-decoration:none;font-weight:700;letter-spacing:.02em}
+.eyebrow{font-family:Georgia,serif;font-style:italic;font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin:1.3rem 0 .5rem}
+h1{font-size:1.5rem;font-weight:800;letter-spacing:-.015em;margin:0 0 .7rem;text-wrap:balance}
+.lead{color:var(--slate);font-size:.92rem;line-height:1.7;margin:0}
+.assurances{display:flex;flex-wrap:wrap;gap:1rem;margin:1rem 0 0;padding-top:.9rem;border-top:1px solid var(--hair)}
+.assurance{font-size:.78rem;color:var(--slate)}
+.assurance b{color:var(--ink);font-weight:700}
+label,.lb{display:block;font-size:.84rem;font-weight:700;color:var(--ink);margin:1.4rem 0 .45rem;letter-spacing:.01em}
+.hint{color:var(--mute);font-weight:400}
+input,select,textarea{width:100%;padding:.7rem .85rem;border:1px solid var(--hair);border-radius:10px;font-size:.95rem;
+  background:var(--card);color:var(--ink);font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brass)}
+input::placeholder,textarea::placeholder{color:var(--mute)}
+textarea{min-height:76px;resize:vertical}
 .chips{display:flex;gap:.5rem;flex-wrap:wrap}
-.chip{padding:.5rem 1rem;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--sub);font-size:.9rem;font-weight:700;cursor:pointer}
-.chip.on{background:var(--gold);border-color:var(--gold);color:#161307}
-.btn{margin-top:1.3rem;padding:.85rem 1.4rem;border-radius:11px;border:none;width:100%;cursor:pointer;
-  background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#161307;font-size:1rem;font-weight:900}
-.btn:disabled{opacity:.6}
-.note{color:#6d7891;font-size:.75rem;margin-top:.75rem;line-height:1.6}
-.err{color:#f87171;font-size:.85rem;margin-top:1rem}
+.chip{padding:.55rem 1rem;border-radius:999px;border:1px solid var(--hair);background:var(--card);color:var(--slate);
+  font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.01em}
+.chip.on{background:var(--brass);border-color:var(--brass);color:#fff}
+.subgroup{margin-top:.4rem}
+.subgroup .sgl{font-size:.8rem;font-weight:700;color:var(--brass);margin:.75rem 0 .45rem}
+.agree{display:flex;gap:.55rem;align-items:flex-start;margin-top:1.3rem;font-size:.78rem;color:var(--slate);line-height:1.6}
+.agree input{width:auto;margin-top:.15rem;accent-color:var(--brass)}
+.btn{margin-top:1.4rem;width:100%;padding:1.05rem;border-radius:999px;border:none;cursor:pointer;
+  background:var(--brass);color:#fff;font-size:1.02rem;font-weight:800;font-family:inherit;box-shadow:0 8px 22px rgba(14,115,88,.28)}
+.btn:disabled{opacity:.55;cursor:default}
+.note{color:var(--mute);font-size:.76rem;margin-top:.8rem;line-height:1.65}
+.err{color:#c0392b;font-size:.85rem;margin-top:1rem}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.transfer{margin-top:2rem;padding:1.1rem;border:1px solid var(--hair);border-left:3px solid var(--brass);border-radius:3px;background:var(--card);font-size:.85rem;color:var(--slate);line-height:1.7}
+.transfer b{color:var(--ink)}
+.transfer a{color:var(--ink);font-weight:800;text-decoration:none;border-bottom:1px solid var(--brass)}
 .done{text-align:center;padding:3rem 0}
-.done .em{font-size:2.5rem}
-.done p{color:var(--sub);line-height:1.9}
-.done b{color:var(--gold)}
-.agree{display:flex;gap:.5rem;align-items:flex-start;margin-top:1.2rem;font-size:.78rem;color:var(--sub);line-height:1.55}
-.agree input{width:auto;margin-top:.15rem}
-.seller{margin-top:2rem;padding:1rem;border:1px dashed #3a4664;border-radius:11px;font-size:.84rem;color:var(--sub);line-height:1.7;background:var(--panel)}
-.seller b{color:var(--txt)}
-.seller a{color:var(--gold);font-weight:700}
+.check{width:56px;height:56px;margin:0 auto 1rem;border:1.5px solid var(--brass);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.check svg{width:26px;height:26px}
+.done h1{font-size:1.4rem;margin:.2rem 0 .8rem}
+.done p{color:var(--slate);line-height:1.85;font-size:.95rem}
+.done b{color:var(--ink);font-weight:800}
+.hidden{display:none}
+a:focus-visible,.chip:focus-visible,.btn:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
 </style>
 </head>
 <body>
 <main>
 <div id="form-view">
-<header style="margin:.4rem 0 1.4rem">
-<a class="brand" href="../">← 창업정보 모임</a>
-<h1>어떤 가게를 찾고 계신가요?</h1>
-<p class="sub">희망 조건을 남겨주시면 조건에 맞는 매물이 나왔을 때 <b style="color:var(--txt)">가장 먼저</b> 알려드립니다.</p>
-<div class="badges"><span class="badge">상담비 무료</span><span class="badge">가입비 없음</span><span class="badge">원치 않으면 연락 중단 OK</span></div>
-</header>
-<form id="f">
-<span class="lb">운영 방식 (복수 선택)</span>
-<div class="chips" id="ops">
-<button type="button" class="chip" data-v="DIRECT">직영</button>
-<button type="button" class="chip" data-v="FULL_AUTO">풀오토</button>
-<button type="button" class="chip" data-v="CONSIGNMENT">위탁</button>
-<button type="button" class="chip" data-v="FRANCHISE_HQ">본사</button>
+  <a class="back" href="../">← 창업정보 모임</a>
+  <p class="eyebrow">Survey</p>
+  <h1>어떤 가게를 찾고 계신가요?</h1>
+  <p class="lead">희망 조건을 남겨주시면 조건에 맞는 매물이 나왔을 때 <b style="color:var(--ink)">가장 먼저</b> 안내드립니다.</p>
+  <div class="assurances">
+    <span class="assurance"><b>상담비</b> 무료</span>
+    <span class="assurance"><b>가입비</b> 없음</span>
+    <span class="assurance"><b>연락 중단</b> 언제든</span>
+  </div>
+
+  <form id="f">
+    <span class="lb">운영 방식 <span class="hint">(복수 선택)</span></span>
+    <div class="chips" id="ops">
+      <button type="button" class="chip" data-v="DIRECT">직영</button>
+      <button type="button" class="chip" data-v="FULL_AUTO">풀오토</button>
+      <button type="button" class="chip" data-v="CONSIGNMENT">위탁</button>
+      <button type="button" class="chip" data-v="FRANCHISE_HQ">본사</button>
+    </div>
+    <span class="lb">희망 종류 <span class="hint">(대분류 · 복수 선택)</span></span>
+    <div class="chips" id="cats"></div>
+    <div id="subwrap"></div>
+    <label for="industries">기타 희망 업종 <span class="hint">(목록에 없으면 직접 입력 · 쉼표로 구분)</span></label>
+    <input id="industries" placeholder="예: 밀키트, 애견카페 (무관이면 비워두세요)">
+    <label for="regions">희망 지역 <span class="hint">(예: 마포구, 강남구)</span></label>
+    <input id="regions" placeholder="무관이면 비워두세요">
+    <label for="deposit">보증금 최대 <span class="hint">(만원)</span></label>
+    <input id="deposit" inputmode="numeric" placeholder="예: 3000">
+    <label for="rent">월세 최대 <span class="hint">(만원)</span></label>
+    <input id="rent" inputmode="numeric" placeholder="예: 200">
+    <label for="premium">권리금 최대 <span class="hint">(만원)</span></label>
+    <input id="premium" inputmode="numeric" placeholder="예: 5000">
+    <label for="name">성함</label>
+    <input id="name" required maxlength="50">
+    <label for="phone">휴대폰 번호</label>
+    <input id="phone" type="tel" required placeholder="010-0000-0000">
+    <label for="channel">연락 받으실 방법</label>
+    <select id="channel"><option value="PHONE">전화</option><option value="SMS">문자</option></select>
+    <label for="notes">추가로 남기실 말씀</label>
+    <textarea id="notes" maxlength="2000"></textarea>
+    <input class="hp" id="website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <label class="agree"><input type="checkbox" id="agree"> <span>(필수) 개인정보 수집·이용 동의 — 수집 항목: 성함·연락처·희망 조건 / 목적: 매물 안내 및 상담 / 보유: 상담 종료 또는 동의 철회 시 즉시 파기. 제3자 제공 없음.</span></label>
+    <p class="err" id="err" hidden></p>
+    <button class="btn" id="submit" type="submit">무료로 매물 추천받기</button>
+    <p class="note">설문 접수 후 1~2일 내에 김태욱 컨설턴트(010-9433-4557)가 순차적으로 연락드립니다.</p>
+  </form>
+
+  <div class="transfer">가게를 양도하려는 <b>사장님</b>이신가요?<br>지역·업종·희망 조건을 문자로 보내주세요. <a href="sms:010-9433-4557">010-9433-4557</a></div>
 </div>
-<label for="industries">희망 업종 <span class="hint">(쉼표로 구분, 예: 카페, 치킨)</span></label>
-<input id="industries" placeholder="무관이면 비워두세요">
-<label for="regions">희망 지역 <span class="hint">(예: 마포구, 강남구)</span></label>
-<input id="regions" placeholder="무관이면 비워두세요">
-<label for="deposit">보증금 최대 (만원)</label>
-<input id="deposit" inputmode="numeric" placeholder="예: 3000 (무관이면 비워두세요)">
-<label for="rent">월세 최대 (만원)</label>
-<input id="rent" inputmode="numeric" placeholder="예: 200">
-<label for="premium">권리금 최대 (만원)</label>
-<input id="premium" inputmode="numeric" placeholder="예: 5000">
-<label for="name">성함</label>
-<input id="name" required maxlength="50">
-<label for="phone">휴대폰 번호</label>
-<input id="phone" type="tel" required placeholder="010-0000-0000">
-<label for="channel">연락 받으실 방법</label>
-<select id="channel">
-<option value="PHONE">전화</option><option value="SMS">문자</option><option value="KAKAO">카카오톡</option>
-</select>
-<label for="notes">추가로 남기실 말씀</label>
-<textarea id="notes" maxlength="2000"></textarea>
-<input class="hp" id="website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-<label class="agree"><input type="checkbox" id="agree"> <span>(필수) 개인정보 수집·이용 동의 — 수집 항목: 성함·연락처·희망 조건 / 목적: 매물 안내 및 상담 / 보유: 상담 종료 또는 동의 철회 시 즉시 파기. 제3자 제공 없음.</span></label>
-<p class="err" id="err" hidden></p>
-<button class="btn" id="submit" type="submit">무료로 매물 추천받기</button>
-<p class="note">설문 접수 후 1~2일 내에 김태욱 컨설턴트(010-9433-4557)가 순차적으로 연락드립니다.</p>
-</form>
-<div class="seller">🏪 <b>가게를 양도하고 싶은 사장님</b>이신가요?<br>지역·업종·희망 조건을 문자로 보내주세요 → <a href="sms:010-9433-4557">010-9433-4557</a></div>
-</div>
+
 <div id="done-view" class="done" hidden>
-<div class="em">✅</div>
-<h1>접수 완료!</h1>
-<p>희망 조건을 잘 받았습니다.<br>1~2일 내에 순차적으로<br><b>김태욱 컨설턴트 (010-9433-4557)</b>가<br>연락드립니다.</p>
+  <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#0e7358" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+  <h1>접수 완료</h1>
+  <p>희망 조건을 잘 받았습니다.<br>1~2일 내에 순차적으로<br><b>김태욱 컨설턴트 (010-9433-4557)</b>가<br>연락드립니다.</p>
 </div>
+
 <script>
 var LEADS_URL='https://buzcnfnimzlsjvbeefjb.supabase.co/functions/v1/changup-leads';
-const ops=[];
-document.getElementById('ops').addEventListener('click',e=>{
-  const b=e.target.closest('.chip'); if(!b)return;
-  const v=b.dataset.v, i=ops.indexOf(v);
-  if(i>=0){ops.splice(i,1);b.classList.remove('on')}else{ops.push(v);b.classList.add('on')}
+var ops=[];
+document.getElementById('ops').addEventListener('click',function(e){
+  var b=e.target.closest('.chip'); if(!b)return;
+  var v=b.dataset.v, i=ops.indexOf(v);
+  if(i>=0){ops.splice(i,1);b.classList.remove('on');}else{ops.push(v);b.classList.add('on');}
 });
-const tags=s=>s.split(',').map(t=>t.trim()).filter(Boolean);
-const man=s=>{const n=Number(s.replace(/[^0-9]/g,''));return s.trim()===''||isNaN(n)||n<=0?null:n*10000};
-const g=id=>document.getElementById(id);
-g('f').addEventListener('submit',async e=>{
+var tags=function(s){return s.split(',').map(function(t){return t.trim();}).filter(Boolean);};
+var man=function(s){var n=Number(s.replace(/[^0-9]/g,''));return (s.trim()===''||isNaN(n)||n<=0)?null:n*10000;};
+var g=function(id){return document.getElementById(id);};
+
+// 종류(대분류) → 업종(소분류) 의존 선택
+var CATS={
+  '외식·음식점':['한식','분식','고기·구이','치킨','피자','햄버거','중식','일식','양식','아시안','족발·보쌈','국밥·찌개','도시락'],
+  '카페·디저트':['카페','커피전문점','베이커리','디저트','아이스크림·빙수','브런치','무인카페'],
+  '주점·술집':['호프·맥주','이자카야','포차','바(Bar)','와인'],
+  '판매·소매':['편의점','무인점포','마트·식자재','반찬·식품','화장품','의류·패션','문구·팬시'],
+  '서비스':['세탁','인쇄·출력','수리','렌탈','부동산'],
+  '뷰티·건강':['미용실','네일','피부·왁싱','헬스·PT','필라테스·요가','마사지'],
+  '교육':['입시학원','공부방·교습소','유아·어린이','예체능','코딩'],
+  '숙박':['모텔·호텔','게스트하우스','펜션','파티룸'],
+  '오락·스포츠':['PC방','코인노래방','스크린골프','당구장','볼링','실내스포츠']
+};
+var selCats=[], selSubs={};
+var catsEl=g('cats'), subWrap=g('subwrap');
+Object.keys(CATS).forEach(function(c){
+  var b=document.createElement('button');
+  b.type='button'; b.className='chip'; b.textContent=c; b.dataset.cat=c;
+  catsEl.appendChild(b);
+});
+catsEl.addEventListener('click',function(e){
+  var b=e.target.closest('.chip'); if(!b)return;
+  var c=b.dataset.cat, i=selCats.indexOf(c);
+  if(i>=0){selCats.splice(i,1);delete selSubs[c];b.classList.remove('on');}
+  else{selCats.push(c);selSubs[c]=selSubs[c]||[];b.classList.add('on');}
+  renderSubs();
+});
+function renderSubs(){
+  subWrap.innerHTML='';
+  selCats.forEach(function(c){
+    var wrap=document.createElement('div'); wrap.className='subgroup';
+    var lbl=document.createElement('div'); lbl.className='sgl'; lbl.textContent=c+' 세부 업종'; wrap.appendChild(lbl);
+    var chips=document.createElement('div'); chips.className='chips';
+    CATS[c].forEach(function(s){
+      var sb=document.createElement('button');
+      sb.type='button'; sb.className='chip'+(selSubs[c].indexOf(s)>=0?' on':''); sb.textContent=s;
+      sb.addEventListener('click',function(){
+        var j=selSubs[c].indexOf(s);
+        if(j>=0){selSubs[c].splice(j,1);sb.classList.remove('on');}
+        else{selSubs[c].push(s);sb.classList.add('on');}
+      });
+      chips.appendChild(sb);
+    });
+    wrap.appendChild(chips); subWrap.appendChild(wrap);
+  });
+}
+// 소분류 선택 시 그 라벨을, 대분류만 고르면 대분류 라벨을 + 직접 입력 태그
+function collectIndustries(){
+  var out=[];
+  selCats.forEach(function(c){
+    var subs=selSubs[c]||[];
+    if(subs.length===0){out.push(c);} else {subs.forEach(function(s){out.push(s);});}
+  });
+  tags(g('industries').value).forEach(function(t){out.push(t);});
+  // 스키마 제약(항목 30자·최대 10개)에 맞춰 안전하게 컷 — 초과 제출 400 방지
+  return out.filter(function(s){return s.length<=30;}).slice(0,10);
+}
+
+g('f').addEventListener('submit',function(e){
   e.preventDefault();
-  const err=g('err');
-  if(ops.length===0){err.textContent='운영 방식을 하나 이상 선택해주세요.';err.hidden=false;return}
-  if(!g('agree').checked){err.textContent='개인정보 수집·이용에 동의해주세요.';err.hidden=false;return}
+  var err=g('err');
+  if(ops.length===0){err.textContent='운영 방식을 하나 이상 선택해주세요.';err.hidden=false;return;}
+  if(!g('agree').checked){err.textContent='개인정보 수집·이용에 동의해주세요.';err.hidden=false;return;}
   err.hidden=true; g('submit').disabled=true; g('submit').textContent='접수 중…';
-  try{
-    const res=await fetch(LEADS_URL,{method:'POST',headers:{'content-type':'application/json'},
-      body:JSON.stringify({name:g('name').value,phone:g('phone').value,contactChannel:g('channel').value,
-        operationTypes:ops,industries:tags(g('industries').value),regions:tags(g('regions').value),
-        depositMax:man(g('deposit').value),rentMax:man(g('rent').value),premiumMax:man(g('premium').value),
-        notes:g('notes').value.trim()||undefined,website:g('website').value})});
-    if(!res.ok)throw new Error('제출 실패 — 잠시 후 다시 시도해주세요');
-    g('form-view').hidden=true; g('done-view').hidden=false; window.scrollTo(0,0);
-  }catch(ex){err.textContent=ex.message||'제출에 실패했습니다. 다시 시도해주세요.';err.hidden=false}
-  finally{g('submit').disabled=false;g('submit').textContent='무료로 매물 추천받기'}
+  fetch(LEADS_URL,{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({name:g('name').value,phone:g('phone').value,contactChannel:g('channel').value,
+      operationTypes:ops,industries:collectIndustries(),regions:tags(g('regions').value).filter(function(s){return s.length<=30;}).slice(0,10),
+      depositMax:man(g('deposit').value),rentMax:man(g('rent').value),premiumMax:man(g('premium').value),
+      notes:g('notes').value.trim()||undefined,website:g('website').value})})
+  .then(function(res){if(!res.ok)throw new Error('제출 실패 — 잠시 후 다시 시도해주세요');
+    g('form-view').hidden=true; g('done-view').hidden=false; window.scrollTo(0,0);})
+  .catch(function(ex){err.textContent=ex.message||'제출에 실패했습니다. 다시 시도해주세요.';err.hidden=false;})
+  .finally(function(){g('submit').disabled=false;g('submit').textContent='무료로 매물 추천받기';});
 });
 </script>
 </main>
