@@ -153,6 +153,23 @@ footer b{color:var(--ink)}
 .fbtn:disabled{opacity:.55}
 .fnote{color:var(--mute);font-size:.76rem;margin-top:.8rem;line-height:1.6}.ferr{color:#c0392b;font-size:.85rem;margin-top:.9rem}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.mhint{color:var(--mute);font-size:.78rem;line-height:1.6;margin:.1rem 0 .3rem}
+.calwrap{margin-top:.5rem;border:1px solid var(--line);border-radius:14px;padding:1rem;background:var(--card)}
+.calnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem}
+.calnav b{font-size:1rem;font-weight:800}
+.calnav button{background:var(--tint);border:none;color:var(--brand-d);width:34px;height:34px;border-radius:9px;font-size:1.1rem;cursor:pointer;font-family:inherit;font-weight:800}
+.calnav button:disabled{opacity:.3;cursor:default}
+.caldow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:5px}
+.caldow span{text-align:center;font-size:.72rem;color:var(--mute);font-weight:700;padding:.2rem 0}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:9px;font-size:.86rem;font-weight:700;cursor:pointer;border:1px solid transparent;color:var(--ink)}
+.cell.off{color:var(--mute);opacity:.32;cursor:default}
+.cell.sun{color:#d1584f}
+.cell:not(.off):not(.sel):hover{background:var(--tint)}
+.cell.sel{background:var(--brand);color:#fff}
+.slots{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.85rem}
+.msum{margin-top:.8rem;background:var(--tint);color:var(--brand-d);font-weight:800;font-size:.9rem;padding:.7rem .9rem;border-radius:10px;display:flex;justify-content:space-between;align-items:center;gap:.6rem}
+.msum .clr{background:none;border:none;color:var(--brand-d);font-size:.8rem;font-weight:700;cursor:pointer;text-decoration:underline;font-family:inherit;white-space:nowrap}
 .done{text-align:center;padding:2rem 0}
 .ck{width:56px;height:56px;margin:0 auto 1rem;border:1.5px solid var(--brand);border-radius:50%;display:flex;align-items:center;justify-content:center}
 .done h3{font-size:1.3rem;margin:.2rem 0 .6rem;font-weight:800}.done p{color:var(--sub);line-height:1.8}
@@ -347,6 +364,9 @@ function viewSurvey(){
      '<label for="name">성함</label><input id="name" maxlength="50">'+
      '<label for="phone">휴대폰 번호</label><input id="phone" type="tel" placeholder="010-0000-0000">'+
      '<label for="channel">연락 받으실 방법</label><select id="channel"><option value="PHONE">전화</option><option value="SMS">문자</option></select>'+
+     '<span class="lb" style="margin-top:1.5rem">오프미팅 희망 일정 <span class="hint">(선택 · 평일 오전 11시~오후 4시)</span></span>'+
+     '<p class="mhint">매물을 직접 보고 <b style="color:var(--sub)">계약까지 진행</b>하고 싶으실 때, 방문 상담(오프미팅)을 잡아드려요. 원하시는 평일 날짜·시간을 고르세요. <span style="color:var(--mute)">(미선택 시 상담 때 조율)</span></p>'+
+     '<div id="cal" class="calwrap"></div>'+
      '<input class="hp" id="website" tabindex="-1" autocomplete="off" aria-hidden="true">'+
      '<label class="agree"><input type="checkbox" id="agree"> <span>(필수) 개인정보 수집·이용 동의 — 수집: 성함·연락처·희망 조건 / 목적: 매물 안내·상담 / 보유: 상담 종료 또는 동의 철회 시 즉시 파기. 제3자 제공 없음.</span></label>'+
      '<p class="ferr" id="err" hidden></p><button class="fbtn" id="submit" type="submit">무료로 매물 추천받기</button>'+
@@ -369,13 +389,46 @@ function initSurvey(){
   catsEl.addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;var c=b.dataset.cat,i=selCats.indexOf(c);if(i>=0){selCats.splice(i,1);delete selSubs[c];b.classList.remove('on');}else{selCats.push(c);selSubs[c]=selSubs[c]||[];b.classList.add('on');}renderSubs();});
   function renderSubs(){subWrap.innerHTML='';selCats.forEach(function(c){var w=document.createElement('div');w.className='subgroup';var l=document.createElement('div');l.className='sgl';l.textContent=c+' 세부 업종';w.appendChild(l);var ch=document.createElement('div');ch.className='chips';CATS[c].forEach(function(s){var sb=document.createElement('button');sb.type='button';sb.className='chip'+(selSubs[c].indexOf(s)>=0?' on':'');sb.textContent=s;sb.addEventListener('click',function(){var j=selSubs[c].indexOf(s);if(j>=0){selSubs[c].splice(j,1);sb.classList.remove('on');}else{selSubs[c].push(s);sb.classList.add('on');}});ch.appendChild(sb);});w.appendChild(ch);subWrap.appendChild(w);});}
   function collectIndustries(){var out=[];selCats.forEach(function(c){var subs=selSubs[c]||[];if(subs.length===0){out.push(c);}else{subs.forEach(function(s){out.push(s);});}});tags(g('industries').value).forEach(function(t){out.push(t);});return out.filter(function(s){return s.length<=30;}).slice(0,10);}
+  // ===== 오프미팅 달력(선택 · 평일 11~16시) =====
+  var meeting={date:null,time:null};
+  var DOW=['일','월','화','수','목','금','토'];
+  var SLOTS=['11:00','12:00','13:00','14:00','15:00','16:00'];
+  var calBox=g('cal');
+  var today=new Date();today.setHours(0,0,0,0);
+  var view=new Date(today.getFullYear(),today.getMonth(),1);
+  var maxV=new Date(today.getFullYear(),today.getMonth()+2,1);
+  function sameDay(a,b){return a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+  function fmtSlot(t){var h=parseInt(t,10);return (h<12?'오전 ':'오후 ')+(h>12?h-12:h)+':00';}
+  function fmtDate(d){return (d.getMonth()+1)+'월 '+d.getDate()+'일('+DOW[d.getDay()]+')';}
+  function meetingStr(){if(!meeting.date||!meeting.time)return null;var d=meeting.date,mm=('0'+(d.getMonth()+1)).slice(-2),dd=('0'+d.getDate()).slice(-2);return d.getFullYear()+'-'+mm+'-'+dd+'('+DOW[d.getDay()]+') '+meeting.time;}
+  function renderCal(){
+    var y=view.getFullYear(),m=view.getMonth();
+    var start=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
+    var pd=(y===today.getFullYear()&&m===today.getMonth());
+    var nd=(y===maxV.getFullYear()&&m===maxV.getMonth());
+    var h='<div class="calnav"><button type="button" data-nav="-1"'+(pd?' disabled':'')+'>‹</button><b>'+y+'년 '+(m+1)+'월</b><button type="button" data-nav="1"'+(nd?' disabled':'')+'>›</button></div>';
+    h+='<div class="caldow">'+DOW.map(function(d,i){return '<span'+(i===0?' style="color:#d1584f"':'')+'>'+d+'</span>';}).join('')+'</div><div class="calgrid">';
+    for(var i=0;i<start;i++)h+='<span></span>';
+    for(var d=1;d<=days;d++){var cd=new Date(y,m,d),w=cd.getDay(),off=(w===0||w===6||cd<today),sel=sameDay(cd,meeting.date);h+='<span class="cell'+(off?' off':'')+(w===0?' sun':'')+(sel?' sel':'')+'"'+(off?'':' data-d="'+d+'"')+'>'+d+'</span>';}
+    h+='</div>';
+    if(meeting.date){h+='<div class="slots">'+SLOTS.map(function(t){return '<button type="button" class="chip'+(meeting.time===t?' on':'')+'" data-t="'+t+'">'+fmtSlot(t)+'</button>';}).join('')+'</div>';}
+    if(meeting.date&&meeting.time){h+='<div class="msum"><span>선택: '+fmtDate(meeting.date)+' '+fmtSlot(meeting.time)+'</span><button type="button" class="clr" data-clr="1">지우기</button></div>';}
+    calBox.innerHTML=h;
+  }
+  calBox.addEventListener('click',function(e){
+    var nav=e.target.closest('[data-nav]');if(nav){view=new Date(view.getFullYear(),view.getMonth()+parseInt(nav.dataset.nav,10),1);renderCal();return;}
+    var cell=e.target.closest('[data-d]');if(cell){meeting.date=new Date(view.getFullYear(),view.getMonth(),parseInt(cell.dataset.d,10));renderCal();return;}
+    var slot=e.target.closest('[data-t]');if(slot){meeting.time=slot.dataset.t;renderCal();return;}
+    if(e.target.closest('[data-clr]')){meeting.date=null;meeting.time=null;renderCal();return;}
+  });
+  renderCal();
   g('f').addEventListener('submit',function(e){e.preventDefault();var err=g('err');
     if(ops.length===0){err.textContent='운영 방식을 하나 이상 선택해주세요.';err.hidden=false;return;}
     if(!g('name').value.trim()){err.textContent='성함을 입력해주세요.';err.hidden=false;return;}
     if(!g('phone').value.trim()){err.textContent='휴대폰 번호를 입력해주세요.';err.hidden=false;return;}
     if(!g('agree').checked){err.textContent='개인정보 수집·이용에 동의해주세요.';err.hidden=false;return;}
     err.hidden=true;g('submit').disabled=true;g('submit').textContent='접수 중…';
-    fetch(LEADS_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:g('name').value,phone:g('phone').value,contactChannel:g('channel').value,operationTypes:ops,industries:collectIndustries(),regions:tags(g('regions').value).filter(function(s){return s.length<=30;}).slice(0,10),depositMax:man(g('deposit').value),rentMax:man(g('rent').value),premiumMax:man(g('premium').value),website:g('website').value})})
+    fetch(LEADS_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:g('name').value,phone:g('phone').value,contactChannel:g('channel').value,operationTypes:ops,industries:collectIndustries(),regions:tags(g('regions').value).filter(function(s){return s.length<=30;}).slice(0,10),depositMax:man(g('deposit').value),rentMax:man(g('rent').value),premiumMax:man(g('premium').value),meetingPreference:meetingStr(),website:g('website').value})})
     .then(function(res){if(!res.ok)throw new Error('제출 실패 — 잠시 후 다시 시도해주세요');g('form-view').hidden=true;g('done-view').hidden=false;window.scrollTo(0,0);})
     .catch(function(ex){err.textContent=ex.message||'제출 실패';err.hidden=false;})
     .finally(function(){g('submit').disabled=false;g('submit').textContent='무료로 매물 추천받기';});});
