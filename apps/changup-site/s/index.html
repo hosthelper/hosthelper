@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>창업정보 모임 — 조건 설문</title>
 <meta name="description" content="희망 조건을 남기면 조건에 맞는 매물이 나왔을 때 가장 먼저 안내드립니다. 1~2일 내 순차 연락.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e7358'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="창업정보 모임">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="창업정보 모임 — 조건 설문">
+<meta property="og:description" content="희망 조건을 남기면 조건에 맞는 매물이 나왔을 때 가장 먼저 안내드립니다. 1~2일 내 순차 연락.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="창업정보 모임 — 조건 설문">
+<meta name="twitter:description" content="희망 조건을 남기면 조건에 맞는 매물이 나왔을 때 가장 먼저 안내드립니다. 1~2일 내 순차 연락.">
 <style>
 :root{
   --paper:#fbfaf7; --card:#ffffff; --ink:#1b2430; --brass:#0e7358; --brass-d:#0b5a45;
@@ -185,7 +194,8 @@ function collectIndustries(){
     if(subs.length===0){out.push(c);} else {subs.forEach(function(s){out.push(s);});}
   });
   tags(g('industries').value).forEach(function(t){out.push(t);});
-  return out;
+  // 스키마 제약(항목 30자·최대 10개)에 맞춰 안전하게 컷 — 초과 제출 400 방지
+  return out.filter(function(s){return s.length<=30;}).slice(0,10);
 }
 
 g('f').addEventListener('submit',function(e){
@@ -196,7 +206,7 @@ g('f').addEventListener('submit',function(e){
   err.hidden=true; g('submit').disabled=true; g('submit').textContent='접수 중…';
   fetch(LEADS_URL,{method:'POST',headers:{'content-type':'application/json'},
     body:JSON.stringify({name:g('name').value,phone:g('phone').value,contactChannel:g('channel').value,
-      operationTypes:ops,industries:collectIndustries(),regions:tags(g('regions').value),
+      operationTypes:ops,industries:collectIndustries(),regions:tags(g('regions').value).filter(function(s){return s.length<=30;}).slice(0,10),
       depositMax:man(g('deposit').value),rentMax:man(g('rent').value),premiumMax:man(g('premium').value),
       notes:g('notes').value.trim()||undefined,website:g('website').value})})
   .then(function(res){if(!res.ok)throw new Error('제출 실패 — 잠시 후 다시 시도해주세요');

@@ -83,7 +83,7 @@ function plainLen(a) {
   return t.replace(/\s/g, '').length;
 }
 
-const TOKENS = fs.readFileSync(path.join(POSTS, '_tokens.css'), 'utf8');
+const TOKENS = fs.readFileSync(path.join(HERE, '_tokens.css'), 'utf8'); // 빌드 전용 (웹 루트 비노출)
 
 function renderArticle(a, cat, dateDisp) {
   const body = a.blocks.map(b => `  <h2>${richText(b.h2)}</h2>\n  <p>${richText(b.p)}</p>`).join('\n');
@@ -95,6 +95,13 @@ function renderArticle(a, cat, dateDisp) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(a.title)} — 창업정보 모임</title>
 <meta name="description" content="${esc(a.excerpt)}">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e7358'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="창업정보 모임">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="${esc(a.title)}">
+<meta property="og:description" content="${esc(a.excerpt)}">
+<meta name="twitter:card" content="summary">
 <style>
 ${TOKENS}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
