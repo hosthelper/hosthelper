@@ -168,6 +168,7 @@ footer b{color:var(--ink)}
 .cell:not(.off):not(.sel):hover{background:var(--tint)}
 .cell.sel{background:var(--brand);color:#fff}
 .slots{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.85rem}
+.chip.slotoff{opacity:.5;text-decoration:line-through;cursor:default;background:var(--card);color:var(--mute);border-style:dashed}
 .msum{margin-top:.8rem;background:var(--tint);color:var(--brand-d);font-weight:800;font-size:.9rem;padding:.7rem .9rem;border-radius:10px;display:flex;justify-content:space-between;align-items:center;gap:.6rem}
 .msum .clr{background:none;border:none;color:var(--brand-d);font-size:.8rem;font-weight:700;cursor:pointer;text-decoration:underline;font-family:inherit;white-space:nowrap}
 footer .flinks{display:flex;flex-wrap:wrap;gap:.35rem 1rem;margin-bottom:.9rem}
@@ -340,7 +341,7 @@ function lr(r,d){return '<div class="lr"><span class="region">'+r+'</span><span 
 function faq(q,a){return '<details><summary>'+q+'<span class="pm">+</span></summary><div class="a">'+a+'</div></details>';}
 function footer(){return '<footer>'+
   '<div class="flinks"><a data-go="terms">이용약관</a><a data-go="privacy">개인정보처리방침</a><a data-go="ads">광고등록안내</a></div>'+
-  '<b>(주)창업이지컴퍼니</b> · 대표 박갑준 · 사업자등록번호 440-86-03378<br>서울특별시 강남구 테헤란로13길 12, 5층 · 고객센터 1588-8303 · changupeasy@gmail.com<br>매물·상담 문의: 김태욱 컨설턴트 010-9433-4557<br><br>'+
+  '<b>(주)창업이지컴퍼니</b> · 대표 박갑준 · 사업자등록번호 440-86-03378<br>서울특별시 강남구 테헤란로13길 12, 5층<br>문의: 김태욱 컨설턴트 010-9433-4557 · changupeasy@gmail.com<br><br>'+
   '본 정보는 공공데이터에 근거하며 특정 수익·승인을 보장하지 않습니다. 창업이지는 사업체(권리금) 양도·양수를 주 업무로 하며, 게재 매물은 「공인중개사법」상 중개대상물이 아닙니다. 임대차·양수도 계약은 개업공인중개사를 통해 진행됩니다.</footer>';}
 
 var curCat='전체';
@@ -426,7 +427,7 @@ function viewPrivacy(){return '<section class="legal">'+
  '<h3>6. 개인정보의 안전성 확보 조치</h3><p>회사는 관리적 조치(내부관리계획 수립·시행, 담당자 교육), 기술적 조치(접근권한 관리, 접근통제, 개인정보 암호화, 보안프로그램 운영), 물리적 조치(자료보관 장소 접근통제)를 통해 개인정보를 안전하게 관리합니다.</p>'+
  '<h3>7. 쿠키의 운영</h3><p>회사는 이용 통계 분석 등을 위해 쿠키를 사용할 수 있으며, 이용자는 웹브라우저 설정을 통해 쿠키 저장을 거부할 수 있습니다(거부 시 일부 맞춤 기능 이용이 제한될 수 있습니다).</p>'+
  '<h3>8. 개인정보 보호책임자 및 문의처</h3>'+
- '<div class="box">(주)창업이지컴퍼니 관리부<br>고객센터 1588-8303 · changupeasy@gmail.com</div>'+
+ '<div class="box">(주)창업이지컴퍼니 · 김태욱 컨설턴트<br>010-9433-4557 · changupeasy@gmail.com</div>'+
  '<h3>9. 처리방침의 변경</h3><p>본 방침의 내용 추가·삭제·수정이 있을 경우 최소 7일 전(이용자 권리에 중요한 변경은 30일 전)부터 서비스 화면을 통해 공지합니다.</p>'+
  '<p class="upd" style="margin-top:1.5rem">시행일자: 2026. 07. 16</p>'+
  '<a class="backlnk" data-go="home">← 홈으로</a>'+footer()+'</section>';}
@@ -445,7 +446,7 @@ function viewAds(){return '<section class="legal">'+
  '<p>대다수 양도인은 건물주·직원 관계나 매출 저하 우려로 매장이 매물로 나온 사실이 공개되기를 원하지 않습니다. 이에 정확한 위치·임대차·매출 내역은 공개 화면에 그대로 노출하지 않고, 검증된 매수 희망자에게 상담·현장답사를 통해 있는 그대로 안내합니다.</p>'+
  '<h3>수수료</h3>'+
  '<p>중개(양도양수) 수수료는 계약이 성사된 경우에 한하여 사전 약정에 따라 발생합니다.</p>'+
- '<div class="box" style="text-align:center"><b>매물 등록 문의</b><br>김태욱 컨설턴트 <a href="tel:010-9433-4557" style="color:var(--brand-d);font-weight:800;text-decoration:none">010-9433-4557</a><br>고객센터 1588-8303 · changupeasy@gmail.com</div>'+
+ '<div class="box" style="text-align:center"><b>매물 등록 문의</b><br>김태욱 컨설턴트 <a href="tel:010-9433-4557" style="color:var(--brand-d);font-weight:800;text-decoration:none">010-9433-4557</a><br>changupeasy@gmail.com</div>'+
  '<a class="backlnk" data-go="home">← 홈으로</a>'+footer()+'</section>';}
 
 //==================== 설문 로직 ====================
@@ -462,10 +463,12 @@ function initSurvey(){
   catsEl.addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;var c=b.dataset.cat,i=selCats.indexOf(c);if(i>=0){selCats.splice(i,1);delete selSubs[c];b.classList.remove('on');}else{selCats.push(c);selSubs[c]=selSubs[c]||[];b.classList.add('on');}renderSubs();});
   function renderSubs(){subWrap.innerHTML='';selCats.forEach(function(c){var w=document.createElement('div');w.className='subgroup';var l=document.createElement('div');l.className='sgl';l.textContent=c+' 세부 업종';w.appendChild(l);var ch=document.createElement('div');ch.className='chips';CATS[c].forEach(function(s){var sb=document.createElement('button');sb.type='button';sb.className='chip'+(selSubs[c].indexOf(s)>=0?' on':'');sb.textContent=s;sb.addEventListener('click',function(){var j=selSubs[c].indexOf(s);if(j>=0){selSubs[c].splice(j,1);sb.classList.remove('on');}else{selSubs[c].push(s);sb.classList.add('on');}});ch.appendChild(sb);});w.appendChild(ch);subWrap.appendChild(w);});}
   function collectIndustries(){var out=[];selCats.forEach(function(c){var subs=selSubs[c]||[];if(subs.length===0){out.push(c);}else{subs.forEach(function(s){out.push(s);});}});tags(g('industries').value).forEach(function(t){out.push(t);});return out.filter(function(s){return s.length<=30;}).slice(0,10);}
-  // ===== 오프미팅 달력(선택 · 평일 11~16시) =====
+  // ===== 오프미팅 달력(선택 · 평일 11~16시 · 실시간 예약 마감 반영) =====
   var meeting={date:null,time:null};
   var DOW=['일','월','화','수','목','금','토'];
   var SLOTS=['11:00','12:00','13:00','14:00','15:00','16:00'];
+  var takenSet=new Set();
+  var SLOTS_URL='https://buzcnfnimzlsjvbeefjb.supabase.co/functions/v1/slots';
   var calBox=g('cal');
   var today=new Date();today.setHours(0,0,0,0);
   var view=new Date(today.getFullYear(),today.getMonth(),1);
@@ -473,6 +476,8 @@ function initSurvey(){
   function sameDay(a,b){return a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
   function fmtSlot(t){var h=parseInt(t,10);return (h<12?'오전 ':'오후 ')+(h>12?h-12:h)+':00';}
   function fmtDate(d){return (d.getMonth()+1)+'월 '+d.getDate()+'일('+DOW[d.getDay()]+')';}
+  function keyOf(d,t){var mm=('0'+(d.getMonth()+1)).slice(-2),dd=('0'+d.getDate()).slice(-2);return d.getFullYear()+'-'+mm+'-'+dd+' '+t;}
+  function dayFull(d){return SLOTS.every(function(t){return takenSet.has(keyOf(d,t));});}
   function meetingStr(){if(!meeting.date||!meeting.time)return null;var d=meeting.date,mm=('0'+(d.getMonth()+1)).slice(-2),dd=('0'+d.getDate()).slice(-2);return d.getFullYear()+'-'+mm+'-'+dd+'('+DOW[d.getDay()]+') '+meeting.time;}
   function renderCal(){
     var y=view.getFullYear(),m=view.getMonth();
@@ -482,19 +487,21 @@ function initSurvey(){
     var h='<div class="calnav"><button type="button" data-nav="-1"'+(pd?' disabled':'')+'>‹</button><b>'+y+'년 '+(m+1)+'월</b><button type="button" data-nav="1"'+(nd?' disabled':'')+'>›</button></div>';
     h+='<div class="caldow">'+DOW.map(function(d,i){return '<span'+(i===0?' style="color:#d1584f"':'')+'>'+d+'</span>';}).join('')+'</div><div class="calgrid">';
     for(var i=0;i<start;i++)h+='<span></span>';
-    for(var d=1;d<=days;d++){var cd=new Date(y,m,d),w=cd.getDay(),off=(w===0||w===6||cd<today),sel=sameDay(cd,meeting.date);h+='<span class="cell'+(off?' off':'')+(w===0?' sun':'')+(sel?' sel':'')+'"'+(off?'':' data-d="'+d+'"')+'>'+d+'</span>';}
+    for(var d=1;d<=days;d++){var cd=new Date(y,m,d),w=cd.getDay(),base=(w===0||w===6||cd<today),full=(!base&&dayFull(cd)),off=base||full,sel=sameDay(cd,meeting.date);h+='<span class="cell'+(off?' off':'')+(w===0?' sun':'')+(sel?' sel':'')+'"'+(off?'':' data-d="'+d+'"')+(full?' title="예약 마감"':'')+'>'+d+'</span>';}
     h+='</div>';
-    if(meeting.date){h+='<div class="slots">'+SLOTS.map(function(t){return '<button type="button" class="chip'+(meeting.time===t?' on':'')+'" data-t="'+t+'">'+fmtSlot(t)+'</button>';}).join('')+'</div>';}
+    if(meeting.date){h+='<div class="slots">'+SLOTS.map(function(t){var taken=takenSet.has(keyOf(meeting.date,t));return '<button type="button" class="chip'+(meeting.time===t?' on':'')+(taken?' slotoff':'')+'"'+(taken?' disabled':' data-t="'+t+'"')+'>'+fmtSlot(t)+(taken?' 마감':'')+'</button>';}).join('')+'</div>';}
     if(meeting.date&&meeting.time){h+='<div class="msum"><span>선택: '+fmtDate(meeting.date)+' '+fmtSlot(meeting.time)+'</span><button type="button" class="clr" data-clr="1">지우기</button></div>';}
     calBox.innerHTML=h;
   }
   calBox.addEventListener('click',function(e){
     var nav=e.target.closest('[data-nav]');if(nav){view=new Date(view.getFullYear(),view.getMonth()+parseInt(nav.dataset.nav,10),1);renderCal();return;}
-    var cell=e.target.closest('[data-d]');if(cell){meeting.date=new Date(view.getFullYear(),view.getMonth(),parseInt(cell.dataset.d,10));renderCal();return;}
+    var cell=e.target.closest('[data-d]');if(cell){meeting.date=new Date(view.getFullYear(),view.getMonth(),parseInt(cell.dataset.d,10));meeting.time=null;renderCal();return;}
     var slot=e.target.closest('[data-t]');if(slot){meeting.time=slot.dataset.t;renderCal();return;}
     if(e.target.closest('[data-clr]')){meeting.date=null;meeting.time=null;renderCal();return;}
   });
   renderCal();
+  // 실시간 예약 현황 로드 → 마감된 날짜·시간 자동 비활성화
+  fetch(SLOTS_URL,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){takenSet=new Set(d.taken||[]);if(meeting.date&&meeting.time&&takenSet.has(keyOf(meeting.date,meeting.time)))meeting.time=null;renderCal();}).catch(function(){});
   g('f').addEventListener('submit',function(e){e.preventDefault();var err=g('err');
     if(ops.length===0){err.textContent='운영 방식을 하나 이상 선택해주세요.';err.hidden=false;return;}
     if(!g('name').value.trim()){err.textContent='성함을 입력해주세요.';err.hidden=false;return;}
