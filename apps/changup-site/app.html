@@ -170,6 +170,22 @@ footer b{color:var(--ink)}
 .slots{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.85rem}
 .msum{margin-top:.8rem;background:var(--tint);color:var(--brand-d);font-weight:800;font-size:.9rem;padding:.7rem .9rem;border-radius:10px;display:flex;justify-content:space-between;align-items:center;gap:.6rem}
 .msum .clr{background:none;border:none;color:var(--brand-d);font-size:.8rem;font-weight:700;cursor:pointer;text-decoration:underline;font-family:inherit;white-space:nowrap}
+footer .flinks{display:flex;flex-wrap:wrap;gap:.35rem 1rem;margin-bottom:.9rem}
+footer .flinks a{color:var(--sub);font-weight:700;text-decoration:none;font-size:.75rem;cursor:pointer}
+footer .flinks a:hover{color:var(--brand)}
+.legal{padding-top:1.4rem}
+.legal h1{font-size:1.55rem;margin:.5rem 0 .3rem;line-height:1.3}
+.legal .upd{color:var(--mute);font-size:.8rem;margin:0 0 1.3rem}
+.legal h3{font-size:1.04rem;font-weight:800;margin:1.6rem 0 .5rem;color:var(--ink)}
+.legal p{color:var(--sub);font-size:.92rem;line-height:1.8;margin:0 0 .8rem}
+.legal ul{margin:0 0 .9rem;padding-left:1.1rem}
+.legal li{color:var(--sub);font-size:.92rem;line-height:1.75;margin-bottom:.4rem}
+.legal li b{color:var(--ink)}
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:.6rem 0 1rem}
+.legal .tbl{width:100%;min-width:460px;border-collapse:collapse;font-size:.82rem}
+.legal .tbl th,.legal .tbl td{border:1px solid var(--line);padding:.55rem .6rem;text-align:left;vertical-align:top;color:var(--sub)}
+.legal .tbl th{background:var(--tint);color:var(--brand-d);font-weight:700;white-space:nowrap}
+.legal .box{background:var(--tint);border-radius:12px;padding:1rem 1.15rem;margin:1.1rem 0;font-size:.88rem;line-height:1.7;color:var(--ink)}
 .done{text-align:center;padding:2rem 0}
 .ck{width:56px;height:56px;margin:0 auto 1rem;border:1.5px solid var(--brand);border-radius:50%;display:flex;align-items:center;justify-content:center}
 .done h3{font-size:1.3rem;margin:.2rem 0 .6rem;font-weight:800}.done p{color:var(--sub);line-height:1.8}
@@ -322,7 +338,10 @@ function viewHome(){
 function wrow(b,s){return '<div class="wrow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><div><b>'+b+'</b><span>'+s+'</span></div></div>';}
 function lr(r,d){return '<div class="lr"><span class="region">'+r+'</span><span class="blur">'+d+'</span><span class="sealed">비공개</span></div>';}
 function faq(q,a){return '<details><summary>'+q+'<span class="pm">+</span></summary><div class="a">'+a+'</div></details>';}
-function footer(){return '<footer><b>창업이지</b> · 김태욱 컨설턴트 010-9433-4557 · 서울특별시 강남구 테헤란로 13길 12, 5층<br>본 정보는 공공데이터에 근거하며 특정 수익·승인을 보장하지 않습니다. 임대차·양수도 계약은 개업공인중개사를 통해 진행됩니다.</footer>';}
+function footer(){return '<footer>'+
+  '<div class="flinks"><a data-go="terms">이용약관</a><a data-go="privacy">개인정보처리방침</a><a data-go="ads">광고등록안내</a></div>'+
+  '<b>(주)창업이지컴퍼니</b> · 대표 박갑준 · 사업자등록번호 440-86-03378<br>서울특별시 강남구 테헤란로13길 12, 5층 · 고객센터 1588-8303 · changupeasy@gmail.com<br>매물·상담 문의: 김태욱 컨설턴트 010-9433-4557<br><br>'+
+  '본 정보는 공공데이터에 근거하며 특정 수익·승인을 보장하지 않습니다. 창업이지는 사업체(권리금) 양도·양수를 주 업무로 하며, 게재 매물은 「공인중개사법」상 중개대상물이 아닙니다. 임대차·양수도 계약은 개업공인중개사를 통해 진행됩니다.</footer>';}
 
 var curCat='전체';
 function viewInfo(){
@@ -374,6 +393,60 @@ function viewSurvey(){
    '<div class="done" id="done-view" hidden><div class="ck"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></div><h3>접수 완료</h3><p>희망 조건을 잘 받았습니다.<br>1~2일 내 <b style="color:var(--ink)">김태욱 컨설턴트(010-9433-4557)</b>가 연락드립니다.</p></div>'+
    footer()+'</section>';
 }
+
+//==================== 약관·정책 뷰 ====================
+function viewTerms(){return '<section class="legal">'+
+ '<h1>서비스 이용약관</h1><p class="upd">시행일: 2026년 7월 16일</p>'+
+ '<h3>제1조 (목적)</h3><p>본 약관은 (주)창업이지컴퍼니(이하 "회사")가 운영하는 창업정보 모임 웹사이트(이하 "서비스")의 이용과 관련하여 회사와 이용자 간의 권리·의무 및 책임사항, 이용조건과 절차 등 기본적인 사항을 규정함을 목적으로 합니다.</p>'+
+ '<h3>제2조 (정의)</h3><p>① "서비스"란 회사가 창업 관련 정보 제공 및 사업체(점포) 양도·양수 매칭 상담을 위하여 운영하는 웹사이트를 말합니다.<br>② "이용자"란 본 서비스에 접속하여 본 약관에 따라 서비스를 이용하는 자를 말합니다.</p>'+
+ '<h3>제3조 (약관의 게시와 개정)</h3><p>① 회사는 본 약관의 내용을 이용자가 쉽게 확인할 수 있도록 서비스 화면에 게시합니다.<br>② 회사는 관련 법령을 위반하지 않는 범위에서 본 약관을 개정할 수 있으며, 개정 시 적용일자와 개정사유를 명시하여 최소 7일 전(이용자에게 불리한 변경은 30일 전)부터 공지합니다.</p>'+
+ '<h3>제4조 (서비스의 제공)</h3><p>회사는 다음의 서비스를 제공합니다.<br>1. 창업·상권·정책자금·권리금·운영방식 등 창업 관련 정보 콘텐츠 제공<br>2. 이용자가 남긴 희망 조건(설문)에 맞는 사업체(점포) 매물 안내 및 매칭 상담<br>3. 매물 확인을 위한 방문(오프미팅) 일정 조율<br>4. 기타 회사가 정하는 서비스</p>'+
+ '<h3>제5조 (서비스의 변경 및 중단)</h3><p>① 회사는 서비스의 내용, 운영상·기술상 사항을 변경할 수 있습니다.<br>② 회사는 설비 보수·점검, 고장, 통신두절 등 부득이한 사유가 있는 경우 서비스 제공을 일시 중단할 수 있으며, 사전 또는 사후에 이용자에게 통지합니다.</p>'+
+ '<h3>제6조 (이용자의 의무)</h3><p>이용자는 신청·문의 시 허위 정보를 기재하여서는 안 되며, 서비스의 정상적 운영을 방해하는 행위, 타인의 정보를 도용하는 행위, 회사의 지식재산권을 침해하는 행위를 하여서는 안 됩니다.</p>'+
+ '<h3>제7조 (매물 정보 및 면책)</h3>'+
+ '<div class="box">창업이지는 사업체(권리금) 양도·양수를 주 업무로 하는 회사로, 일반 부동산에서 취급하는 중개대상물을 다루지 않습니다. 따라서 서비스에 안내되는 사업체(매물)는 「공인중개사법」상 중개대상물이 아닙니다.</div>'+
+ '<p>① 게재·안내되는 매물 정보는 실제 존재하는 사업체를 기준으로 작성됩니다. 다만 양도인의 보안 유지 요청(건물주·직원 관계, 매출 저하 우려 등)에 따라 정확한 위치·임대차 조건·매출·지출 내역은 공개 화면에 그대로 기재되지 않을 수 있습니다.<br>② 정확한 위치·운영상태 확인 및 현장답사를 원하는 이용자에게는 상담·방문을 통해 세부 내역을 상세히 안내합니다.<br>③ 회사는 프랜차이즈·제휴업체 등이 제공한 정보의 정확성·안정성을 보장하지 않으며, 실제 임대차·양수도 계약은 개업공인중개사 등 전문가를 통해 진행됩니다.<br>④ 본 서비스의 창업 정보 콘텐츠는 공공데이터 등에 근거한 일반적 참고 자료로, 특정 수익·대출 승인·계약 성사를 보장하지 않습니다.</p>'+
+ '<h3>제8조 (수수료)</h3><p>매수(창업) 희망 이용자에 대한 상담·매칭에는 별도의 비용이 청구되지 않습니다. 중개(양도양수) 수수료는 계약이 성사된 경우 매도인(양도인) 측과의 약정에 따릅니다.</p>'+
+ '<h3>제9조 (지식재산권)</h3><p>서비스 및 회사가 작성한 콘텐츠에 대한 저작권 등 지식재산권은 회사에 귀속하며, 이용자는 회사의 사전 승낙 없이 이를 영리 목적으로 복제·배포·전송할 수 없습니다.</p>'+
+ '<h3>제10조 (준거법 및 관할)</h3><p>본 약관은 대한민국 법을 준거법으로 하며, 회사와 이용자 간 분쟁에 관한 소송은 민사소송법상 관할법원에 제기합니다.</p>'+
+ '<p class="upd" style="margin-top:1.5rem">부칙 — 본 약관은 2026년 7월 16일부터 시행됩니다.</p>'+
+ '<a class="backlnk" data-go="home">← 홈으로</a>'+footer()+'</section>';}
+
+function viewPrivacy(){return '<section class="legal">'+
+ '<h1>개인정보 처리방침</h1><p class="upd">시행일: 2026년 7월 16일</p>'+
+ '<p>(주)창업이지컴퍼니(이하 "회사")는 「개인정보 보호법」 등 관계 법령을 준수하며, 정보주체의 개인정보를 보호하기 위해 다음과 같이 개인정보 처리방침을 수립·공개합니다.</p>'+
+ '<h3>1. 수집하는 개인정보 항목 및 이용목적</h3>'+
+ '<div class="tblwrap"><table class="tbl"><tr><th>구분</th><th>수집 항목</th><th>이용 목적</th><th>보유기간</th></tr>'+
+ '<tr><td>매물 상담 설문</td><td>성함, 휴대폰번호, 연락 방법, 희망 운영방식·업종·지역, 희망 예산(보증금·월세·권리금), 오프미팅 희망 일정, 문의 내용</td><td>조건에 맞는 매물 안내·매칭 상담, 방문(오프미팅) 일정 조율, 문의 응대</td><td>상담 종료 또는 동의 철회 시까지(관계 법령상 보존 필요 시 3년)</td></tr>'+
+ '<tr><td>자동 수집</td><td>접속 IP, 서비스 이용 시각, 브라우저 정보(User Agent)</td><td>서비스 이용 통계·분석, 부정 이용 방지</td><td>수집일로부터 2년</td></tr></table></div>'+
+ '<h3>2. 개인정보의 보유 및 파기</h3><p>보유기간의 경과, 처리목적 달성 등으로 개인정보가 불필요하게 된 때에는 지체 없이 파기합니다. 전자적 파일은 복원이 불가능한 방법으로 삭제하고, 출력물은 파쇄 또는 소각합니다. 관계 법령에 따라 보존이 필요한 경우 해당 기간 동안 별도 보관합니다.</p>'+
+ '<h3>3. 개인정보의 제3자 제공</h3><p>회사는 정보주체의 동의 없이 개인정보를 외부에 제공하지 않습니다. 다만 매물 양수도 계약 진행을 위해 개업공인중개사 등에게 제공이 필요한 경우 사전에 별도의 동의를 받습니다.</p>'+
+ '<h3>4. 개인정보 처리의 위탁</h3><p>회사는 안정적인 서비스 운영(데이터 보관·알림 발송 등)을 위해 국내외 클라우드 인프라를 이용할 수 있으며, 이 경우 관계 법령에 따라 개인정보가 안전하게 관리되도록 필요한 조치를 합니다.</p>'+
+ '<h3>5. 정보주체의 권리와 행사 방법</h3><p>정보주체는 언제든지 개인정보의 열람·정정·삭제·처리정지를 요구할 수 있으며, 서면·전자우편 등으로 요청하면 회사는 지체 없이 조치합니다. 요청은 아래 문의처로 하실 수 있습니다.</p>'+
+ '<h3>6. 개인정보의 안전성 확보 조치</h3><p>회사는 관리적 조치(내부관리계획 수립·시행, 담당자 교육), 기술적 조치(접근권한 관리, 접근통제, 개인정보 암호화, 보안프로그램 운영), 물리적 조치(자료보관 장소 접근통제)를 통해 개인정보를 안전하게 관리합니다.</p>'+
+ '<h3>7. 쿠키의 운영</h3><p>회사는 이용 통계 분석 등을 위해 쿠키를 사용할 수 있으며, 이용자는 웹브라우저 설정을 통해 쿠키 저장을 거부할 수 있습니다(거부 시 일부 맞춤 기능 이용이 제한될 수 있습니다).</p>'+
+ '<h3>8. 개인정보 보호책임자 및 문의처</h3>'+
+ '<div class="box">(주)창업이지컴퍼니 관리부<br>고객센터 1588-8303 · changupeasy@gmail.com</div>'+
+ '<h3>9. 처리방침의 변경</h3><p>본 방침의 내용 추가·삭제·수정이 있을 경우 최소 7일 전(이용자 권리에 중요한 변경은 30일 전)부터 서비스 화면을 통해 공지합니다.</p>'+
+ '<p class="upd" style="margin-top:1.5rem">시행일자: 2026. 07. 16</p>'+
+ '<a class="backlnk" data-go="home">← 홈으로</a>'+footer()+'</section>';}
+
+function viewAds(){return '<section class="legal">'+
+ '<h1>광고등록안내</h1><p class="upd">가게(사업체)를 양도하려는 사장님을 위한 안내입니다.</p>'+
+ '<div class="box">창업이지는 사업체(권리금) 양도·양수를 주 업무로 하는 회사입니다. 게재되는 매물은 「공인중개사법」상 중개대상물이 아니며, 실제 계약은 개업공인중개사 등을 통해 진행됩니다.</div>'+
+ '<h3>진행 절차</h3>'+
+ '<ul><li><b>1. 등록 문의</b> — 아래 연락처로 지역·업종·희망 조건을 알려주세요.</li>'+
+ '<li><b>2. 상담·검토</b> — 담당 컨설턴트가 매물 정보와 희망 조건을 확인합니다.</li>'+
+ '<li><b>3. 매칭·안내</b> — 조건에 맞는 예비창업자에게 보안이 유지된 형태로 안내하고, 관심 매수자와 방문(오프미팅) 일정을 조율합니다.</li>'+
+ '<li><b>4. 계약</b> — 양수도 계약은 개업공인중개사 등 전문가를 통해 안전하게 진행됩니다.</li></ul>'+
+ '<h3>등록 시 준비하면 좋은 정보</h3>'+
+ '<ul><li>업종 및 운영방식(직영·풀오토·위탁·본사)</li><li>위치(지역/상권), 점포 규모</li><li>보증금 · 월세 · 권리금 희망가</li><li>양도 사유, 현재 운영 상태(매출·비용 등)</li></ul>'+
+ '<h3>보안 안내</h3>'+
+ '<p>대다수 양도인은 건물주·직원 관계나 매출 저하 우려로 매장이 매물로 나온 사실이 공개되기를 원하지 않습니다. 이에 정확한 위치·임대차·매출 내역은 공개 화면에 그대로 노출하지 않고, 검증된 매수 희망자에게 상담·현장답사를 통해 있는 그대로 안내합니다.</p>'+
+ '<h3>수수료</h3>'+
+ '<p>중개(양도양수) 수수료는 계약이 성사된 경우에 한하여 사전 약정에 따라 발생합니다.</p>'+
+ '<div class="box" style="text-align:center"><b>매물 등록 문의</b><br>김태욱 컨설턴트 <a href="tel:010-9433-4557" style="color:var(--brand-d);font-weight:800;text-decoration:none">010-9433-4557</a><br>고객센터 1588-8303 · changupeasy@gmail.com</div>'+
+ '<a class="backlnk" data-go="home">← 홈으로</a>'+footer()+'</section>';}
 
 //==================== 설문 로직 ====================
 var CATS={'외식·음식점':['한식','분식','고기·구이','치킨','피자','햄버거','중식','일식','양식','아시안','족발·보쌈','국밥·찌개','도시락'],'카페·디저트':['카페','커피전문점','베이커리','디저트','아이스크림·빙수','브런치','무인카페'],'주점·술집':['호프·맥주','이자카야','포차','바(Bar)','와인'],'판매·소매':['편의점','무인점포','마트·식자재','반찬·식품','화장품','의류·패션','문구·팬시'],'서비스':['세탁','인쇄·출력','수리','렌탈','부동산'],'뷰티·건강':['미용실','네일','피부·왁싱','헬스·PT','필라테스·요가','마사지'],'교육':['입시학원','공부방·교습소','유아·어린이','예체능','코딩'],'숙박':['모텔·호텔','게스트하우스','펜션','파티룸'],'오락·스포츠':['PC방','코인노래방','스크린골프','당구장','볼링','실내스포츠']};
@@ -442,6 +515,9 @@ function route(){
   if(h.indexOf('post/')===0){ view=viewPost(h.slice(5)); active='info'; }
   else if(h==='info'){ view=viewInfo(); active='info'; }
   else if(h==='survey'){ view=viewSurvey(); active='survey'; }
+  else if(h==='terms'){ view=viewTerms(); active=''; }
+  else if(h==='privacy'){ view=viewPrivacy(); active=''; }
+  else if(h==='ads'){ view=viewAds(); active=''; }
   else { view=viewHome(); active='home'; }
   app.innerHTML=view;
   document.querySelectorAll('.nav a[data-go]').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-go')===active && !a.classList.contains('cta'));});
