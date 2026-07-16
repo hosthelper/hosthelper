@@ -52,6 +52,11 @@ main p b{color:var(--ink);font-weight:700}
 .btn{display:block;text-align:center;margin-top:1.8rem;padding:1rem 1.4rem;border-radius:999px;background:var(--brand);color:#fff;font-weight:800;text-decoration:none;box-shadow:0 8px 22px rgba(14,115,88,.28)}
 .back{display:inline-block;margin-top:1.2rem;font-size:.82rem;color:var(--brand);text-decoration:none;font-weight:700}
 a:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.source>b{display:block;color:var(--ink);font-weight:800;font-size:.82rem;margin-bottom:.5rem}
+.srclist{list-style:none;margin:0 0 .7rem;padding:0;display:grid;gap:.35rem}
+.srclist a{display:inline-flex;align-items:center;gap:.35rem;color:var(--brand);font-weight:700;font-size:.82rem;text-decoration:none}
+.srclist a:hover{text-decoration:underline}
+.srcnote{margin:.4rem 0 0;color:var(--mute);font-size:.78rem;line-height:1.75}
 </style>
 </head>
 <body>
@@ -77,7 +82,7 @@ a:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
     <li>SGIS로 배후세대·시간대별 생활인구의 '성격'이 업종과 맞는지 본다.</li>
     <li>데이터로 후보를 좁힌 뒤 요일·시간대를 바꿔 임장으로 최종 검증한다.</li>
   </ul></div>
-  <p class="source">근거: 소상공인시장진흥공단 상권정보시스템, 서울시 우리마을가게 상권분석서비스, 행정안전부 지방행정인허가데이터(LOCALDATA), 통계청 SGIS. 모두 추정·이력 데이터이므로 최종 판단 전 현장 확인이 필요하다.</p>
+  <div class="source"><b>출처 · 근거 자료</b><ul class="srclist"><li><a href="https://sg.sbiz.or.kr" target="_blank" rel="noopener nofollow noreferrer">소상공인 상권정보시스템 ↗</a></li><li><a href="https://golmok.seoul.go.kr" target="_blank" rel="noopener nofollow noreferrer">서울 우리마을가게 상권분석 ↗</a></li><li><a href="https://www.localdata.go.kr" target="_blank" rel="noopener nofollow noreferrer">지방행정 인허가데이터(LOCALDATA) ↗</a></li><li><a href="https://sgis.kostat.go.kr" target="_blank" rel="noopener nofollow noreferrer">통계청 SGIS ↗</a></li></ul><p class="srcnote">근거: 소상공인시장진흥공단 상권정보시스템, 서울시 우리마을가게 상권분석서비스, 행정안전부 지방행정인허가데이터(LOCALDATA), 통계청 SGIS. 모두 추정·이력 데이터이므로 최종 판단 전 현장 확인이 필요하다.</p></div>
   <a class="btn" href="../s/">내 조건에 맞는 매물 추천받기 (30초 설문)</a><br>
   <a class="back" href="./">← 창업 정보 전체보기</a>
 </main>

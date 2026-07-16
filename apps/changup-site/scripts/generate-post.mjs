@@ -49,6 +49,7 @@ const Article = z.object({
   blocks: z.array(z.object({ h2: z.string().min(2), p: z.string().min(80) })).min(3).max(6),
   summary: z.array(z.string().min(8)).min(3).max(5),
   source: z.string().min(20),
+  sources: z.array(z.object({ label: z.string().min(2).max(80), url: z.string().url() })).min(1).max(6),
 });
 
 const SYSTEM = `당신은 한국 창업(점포 양수도)·소상공인 정책 전문 에디터입니다. '창업정보 모임'의 정보 코너에 실을 뉴스 기사형 글을 작성합니다.
@@ -68,8 +69,10 @@ JSON 스키마:
   "lead": "리드문 1~2문장(요약)",
   "blocks": [ {"h2":"소제목","p":"본문 문단(HTML 허용: <b> 강조만)"} , ... 4개 내외 ],
   "summary": ["핵심 요약 3~4개"],
-  "source": "근거·출처 문장(공공기관 명시 + 보장하지 않는다는 고지)"
+  "source": "근거·출처 문장(공공기관 명시 + 보장하지 않는다는 고지)",
+  "sources": [ {"label":"소상공인시장진흥공단 정책자금","url":"https://ols.semas.or.kr"} ]
 }
+- "sources"는 반드시 <b>공공기관·정부·공식 사이트의 https URL</b>만 2~4개 넣습니다(언론·블로그 금지). 실제 존재하는 대표 도메인을 사용하세요(예: semas.or.kr, sg.sbiz.or.kr, ftc.go.kr, franchise.ftc.go.kr, law.go.kr, kodit.co.kr, localdata.go.kr, sgis.kostat.go.kr, hometax.go.kr, bizinfo.go.kr, smes.go.kr).
 본문 p 안에는 <b>강조</b>만 허용하고 다른 태그·링크는 넣지 마세요.`;
 
 function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
@@ -124,6 +127,11 @@ main p{color:var(--sub);font-size:1rem;line-height:1.85;margin:0 0 1.1rem}main p
 .summary b{display:block;color:var(--brand-d);font-size:.92rem;font-weight:800;margin-bottom:.6rem}
 .summary ul{margin:0;padding-left:1.1rem}.summary li{color:var(--ink);font-size:.94rem;line-height:1.7;margin-bottom:.4rem}
 .source{color:var(--mute);font-size:.78rem;line-height:1.75;margin:1.8rem 0 0;padding-top:1.2rem;border-top:1px solid var(--line)}
+.source>b{display:block;color:var(--ink);font-weight:800;font-size:.82rem;margin-bottom:.5rem}
+.srclist{list-style:none;margin:0 0 .7rem;padding:0;display:grid;gap:.35rem}
+.srclist a{display:inline-flex;align-items:center;gap:.35rem;color:var(--brand);font-weight:700;font-size:.82rem;text-decoration:none}
+.srclist a:hover{text-decoration:underline}
+.srcnote{margin:.4rem 0 0;color:var(--mute);font-size:.78rem;line-height:1.75}
 .btn{display:block;text-align:center;margin-top:1.8rem;padding:1rem 1.4rem;border-radius:999px;background:var(--brand);color:#fff;font-weight:800;text-decoration:none;box-shadow:0 8px 22px rgba(14,115,88,.28)}
 .back{display:inline-block;margin-top:1.2rem;font-size:.82rem;color:var(--brand);text-decoration:none;font-weight:700}
 a:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
@@ -143,7 +151,7 @@ ${body}
   <div class="summary"><b>핵심 요약</b><ul>
 ${sm}
   </ul></div>
-  <p class="source">${richText(a.source)}</p>
+  <div class="source"><b>출처 · 근거 자료</b>${(a.sources && a.sources.length) ? '<ul class="srclist">' + a.sources.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener nofollow noreferrer">${esc(s.label)} ↗</a></li>`).join('') + '</ul>' : ''}<p class="srcnote">${richText(a.source)}</p></div>
   <a class="btn" href="../s/">내 조건에 맞는 매물 추천받기 (30초 설문)</a><br>
   <a class="back" href="./">← 창업 정보 전체보기</a>
 </main>
@@ -165,7 +173,7 @@ async function generate(topic, cat) {
     messages: [{
       role: 'user',
       content: `오늘 날짜: ${today}\n카테고리: ${cat}\n주제: ${topic}\n\n`
-        + `위 주제로 뉴스 기사형 원본 글을 작성하세요. 가능하면 공공기관 사이트에서 관련 최신 제도·공고를 확인해 근거로 반영하고 출처를 밝히세요(없으면 일반 원칙으로 작성). category는 "${cat}"로 고정. JSON만 출력하세요.`,
+        + `위 주제로 뉴스 기사형 원본 글을 작성하세요. 가능하면 공공기관 사이트에서 관련 최신 제도·공고를 확인해 근거로 반영하고, "sources"에 공식 공공기관 URL 2~4개를 넣으세요. category는 "${cat}"로 고정. JSON만 출력하세요.`,
     }],
   });
   const text = res.content.filter(b => b.type === 'text').map(b => b.text).join('').trim();
