@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://changup-moim.netlify.app/sitemap.xml
