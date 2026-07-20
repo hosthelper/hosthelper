@@ -3,265 +3,645 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>창업정보 모임 — 조건에 맞는 창업 매물을 무료로 연결합니다</title>
-<meta name="description" content="가게를 양도하려는 사장님과 창업을 준비하는 분을 공공데이터로 검증해 연결하는 무료 서비스. 30초 설문을 남기면 조건에 맞는 매물을 가장 먼저 안내합니다.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e7358'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>창업정보 모임 — 창업 매물·정보를 한곳에서</title>
+<meta name="description" content="가게를 양도하려는 사장님과 창업을 준비하는 분을 공공데이터로 검증해 연결하는 무료 서비스. 매일 업데이트되는 창업 정보와 30초 설문을 한 페이지에서.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23161310'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='%23c9a44e' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="창업정보 모임">
 <meta property="og:locale" content="ko_KR">
-<meta property="og:title" content="창업정보 모임 — 조건에 맞는 창업 매물을 무료로 연결합니다">
-<meta property="og:description" content="가게를 양도하려는 사장님과 창업을 준비하는 분을 공공데이터로 검증해 연결하는 무료 서비스. 30초 설문을 남기면 조건에 맞는 매물을 가장 먼저 안내합니다.">
+<meta property="og:title" content="창업정보 모임 — 창업 매물·정보를 한곳에서">
+<meta property="og:description" content="공공데이터로 검증해 창업 매물을 무료로 연결합니다. 매일 업데이트되는 창업 정보와 30초 설문.">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="창업정보 모임 — 조건에 맞는 창업 매물을 무료로 연결합니다">
-<meta name="twitter:description" content="가게를 양도하려는 사장님과 창업을 준비하는 분을 공공데이터로 검증해 연결하는 무료 서비스. 30초 설문을 남기면 조건에 맞는 매물을 가장 먼저 안내합니다.">
-<style>
-:root{
-  --bg:#fbfaf7; --card:#ffffff; --ink:#1b2430; --sub:#5a6472;
-  --brand:#0e7358; --brand-d:#0b5a45; --tint:#e7f4ee; --line:#ececec; --mute:#9aa2ad;
-  --shadow:0 2px 4px rgba(27,36,48,.04),0 12px 28px rgba(27,36,48,.06);
-  --r:16px; color-scheme:light;
-}
-@media (prefers-color-scheme:dark){
-  :root{--bg:#0f1512; --card:#161d19; --ink:#eef1ee; --sub:#9aa6a0;
-    --brand:#2ba982; --brand-d:#238c6b; --tint:#16241d; --line:#243029; --mute:#6b776f;
-    --shadow:0 2px 4px rgba(0,0,0,.3),0 14px 34px rgba(0,0,0,.4); color-scheme:dark;}
-}
-:root[data-theme="dark"]{--bg:#0f1512;--card:#161d19;--ink:#eef1ee;--sub:#9aa6a0;--brand:#2ba982;--brand-d:#238c6b;--tint:#16241d;--line:#243029;--mute:#6b776f;--shadow:0 2px 4px rgba(0,0,0,.3),0 14px 34px rgba(0,0,0,.4);color-scheme:dark;}
-:root[data-theme="light"]{--bg:#fbfaf7;--card:#ffffff;--ink:#1b2430;--sub:#5a6472;--brand:#0e7358;--brand-d:#0b5a45;--tint:#e7f4ee;--line:#ececec;--mute:#9aa2ad;--shadow:0 2px 4px rgba(27,36,48,.04),0 12px 28px rgba(27,36,48,.06);color-scheme:light;}
-
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);
-  font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
-  -webkit-font-smoothing:antialiased;line-height:1.6;word-break:keep-all}
-main{max-width:600px;margin:0 auto;padding:0 1.25rem 7rem}
-
-/* 상단 바 */
-.bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px)}
-.bar .row{max-width:600px;margin:0 auto;padding:.85rem 1.25rem;display:flex;align-items:center;justify-content:space-between}
-.brand-id{display:flex;align-items:center;gap:.55rem;text-decoration:none;color:var(--ink);font-weight:800;font-size:1.05rem;letter-spacing:-.02em}
-.logo{width:32px;height:32px;border-radius:9px;background:var(--brand);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1rem}
-.navcta{font-size:.85rem;font-weight:700;color:#fff;background:var(--brand);padding:.55rem 1.05rem;border-radius:999px;text-decoration:none}
-.nav{display:flex;align-items:center;gap:1.1rem}
-.nav .lnk{font-size:.92rem;font-weight:700;color:var(--ink);text-decoration:none}
-.nav .lnk:hover{color:var(--brand)}
-
-/* 히어로 */
-.hero{padding:2.6rem 0 1rem;text-align:center}
-.pill{display:inline-block;background:var(--tint);color:var(--brand-d);font-weight:700;font-size:.8rem;padding:.4rem .9rem;border-radius:999px;margin-bottom:1.2rem}
-h1{font-size:2.4rem;line-height:1.24;letter-spacing:-.03em;font-weight:800;margin:0 0 1rem;text-wrap:balance}
-h1 .g{color:var(--brand)}
-.lead{color:var(--sub);font-size:1.05rem;line-height:1.7;margin:0 auto;max-width:26em}
-.cta{display:block;margin:1.8rem 0 .8rem;padding:1.15rem 1.4rem;border-radius:999px;font-weight:800;font-size:1.08rem;
-  text-decoration:none;border:none;background:var(--brand);color:#fff;box-shadow:0 8px 22px rgba(14,115,88,.28);
-  transition:transform .12s ease,box-shadow .12s ease}
-.cta:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(14,115,88,.34)}
-.cta .sub{display:block;font-weight:500;font-size:.78rem;opacity:.85;margin-top:.2rem}
-.trust{display:flex;justify-content:center;gap:1.3rem;flex-wrap:wrap;margin-top:.8rem;color:var(--sub);font-size:.82rem}
-.trust b{color:var(--ink)}
-
-/* 지표 카드 */
-.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin:2.4rem 0}
-.metric{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.3rem .6rem;text-align:center;box-shadow:var(--shadow)}
-.metric .fig{font-size:1.9rem;font-weight:800;color:var(--brand);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.metric .cap{font-size:.74rem;color:var(--sub);margin-top:.3rem;line-height:1.45}
-
-/* 섹션 */
-section{padding:2.2rem 0}
-h2{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin:0 0 1.3rem;text-wrap:balance}
-h2 .g{color:var(--brand)}
-
-/* 3단계 */
-.steps{display:grid;gap:.8rem}
-.step{display:flex;gap:1rem;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.2rem;align-items:flex-start;box-shadow:var(--shadow)}
-.step .n{flex:0 0 2.2rem;width:2.2rem;height:2.2rem;border-radius:999px;background:var(--tint);color:var(--brand-d);font-weight:800;display:flex;align-items:center;justify-content:center}
-.step h3{font-size:1.05rem;font-weight:800;margin:0 0 .25rem}
-.step p{margin:0;color:var(--sub);font-size:.9rem;line-height:1.6}
-
-/* 왜 무료 */
-.why{display:grid;gap:.7rem}
-.wrow{display:flex;gap:.8rem;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.1rem 1.2rem;box-shadow:var(--shadow)}
-.wrow .ic{flex:0 0 22px;color:var(--brand)}
-.wrow b{font-weight:800}
-.wrow span{color:var(--sub);display:block;font-size:.9rem;margin-top:.15rem;line-height:1.6}
-
-/* 매물 잠금 */
-.ledger{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
-.lr{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1.15rem;border-top:1px solid var(--line)}
-.lr:first-child{border-top:none}
-.region{font-weight:800;white-space:nowrap}
-.detail{color:var(--sub);font-size:.88rem;filter:blur(4.5px);user-select:none;flex:1;text-align:right;margin-right:.6rem}
-.sealed{background:var(--tint);color:var(--brand-d);font-size:.72rem;font-weight:700;padding:.25rem .6rem;border-radius:999px;white-space:nowrap}
-.lnote{color:var(--sub);font-size:.84rem;line-height:1.6;margin:.9rem .2rem 0}
-.lnote b{color:var(--ink)}
-
-/* 컨설턴트 */
-.advisor{display:flex;gap:1.1rem;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.4rem;box-shadow:var(--shadow)}
-.advisor .av{flex:0 0 60px;width:60px;height:60px;border-radius:999px;background:var(--tint);color:var(--brand-d);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800}
-.advisor .nm{font-size:1.1rem;font-weight:800}
-.advisor .rl{font-size:.84rem;color:var(--sub);margin:.15rem 0 .5rem}
-.advisor a{color:var(--brand);font-weight:800;text-decoration:none;font-size:1.02rem;font-variant-numeric:tabular-nums}
-
-/* FAQ */
-.faq{display:grid;gap:.7rem}
-.faq details{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
-.faq summary{list-style:none;cursor:pointer;padding:1.1rem 1.2rem;font-weight:800;font-size:.96rem;display:flex;justify-content:space-between;align-items:center;gap:1rem}
-.faq summary::-webkit-details-marker{display:none}
-.faq .pm{color:var(--brand);font-size:1.3rem;line-height:1;transition:transform .15s ease}
-.faq details[open] .pm{transform:rotate(45deg)}
-.faq .a{padding:0 1.2rem 1.15rem;color:var(--sub);font-size:.9rem;line-height:1.7}
-
-/* 콘텐츠 */
-.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1.3rem}
-.sec-head h2{margin:0}
-.seemore{font-size:.86rem;font-weight:700;color:var(--brand);text-decoration:none;white-space:nowrap}
-.feed{display:grid;gap:.8rem}
-.article{display:block;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.3rem;text-decoration:none;color:var(--ink);box-shadow:var(--shadow);transition:transform .12s ease}
-.article:hover{transform:translateY(-2px)}
-.article .meta{color:var(--brand);font-size:.78rem;font-weight:700}
-.article .title{font-weight:800;font-size:1.08rem;line-height:1.45;margin:.4rem 0}
-.article .excerpt{color:var(--sub);font-size:.88rem;line-height:1.6;margin:0}
-.article .more{display:inline-block;margin-top:.7rem;font-size:.84rem;font-weight:800;color:var(--brand)}
-
-/* 양도 */
-.transfer{background:var(--tint);border-radius:var(--r);padding:1.4rem;margin-top:1.4rem;text-align:center}
-.transfer h3{font-size:1.05rem;font-weight:800;margin:0 0 .4rem}
-.transfer p{margin:0;color:var(--sub);font-size:.9rem;line-height:1.6}
-.transfer a{color:var(--brand-d);font-weight:800;text-decoration:none}
-
-/* 푸터 */
-footer{margin-top:2.6rem;padding-top:1.6rem;border-top:1px solid var(--line)}
-.corp{font-size:.78rem;color:var(--sub);line-height:1.8;margin-bottom:1rem}
-.corp b{color:var(--ink)}
-.legal{color:var(--mute);font-size:.72rem;line-height:1.7}
-
-/* 하단 고정 CTA */
-.sticky{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:.7rem 1rem calc(.7rem + env(safe-area-inset-bottom));
-  background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
-.sticky a{display:block;max-width:600px;margin:0 auto;text-align:center;padding:1rem;border-radius:999px;
-  background:var(--brand);color:#fff;font-weight:800;text-decoration:none;font-size:1.02rem;box-shadow:0 8px 22px rgba(14,115,88,.28)}
-
-a:focus-visible,summary:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
-</style>
+<meta name="twitter:title" content="창업정보 모임 — 창업 매물·정보를 한곳에서">
+<meta name="twitter:description" content="공공데이터로 검증해 창업 매물을 무료로 연결합니다. 매일 업데이트되는 창업 정보와 30초 설문.">
+<meta name="theme-color" content="#0c0b09">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700;900&display=swap">
 </head>
 <body>
+<style>
+:root, :root[data-theme="dark"], :root[data-theme="light"]{
+  /* 억만장자 모드 — Onyx & Gold 럭셔리 팔레트 */
+  --bg:#0c0b09;--card:#16130d;--ink:#f2ecdd;--sub:#a89d86;--brand:#c9a44e;--brand-d:#a6823a;--brand-l:#e8ca7f;
+  --tint:#211c11;--line:#2b2519;--mute:#726a57;--gold:#c9a44e;--on-brand:#191307;
+  --r:16px;--r-sm:11px;--r-lg:22px;
+  --grad:linear-gradient(135deg,#efd694 0%,#c99f43 46%,#9a7529 100%);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.5);
+  --shadow:0 4px 14px rgba(0,0,0,.5),0 18px 42px rgba(0,0,0,.55);
+  --shadow-lg:0 16px 36px rgba(0,0,0,.62),0 36px 74px rgba(0,0,0,.68);
+  --ring:0 0 0 4px rgba(201,164,78,.28);
+  color-scheme:dark;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+#app>*{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) both}
+#app>*:nth-child(2){animation-delay:.06s}
+#app>*:nth-child(3){animation-delay:.12s}
+#app>*:nth-child(4){animation-delay:.18s}
+#app>*:nth-child(5){animation-delay:.24s}
+#app>*:nth-child(n+6){animation-delay:.3s}
+@media (prefers-reduced-motion:reduce){#app>*{animation:none}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Pretendard Variable','Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;line-height:1.6;word-break:keep-all;letter-spacing:-.01em;
+  background-image:radial-gradient(120% 55% at 50% -8%,color-mix(in srgb,var(--brand) 12%,transparent) 0%,transparent 60%);background-attachment:fixed;background-repeat:no-repeat}
+a{color:inherit}
+::selection{background:color-mix(in srgb,var(--brand) 26%,transparent)}
+.wrap{max-width:600px;margin:0 auto;padding:0 1.25rem}
+
+/* 상단바 */
+.bar{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.bar .row{max-width:600px;margin:0 auto;padding:.72rem 1.25rem;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:.55rem;text-decoration:none;color:var(--ink);font-weight:800;font-size:1.04rem;letter-spacing:-.03em;cursor:pointer}
+.logo{width:31px;height:31px;border-radius:10px;background:var(--grad);display:flex;align-items:center;justify-content:center;color:var(--on-brand);font-weight:800;font-size:.92rem;box-shadow:0 4px 12px rgba(201,164,78,.32),inset 0 1px 0 rgba(255,255,255,.25)}
+.nav{display:flex;align-items:center;gap:.15rem}
+.nav a{font-size:.86rem;font-weight:700;color:var(--sub);text-decoration:none;padding:.42rem .62rem;border-radius:9px;cursor:pointer;transition:color .15s,background .15s}
+.nav a:not(.cta):hover{color:var(--ink);background:color-mix(in srgb,var(--tint) 60%,transparent)}
+.nav a.on{color:var(--brand)}
+.nav a.cta{color:var(--on-brand);background:var(--grad);padding:.52rem 1rem;border-radius:999px;margin-left:.3rem;box-shadow:0 6px 16px rgba(201,164,78,.3);transition:transform .12s,box-shadow .12s}
+.nav a.cta:hover{transform:translateY(-1px);box-shadow:0 9px 22px rgba(201,164,78,.4)}
+
+/* 공통 */
+h1{letter-spacing:-.045em;text-wrap:balance}
+.hero h1,h2,.ctitle,.article h1,.article h3,.legal h1,.done h3,.promo h2,.advisor .nm{font-family:'Noto Serif KR','Nanum Myeongjo',serif;font-weight:700;letter-spacing:-.02em}
+.hero h1,.article h1{font-weight:900}
+.g{background:linear-gradient(120deg,var(--brand-l),var(--brand-d));-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn{position:relative;display:block;text-align:center;padding:1.1rem 1.4rem;border-radius:999px;border:none;background:var(--grad);color:var(--on-brand);font-weight:800;font-size:1.05rem;text-decoration:none;cursor:pointer;box-shadow:0 10px 26px rgba(201,164,78,.32),inset 0 1px 0 rgba(255,255,255,.2);font-family:inherit;letter-spacing:-.01em;transition:transform .14s ease,box-shadow .14s ease;overflow:hidden}
+.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-120%);transition:transform .6s ease}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(201,164,78,.42),inset 0 1px 0 rgba(255,255,255,.2)}
+.btn:hover::after{transform:translateX(120%)}
+.pill{display:inline-flex;align-items:center;gap:.45rem;background:color-mix(in srgb,var(--tint) 80%,transparent);color:var(--brand-d);font-weight:700;font-size:.78rem;padding:.4rem .85rem;border-radius:999px;border:1px solid color-mix(in srgb,var(--brand) 16%,transparent);box-shadow:var(--shadow-sm)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--brand);position:relative}
+.dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;background:var(--brand);opacity:.4;animation:ping 1.8s cubic-bezier(0,0,.2,1) infinite}
+@keyframes ping{0%{transform:scale(1);opacity:.5}70%,100%{transform:scale(2.4);opacity:0}}
+section{padding:2.3rem 0}
+h2{font-size:1.5rem;font-weight:800;letter-spacing:-.03em;margin:0 0 1.1rem;text-wrap:balance}
+
+/* 히어로 */
+.hero{position:relative;padding:2.8rem 0 .6rem;text-align:center}
+.hero::before{content:"";position:absolute;left:50%;top:-40px;width:min(560px,120%);height:340px;transform:translateX(-50%);background:radial-gradient(50% 50% at 50% 40%,color-mix(in srgb,var(--brand) 22%,transparent),transparent 72%);filter:blur(10px);z-index:-1;pointer-events:none}
+.hero h1{font-size:clamp(2.15rem,8.5vw,2.6rem);line-height:1.22;font-weight:800;margin:1rem 0 1rem}
+.lead{color:var(--sub);font-size:1.06rem;line-height:1.72;margin:0 auto;max-width:25em}
+.trust{display:flex;justify-content:center;gap:.6rem;flex-wrap:wrap;margin-top:1.1rem}
+.trust span{display:inline-flex;align-items:center;gap:.35rem;background:var(--card);border:1px solid var(--line);color:var(--sub);font-size:.8rem;padding:.4rem .8rem;border-radius:999px;box-shadow:var(--shadow-sm)}
+.trust b{color:var(--ink)}
+.trust span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--brand)}
+
+/* 지표 */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin:1.8rem 0 .4rem}
+.metric{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.35rem .5rem 1.2rem;text-align:center;box-shadow:var(--shadow);overflow:hidden}
+.metric::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--grad);opacity:.85}
+.metric .fig{font-size:1.95rem;font-weight:800;background:linear-gradient(120deg,var(--brand-l),var(--brand-d));-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;line-height:1}
+.metric .cap{font-size:.72rem;color:var(--sub);margin-top:.4rem;line-height:1.4;font-weight:600}
+
+/* 섹션 헤더 */
+.sh{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+.sh h2{margin:0}
+.more-lnk{font-size:.85rem;font-weight:700;color:var(--brand);text-decoration:none;white-space:nowrap;cursor:pointer;transition:opacity .15s}
+.more-lnk:hover{opacity:.7}
+
+/* 카드/피드 */
+.feed{display:grid;gap:.85rem}
+.card{position:relative;display:block;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.35rem;text-decoration:none;color:var(--ink);box-shadow:var(--shadow);cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.card::before{content:"";position:absolute;left:0;top:1.2rem;bottom:1.2rem;width:3px;border-radius:3px;background:var(--grad);opacity:0;transition:opacity .16s ease}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:color-mix(in srgb,var(--brand) 34%,var(--line))}
+.card:hover::before{opacity:1}
+.card:hover .cmore{gap:.5rem}
+.ctop{display:flex;align-items:center;gap:.55rem;margin-bottom:.55rem}
+.tag{background:var(--tint);color:var(--brand-d);font-size:.71rem;font-weight:700;padding:.24rem .62rem;border-radius:999px;letter-spacing:-.01em}
+.date{color:var(--mute);font-size:.75rem;font-variant-numeric:tabular-nums}
+.new{background:var(--grad);color:var(--on-brand);font-size:.64rem;font-weight:800;padding:.18rem .5rem;border-radius:5px;letter-spacing:.08em;box-shadow:0 3px 8px rgba(201,164,78,.42)}
+.ctitle{font-weight:800;font-size:1.16rem;line-height:1.42;margin:.1rem 0 .4rem;letter-spacing:-.02em}
+.cex{color:var(--sub);font-size:.9rem;line-height:1.62;margin:0}
+.cmore{display:inline-flex;align-items:center;gap:.3rem;margin-top:.8rem;font-size:.83rem;font-weight:800;color:var(--brand);transition:gap .16s ease}
+
+/* 필터 */
+.filters{display:flex;gap:.45rem;flex-wrap:wrap;margin:0 0 1.2rem}
+.fchip{padding:.44rem .95rem;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--sub);font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .14s ease;box-shadow:var(--shadow-sm)}
+.fchip:hover{border-color:color-mix(in srgb,var(--brand) 40%,var(--line));color:var(--ink)}
+.fchip.on{background:var(--grad);border-color:transparent;color:var(--on-brand);box-shadow:0 5px 14px rgba(201,164,78,.3)}
+
+/* 기사 상세 */
+.article .tag{display:inline-block;margin:1.2rem 0 .5rem}
+.article .amd{color:var(--mute);font-size:.78rem;margin:0 0 .5rem}
+.article h1{font-size:1.72rem;line-height:1.32;font-weight:800;margin:.2rem 0 1.1rem;letter-spacing:-.03em}
+.article .alead{font-size:1.07rem;line-height:1.76;font-weight:600;color:var(--ink);margin:0 0 1.5rem;padding-bottom:1.4rem;border-bottom:1px solid var(--line)}
+.article h3{font-size:1.18rem;font-weight:800;margin:2rem 0 .6rem;letter-spacing:-.02em;padding-left:.8rem;border-left:3px solid var(--brand);border-radius:1px}
+.article p{color:var(--sub);font-size:1rem;line-height:1.86;margin:0 0 1.05rem}
+.article p b{color:var(--ink);font-weight:700}
+.summary{margin:2rem 0 0;background:var(--tint);border-radius:var(--r);padding:1.35rem 1.45rem;border:1px solid color-mix(in srgb,var(--brand) 14%,transparent)}
+.summary b{display:flex;align-items:center;gap:.4rem;color:var(--brand-d);font-weight:800;font-size:.94rem;margin-bottom:.6rem}
+.summary b::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:var(--grad);color:var(--on-brand);border-radius:6px;font-size:.7rem}
+.summary ul{margin:0;padding-left:1.1rem}.summary li{color:var(--ink);font-size:.93rem;line-height:1.72;margin-bottom:.42rem}
+.src{color:var(--mute);font-size:.78rem;line-height:1.75;margin:1.7rem 0 0;padding-top:1.1rem;border-top:1px solid var(--line)}
+.src>b{display:block;color:var(--ink);font-weight:800;font-size:.82rem;margin-bottom:.5rem}
+.srclist{list-style:none;margin:0 0 .7rem;padding:0;display:grid;gap:.35rem}
+.srclist a{display:inline-flex;align-items:center;gap:.35rem;color:var(--brand);font-weight:700;font-size:.82rem;text-decoration:none;border-bottom:1px solid transparent}
+.srclist a:hover{border-bottom-color:var(--brand)}
+.srcnote{margin:.4rem 0 0}
+.backlnk{display:inline-block;margin-top:1.2rem;font-size:.85rem;font-weight:700;color:var(--brand);text-decoration:none;cursor:pointer}
+
+/* 왜무료 / 컨설턴트 / faq */
+.why{display:grid;gap:.65rem}
+.wrow{display:flex;gap:.8rem;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.1rem 1.2rem;box-shadow:var(--shadow);transition:transform .14s,box-shadow .14s}
+.wrow:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.wrow svg{flex:0 0 26px;width:26px;height:26px;padding:2px;color:var(--on-brand);background:var(--grad);border-radius:8px;box-shadow:0 4px 10px rgba(201,164,78,.28)}
+.wrow b{font-weight:800}.wrow span{color:var(--sub);display:block;font-size:.89rem;margin-top:.14rem;line-height:1.55}
+.advisor{display:flex;gap:1rem;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.35rem;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.advisor::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--grad)}
+.av{flex:0 0 58px;width:58px;height:58px;border-radius:999px;background:var(--grad);color:var(--on-brand);display:flex;align-items:center;justify-content:center;font-size:1.45rem;font-weight:800;box-shadow:0 6px 16px rgba(201,164,78,.32),inset 0 1px 0 rgba(255,255,255,.25)}
+.advisor .nm{font-weight:800;font-size:1.06rem}.advisor .rl{color:var(--sub);font-size:.83rem;margin:.12rem 0 .5rem}
+.advisor a{display:inline-flex;align-items:center;gap:.35rem;color:var(--brand);font-weight:800;text-decoration:none;font-variant-numeric:tabular-nums}
+.faq{display:grid;gap:.6rem}
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;transition:border-color .15s}
+.faq details[open]{border-color:color-mix(in srgb,var(--brand) 30%,var(--line))}
+.faq summary{list-style:none;cursor:pointer;padding:1.1rem 1.2rem;font-weight:800;font-size:.94rem;display:flex;justify-content:space-between;gap:1rem;align-items:center}
+.faq summary::-webkit-details-marker{display:none}.faq .pm{color:var(--brand);font-size:1.35rem;transition:transform .2s ease;line-height:1}
+.faq details[open] .pm{transform:rotate(135deg)}.faq .a{padding:0 1.2rem 1.15rem;color:var(--sub);font-size:.9rem;line-height:1.72}
+
+/* 잠금 매물 */
+.ledger{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.lr{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1.2rem;border-top:1px solid var(--line);transition:background .14s}
+.lr:hover{background:color-mix(in srgb,var(--tint) 45%,transparent)}
+.lr:first-child{border-top:none}.region{font-weight:800;white-space:nowrap;display:inline-flex;align-items:center;gap:.45rem}
+.region::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 20%,transparent)}
+.blur{color:var(--sub);font-size:.87rem;filter:blur(4.5px);user-select:none;flex:1;text-align:right;margin-right:.5rem}
+.sealed{display:inline-flex;align-items:center;gap:.3rem;background:var(--tint);color:var(--brand-d);font-size:.71rem;font-weight:700;padding:.24rem .6rem;border-radius:999px;white-space:nowrap;border:1px solid color-mix(in srgb,var(--brand) 14%,transparent)}
+.sealed::before{content:"🔒";font-size:.68rem}
+
+/* 프로모/양도/푸터 */
+.promo{position:relative;margin-top:2rem;background:var(--grad);border-radius:var(--r-lg);padding:1.8rem 1.5rem;text-align:center;color:var(--on-brand);box-shadow:var(--shadow-lg);overflow:hidden}
+.promo::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 80% -10%,rgba(255,255,255,.22),transparent 55%);pointer-events:none}
+.promo h2{font-size:1.24rem;margin:0 0 .4rem;color:var(--on-brand);position:relative}.promo p{margin:0 0 1.1rem;color:rgba(25,19,7,.78);font-size:.92rem;position:relative}
+.promo .btn{position:relative;background:#fff;color:var(--brand-d);box-shadow:0 10px 26px rgba(0,0,0,.18)}
+.promo .btn::after{background:linear-gradient(120deg,transparent 30%,rgba(201,164,78,.12) 50%,transparent 70%)}
+.transfer{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.4rem;margin-top:1.4rem;text-align:center;box-shadow:var(--shadow)}
+.transfer h3{font-size:1.04rem;font-weight:800;margin:0 0 .4rem}.transfer p{margin:0;color:var(--sub);font-size:.9rem;line-height:1.7}
+.transfer a{color:var(--brand);font-weight:800;text-decoration:none}
+footer{margin:2.6rem 0 5.5rem;padding-top:1.5rem;border-top:1px solid var(--line);color:var(--mute);font-size:.73rem;line-height:1.78}
+footer b{color:var(--ink)}
+
+/* 설문 폼 */
+.form label,.form .lb{display:block;font-size:.84rem;font-weight:700;color:var(--ink);margin:1.2rem 0 .4rem}
+.hint{color:var(--mute);font-weight:400}
+.form input,.form select,.form textarea{width:100%;padding:.8rem .95rem;border:1px solid var(--line);border-radius:var(--r-sm);font-size:.95rem;background:var(--card);color:var(--ink);font-family:inherit;transition:border-color .14s,box-shadow .14s}
+.form input::placeholder,.form textarea::placeholder{color:var(--mute)}
+.form input:focus,.form select:focus,.form textarea:focus{outline:none;border-color:var(--brand);box-shadow:var(--ring)}
+.form textarea{min-height:70px;resize:vertical}
+.chips{display:flex;gap:.5rem;flex-wrap:wrap}
+.chip{padding:.56rem 1.08rem;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--sub);font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .14s ease}
+.chip:hover:not(.on):not(.slotoff){border-color:color-mix(in srgb,var(--brand) 40%,var(--line));color:var(--ink)}
+.chip.on{background:var(--grad);border-color:transparent;color:var(--on-brand);box-shadow:0 5px 14px rgba(201,164,78,.3)}
+.subgroup{margin-top:.4rem}.subgroup .sgl{font-size:.8rem;font-weight:700;color:var(--brand);margin:.75rem 0 .45rem}
+.agree{display:flex;gap:.55rem;align-items:flex-start;margin-top:1.2rem;font-size:.78rem;color:var(--sub);line-height:1.6}
+.agree input{width:auto;margin-top:.15rem;accent-color:var(--brand)}
+.fbtn{margin-top:1.4rem;width:100%;padding:1.1rem;border-radius:999px;border:none;cursor:pointer;background:var(--grad);color:var(--on-brand);font-size:1.05rem;font-weight:800;font-family:inherit;letter-spacing:-.01em;box-shadow:0 10px 26px rgba(201,164,78,.32),inset 0 1px 0 rgba(255,255,255,.2);transition:transform .14s,box-shadow .14s}
+.fbtn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(201,164,78,.42),inset 0 1px 0 rgba(255,255,255,.2)}
+.fbtn:disabled{opacity:.55;cursor:default}
+.fnote{color:var(--mute);font-size:.76rem;margin-top:.8rem;line-height:1.6}.ferr{color:#c0392b;font-size:.85rem;margin-top:.9rem}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.mhint{color:var(--mute);font-size:.78rem;line-height:1.6;margin:.1rem 0 .3rem}
+.calwrap{margin-top:.5rem;border:1px solid var(--line);border-radius:var(--r);padding:1.1rem;background:var(--card);box-shadow:var(--shadow-sm)}
+.calnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem}
+.calnav b{font-size:1.02rem;font-weight:800}
+.calnav button{background:var(--tint);border:none;color:var(--brand-d);width:36px;height:36px;border-radius:10px;font-size:1.1rem;cursor:pointer;font-family:inherit;font-weight:800;transition:background .14s,transform .1s}
+.calnav button:not(:disabled):hover{background:color-mix(in srgb,var(--brand) 22%,transparent)}
+.calnav button:not(:disabled):active{transform:scale(.92)}
+.calnav button:disabled{opacity:.3;cursor:default}
+.caldow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:5px}
+.caldow span{text-align:center;font-size:.72rem;color:var(--mute);font-weight:700;padding:.2rem 0}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:.86rem;font-weight:700;cursor:pointer;border:1px solid transparent;color:var(--ink);transition:background .12s,transform .1s}
+.cell.off{color:var(--mute);opacity:.32;cursor:default}
+.cell.sun{color:#d1584f}
+.cell:not(.off):not(.sel):hover{background:var(--tint)}
+.cell:not(.off):not(.sel):active{transform:scale(.9)}
+.cell.sel{background:var(--grad);color:var(--on-brand);box-shadow:0 5px 14px rgba(201,164,78,.34)}
+.slots{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.85rem}
+.chip.slotoff{opacity:.5;text-decoration:line-through;cursor:default;background:var(--card);color:var(--mute);border-style:dashed}
+.msum{margin-top:.8rem;background:var(--tint);color:var(--brand-d);font-weight:800;font-size:.9rem;padding:.7rem .9rem;border-radius:10px;display:flex;justify-content:space-between;align-items:center;gap:.6rem}
+.msum .clr{background:none;border:none;color:var(--brand-d);font-size:.8rem;font-weight:700;cursor:pointer;text-decoration:underline;font-family:inherit;white-space:nowrap}
+footer .flinks{display:flex;flex-wrap:wrap;gap:.35rem 1rem;margin-bottom:.9rem}
+footer .flinks a{color:var(--sub);font-weight:700;text-decoration:none;font-size:.75rem;cursor:pointer}
+footer .flinks a:hover{color:var(--brand)}
+.legal{padding-top:1.4rem}
+.legal h1{font-size:1.55rem;margin:.5rem 0 .3rem;line-height:1.3}
+.legal .upd{color:var(--mute);font-size:.8rem;margin:0 0 1.3rem}
+.legal h3{font-size:1.04rem;font-weight:800;margin:1.6rem 0 .5rem;color:var(--ink)}
+.legal p{color:var(--sub);font-size:.92rem;line-height:1.8;margin:0 0 .8rem}
+.legal ul{margin:0 0 .9rem;padding-left:1.1rem}
+.legal li{color:var(--sub);font-size:.92rem;line-height:1.75;margin-bottom:.4rem}
+.legal li b{color:var(--ink)}
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:.6rem 0 1rem}
+.legal .tbl{width:100%;min-width:460px;border-collapse:collapse;font-size:.82rem}
+.legal .tbl th,.legal .tbl td{border:1px solid var(--line);padding:.55rem .6rem;text-align:left;vertical-align:top;color:var(--sub)}
+.legal .tbl th{background:var(--tint);color:var(--brand-d);font-weight:700;white-space:nowrap}
+.legal .box{background:var(--tint);border-radius:12px;padding:1rem 1.15rem;margin:1.1rem 0;font-size:.88rem;line-height:1.7;color:var(--ink)}
+.done{text-align:center;padding:2.4rem 0}
+.ck{width:68px;height:68px;margin:0 auto 1.1rem;background:var(--grad);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--on-brand);box-shadow:0 10px 26px rgba(201,164,78,.34),inset 0 1px 0 rgba(255,255,255,.28);animation:pop .5s cubic-bezier(.16,1.4,.3,1)}
+.ck svg{stroke:#fff!important}
+@keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.done h3{font-size:1.35rem;margin:.2rem 0 .6rem;font-weight:800}.done p{color:var(--sub);line-height:1.8}
+
+/* 하단 고정 CTA */
+.sticky{position:fixed;left:0;right:0;bottom:0;z-index:25;padding:.7rem 1rem calc(.7rem + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.sticky a{display:block;max-width:600px;margin:0 auto;text-align:center;padding:1rem;border-radius:999px;background:var(--grad);color:var(--on-brand);font-weight:800;text-decoration:none;letter-spacing:-.01em;box-shadow:0 10px 26px rgba(201,164,78,.34),inset 0 1px 0 rgba(255,255,255,.2)}
+.sticky[hidden]{display:none}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+</style>
 
 <div class="bar"><div class="row">
-  <a class="brand-id" href="./"><span class="logo">창</span>창업정보 모임</a>
+  <a class="brand" data-go="home"><span class="logo">창</span>창업정보 모임</a>
   <nav class="nav">
-    <a class="lnk" href="./posts/">정보</a>
-    <a class="navcta" href="./s/">무료 설문</a>
+    <a data-go="home">홈</a>
+    <a data-go="info">정보</a>
+    <a class="cta" data-go="survey">무료 설문</a>
   </nav>
 </div></div>
 
-<main>
+<main id="app" class="wrap"></main>
+<div class="sticky" id="sticky"><a data-go="survey">30초 설문하고 매물 먼저 받기</a></div>
 
-  <section class="hero">
-    <span class="pill">공공데이터로 검증하는 창업 매물</span>
-    <h1>조건에 맞는 창업 매물을<br><span class="g">무료로</span> 연결해 드려요</h1>
-    <p class="lead">가게를 양도하려는 사장님과 창업을 준비하는 분을 잇습니다. 30초 설문을 남기면, 딱 맞는 매물이 나왔을 때 가장 먼저 알려드려요.</p>
-    <a class="cta" href="./s/">30초 설문하고 매물 먼저 받기<span class="sub">전화 강요 없음 · 조건에 맞을 때만 연락</span></a>
-    <div class="trust"><span><b>상담비</b> 무료</span><span><b>가입비</b> 없음</span><span><b>연락 중단</b> 언제든</span></div>
-  </section>
+<script>
+//==================== 데이터 ====================
+var TODAY='2026.07.20';
+var CATS_ORDER=['전체','정책자금','권리금','운영방식','상권분석'];
+var ARTICLES=[
+ {slug:'yangdo-segeum',cat:'권리금',date:'2026.07.20',
+  title:'가게 넘길 때 세금 폭탄 피하기… 권리금·폐업 세무 체크리스트',
+  excerpt:'권리금 기타소득, 사업양수도 부가세 특례, 폐업신고와 부가세 확정신고까지 순서대로.',
+  lead:'가게를 넘길 때 대금만 신경 쓰다 세금에서 발목이 잡히는 경우가 많다. 권리금과 폐업에는 각각 세무 절차가 따라오고, 순서를 놓치면 가산세를 물거나 양수인과 분쟁이 생긴다. 계약 전에 세금 부담 주체와 신고 순서를 정해두는 것이 안전하다.',
+  blocks:[
+   ['권리금은 양도인에게 \'기타소득\'이다','받은 <b>권리금은 양도인의 기타소득</b>으로 과세되는 것이 일반적이다. 양수인은 권리금 지급 시 <b>원천징수</b> 의무가 생길 수 있어, 대금 지급 전에 세무 처리를 정해두어야 한다. 계약서에 세금 부담 주체(양도인·양수인)를 명확히 적어야 나중에 서로 떠넘기는 분쟁을 막는다.'],
+   ['사업을 통째로 넘기면 \'사업양수도\' 부가세 특례','재고·시설·거래처를 포함해 사업을 <b>포괄적으로 양수도</b>하면 부가가치세가 과세되지 않는 특례가 적용될 수 있다. 다만 \'포괄\' 요건(권리·의무의 포괄 승계)을 못 맞추면 부가세가 붙는다. 요건 충족 여부를 반드시 세무로 확인하고 계약서에 포괄양수도임을 명시한다.'],
+   ['폐업신고와 부가세 확정신고를 기한 내에','양도·폐업 시 <b>폐업신고</b>와 함께 <b>부가가치세 확정신고</b>를 기한 내 마쳐야 한다. 놓치면 가산세가 붙는다. 카드단말기 해지, 사업용 계좌·통신판매업 등 부수 등록 정리도 함께 처리한다. 대부분 홈택스에서 순서대로 신고할 수 있다.'],
+   ['직원 4대보험·지원금 사후관리까지','직원이 있었다면 <b>4대보험 상실신고</b>와 정산을 마치고, 이전에 받은 정책자금·지원금의 사후관리(의무 고용·유지 조건 등) 위반이 없는지 확인한다. 양수인은 이 정리가 끝났는지 확인한 뒤 인수해야 승계 리스크가 없다.']],
+  summary:['권리금은 양도인의 기타소득 — 지급 전 원천징수·부담 주체를 계약서에 정한다.','재고·시설을 포함한 포괄적 사업양수도 요건을 맞추면 부가세 특례가 가능하다.','폐업신고와 부가세 확정신고를 기한 내 마쳐 가산세를 피한다.','직원 4대보험 상실신고·지원금 사후관리까지 정리된 뒤 인수한다.'],
+  src:'근거: 소득세법(기타소득), 부가가치세법(사업양수도 특례) 및 국세청 홈택스 폐업·부가세 신고 안내. 개별 세무는 요건·시점에 따라 다르며 세무대리인 확인이 필요하다.'},
 
-  <div class="metrics">
-    <div class="metric"><div class="fig">5</div><div class="cap">공공데이터<br>기반 분석</div></div>
-    <div class="metric"><div class="fig">0</div><div class="cap">상담·매칭<br>비용 (원)</div></div>
-    <div class="metric"><div class="fig">1:1</div><div class="cap">전담 컨설턴트<br>동행</div></div>
-  </div>
+ {slug:'muin-maejang',cat:'상권분석',date:'2026.07.19',
+  title:'무인매장 창업, 인수 전 반드시 확인할 5가지',
+  excerpt:'무인카페·아이스크림·밀키트… 인건비 없는 대신 숨은 비용과 상권 함정을 걸러내는 법.',
+  lead:'무인매장은 \'인건비 제로\'라는 말로 창업자를 끌어당긴다. 하지만 무인이라고 손이 안 가는 것은 아니며, 인수 전에 확인하지 않으면 인건비 대신 다른 비용이 새어나간다. 무인 특유의 리스크를 숫자로 검증해야 한다.',
+  blocks:[
+   ['\'무인\'은 무관리가 아니다 — 운영 실태부터','무인매장도 <b>재고 보충·청소·기기 점검·고객응대(CS)</b>가 필요하다. 인수 전, 현 운영자가 하루 몇 번 방문하는지, 원격관리(결제·CCTV·키오스크) 체계가 어떤지 확인한다. \'완전 방치 가능\'이라는 설명은 대개 과장이다.'],
+   ['매출은 \'객단가 × 방문수\' — POS로 검증','무인은 객단가가 낮아 <b>방문수(트래픽)</b>가 생명이다. POS·결제 데이터로 시간대별 매출과 재방문을 검증하고, 소상공인 상권정보시스템·통계청 SGIS로 배후 생활인구를 교차 확인한다. 유동인구가 많아도 체류·구매로 이어지지 않으면 소용없다.'],
+   ['도난·기기고장 등 \'무인 특유 비용\'','무인은 <b>도난·먹튀·기기 오류·환불 분쟁</b> 리스크가 있다. CCTV·잠금장치·키오스크 유지보수 계약과 최근 손실 이력을 확인한다. 인건비를 아낀 만큼 이 비용이 얼마나 드는지 계산해야 실수익이 보인다.'],
+   ['설비 잔존가치와 리스·렌탈 승계','키오스크·냉동고·자판기 등 <b>설비의 잔존가치와 리스/렌탈 승계 조건</b>을 확인한다. 렌탈 설비를 인수하면 남은 약정이 그대로 넘어온다. 시설권리금은 새것 기준이 아니라 감가된 잔존가치로 판단한다.']],
+  summary:['무인도 재고·청소·점검·CS가 필요 — \'완전 방치\'는 과장이다.','객단가가 낮아 방문수가 핵심 — POS·생활인구 데이터로 검증한다.','도난·기기고장·환불 등 무인 특유 비용을 손실 이력으로 확인한다.','설비 잔존가치와 리스/렌탈 승계 조건을 계약 전 점검한다.'],
+  src:'근거: 소상공인 상권정보시스템(sg.sbiz.or.kr), 통계청 SGIS(sgis.kostat.go.kr), 지방행정 인허가데이터(localdata.go.kr). 매출·트래픽은 개별 검증이 필요하며 특정 수익을 보장하지 않는다.'},
 
-  <section>
-    <h2>세 단계면 <span class="g">충분해요</span></h2>
-    <div class="steps">
-      <div class="step"><div class="n">1</div><div><h3>조건 설문</h3><p>운영 방식·업종·지역·예산만 남기면 끝. 30초면 됩니다.</p></div></div>
-      <div class="step"><div class="n">2</div><div><h3>조건 매칭</h3><p>조건에 맞는 매물만 골라 연락드려요. 예산 초과 매물은 권하지 않습니다.</p></div></div>
-      <div class="step"><div class="n">3</div><div><h3>브리핑 미팅</h3><p>상권 데이터와 정책자금 로드맵을 함께 놓고 브리핑합니다.</p></div></div>
-    </div>
-  </section>
+ {slug:'jeongbogonggae',cat:'운영방식',date:'2026.07.18',
+  title:'프랜차이즈 계약 전, 정보공개서에서 반드시 볼 숫자 5개',
+  excerpt:'평균매출·폐점 수·필수구매·차액가맹금·인테리어비 — 화려한 홍보보다 정직한 숫자.',
+  lead:'프랜차이즈는 검증된 시스템을 사는 대신 종속을 감수하는 선택이다. 그 판단의 근거는 공정거래위원회에 등록된 정보공개서의 숫자에 거의 다 들어 있다. 계약 14일 전 받는 이 문서를 숫자 중심으로 읽어야 한다.',
+  blocks:[
+   ['① 가맹점 평균매출액과 \'편차\'','정보공개서에는 <b>가맹점 평균매출액</b>과 면적당 매출이 실린다. 평균만 보지 말고 상·하위 편차를 함께 봐야 한다. 평균이 높아도 상위 몇 개 점포가 끌어올린 것이라면 내 점포의 현실과 거리가 멀 수 있다.'],
+   ['② 신규개점 대비 계약종료·폐점 수','최근 3년 <b>신규개점 수 대비 계약해지·명의변경·폐점 수</b>는 브랜드의 체력을 보여준다. 개점이 폭발적으로 늘면서 폐점도 함께 급증한다면 \'출점 위주\' 전략일 수 있어 주의가 필요하다.'],
+   ['③ 필수구매 품목과 \'차액가맹금\'','본사가 지정한 <b>필수구매 품목</b>과 그로부터 본사가 얻는 <b>차액가맹금(유통 마진)</b>이 공개된다. 로열티가 낮아 보여도 필수구매 마진이 크면 실질 부담은 커진다. 원가율을 좌우하는 핵심 숫자다.'],
+   ['④·⑤ 인테리어 비용과 계약 조건','<b>기준점포 인테리어 비용</b>(평당 단가·본사 지정 여부)과 계약기간·갱신·위약 조건을 확인한다. 인테리어를 본사·지정업체로만 해야 하는지, 중도 해지 시 위약금은 어떤지가 초기 비용과 퇴로 비용을 결정한다.']],
+  summary:['평균매출은 상·하위 편차와 함께 봐야 내 점포 현실에 가깝다.','최근 3년 신규개점 대비 폐점·해지 수로 브랜드 체력을 가늠한다.','필수구매 품목·차액가맹금이 실질 원가 부담을 좌우한다.','인테리어 비용·계약/갱신/위약 조건으로 초기·퇴로 비용을 확인한다.'],
+  src:'근거: 가맹사업거래의 공정화에 관한 법률 및 공정거래위원회 가맹사업거래 정보공개서(franchise.ftc.go.kr). 정보공개서는 계약 14일 전 제공 의무가 있으며, 수치는 브랜드·점포별로 다르다.'},
 
-  <section>
-    <h2>왜 <span class="g">무료</span>인가요?</h2>
-    <div class="why">
-      <div class="wrow"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><div><b>수수료는 계약 성사 시 매도인 측에서 발생합니다.</b><span>매수 고객님께는 비용이 없습니다.</span></div></div>
-      <div class="wrow"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><div><b>계약은 개업공인중개사를 통해 진행합니다.</b><span>저희는 조건에 맞는 연결과 자문을 담당해요.</span></div></div>
-      <div class="wrow"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><div><b>연락처는 매물 안내 목적에만 씁니다.</b><span>제3자 제공 없음, 강매 없음.</span></div></div>
-    </div>
-  </section>
+ {slug:'jeongchaek-jonglyu',cat:'정책자금',date:'2026.07.17',
+  title:'같은 정책자금도 창구 따라 다르다… 직접·대리대출 차이와 신청 순서',
+  excerpt:'소상공인 정책자금의 직접대출·대리대출 차이, 금리 구조와 한도, 신청 전 준비 순서.',
+  lead:'정책자금은 하나가 아니다. 어느 창구로, 어떤 방식으로 신청하느냐에 따라 금리·한도·심사 속도가 달라진다. \'저금리\'라는 홍보만 보고 움직이면 정작 내게 맞는 자금을 놓친다.',
+  blocks:[
+   ['정책자금은 \'직접대출\'과 \'대리대출\'로 나뉜다','소상공인시장진흥공단(소진공)의 정책자금은 크게 <b>직접대출</b>(소진공이 직접 심사·대출)과 <b>대리대출</b>(소진공이 추천·보증하고 은행이 실행)로 나뉜다. 직접대출은 금리가 낮은 편이지만 예산 소진이 빠르고, 대리대출은 취급 은행이 많아 접근성이 높다. 내 상황에 맞는 트랙을 먼저 정해야 한다.'],
+   ['금리는 \'기준금리 + 가산\' 구조 — 고정이 아니다','정책자금 금리는 분기마다 고시되는 <b>정책자금 기준금리</b>에 사업별 가산·차감이 붙어 정해진다. \'저금리\'라는 홍보만 보고 확정 금리로 오해하면 안 된다. 신청 시점의 고시 금리와 본인 적용 조건을 소진공 공지에서 반드시 확인한다.'],
+   ['한도와 대상 — 업력·매출 요건을 먼저 본다','자금 종류(일반경영안정·성장기반 등)마다 <b>업력·매출·상시근로자</b> 요건과 한도가 다르다. 창업 초기라면 신청 가능한 자금이 제한되어, 예비창업자 사전보증을 병행해야 하는 경우가 많다. 내 사업체가 어느 자금의 대상인지부터 매칭하는 게 순서다.'],
+   ['신청 전 준비 — 교육 이수와 서류','대부분의 정책자금은 <b>소상공인 정책자금 교육 이수</b>와 사업자등록·재무 서류를 요구한다. 신청이 몰리면 접수가 조기 마감되므로, 서류를 미리 갖추고 분기 초 공고를 노리는 편이 유리하다. 자금 계획은 매물 계약보다 먼저 세워야 한다.']],
+  summary:['정책자금은 직접대출(저금리·조기소진)과 대리대출(은행 실행·접근성)로 나뉜다.','금리는 분기 고시 기준금리+가산 구조 — 확정 저금리가 아니다.','자금 종류별 업력·매출·한도 요건이 달라 대상 매칭이 먼저다.','교육 이수·서류를 미리 갖추고 분기 초 공고를 노린다.'],
+  src:'근거: 소상공인시장진흥공단 정책자금(ols.semas.or.kr) 및 분기별 금리·자금종류 공고. 금리·한도·대상은 시점과 예산에 따라 변동하며 승인을 보장하지 않는다.'},
 
-  <section>
-    <h2>이번 주 <span class="g">연결 가능한</span> 매물</h2>
-    <div class="ledger">
-      <div class="lr"><span class="region">마포권</span><span class="detail">카페 · 보증금 3,000 · 월 200</span><span class="sealed">비공개</span></div>
-      <div class="lr"><span class="region">강남권</span><span class="detail">외식업 · 권리금 협의 가능</span><span class="sealed">비공개</span></div>
-      <div class="lr"><span class="region">성동권</span><span class="detail">풀오토 · 위탁 운영 가능</span><span class="sealed">비공개</span></div>
-    </div>
-    <p class="lnote">매물 상세는 <b>설문을 남긴 분께만</b> 개별 안내드려요.</p>
-  </section>
+ {slug:'sajeonbojeung',cat:'정책자금',date:'2026.07.15',
+  title:'권리금 5천 치르고 "대출 불가" 통보… \'예비창업자 사전보증\'이 해법',
+  excerpt:'권리금·보증금은 정책자금 대출 대상이 아니다. 계약 전에 대출 한도를 확정하는 공식 절차.',
+  lead:'창업 자금 계획에서 가장 흔한 실수는 계약을 먼저 하고 대출을 나중에 알아보는 것이다. 권리금과 임차보증금은 정책자금 대출 대상이 아니라는 사실을, 상당수 예비창업자가 계약금과 권리금을 모두 치른 뒤에야 알게 된다.',
+  blocks:[
+   ['정책자금은 \'시설·운전자금\'이지 권리금이 아니다','소상공인 정책자금은 크게 <b>시설자금</b>과 <b>운전자금</b>으로 나뉜다. 시설자금은 인테리어·설비에, 운전자금은 재료비·인건비 등 운영에 쓰도록 설계돼 있다. 반면 <b>권리금과 임차보증금은 지원 대상에서 제외</b>된다. 창업 초기 목돈이 가장 많이 드는 두 항목을 정책자금으로 해결할 수 없다는 뜻이다. 이 구조를 모르면 \'대출로 권리금까지 메우겠다\'는 계획이 계약 직후 무너진다.'],
+   ['신청은 \'사업자등록 후 영업 중\'… 그래서 순서가 꼬인다','대다수 정책자금은 <b>사업자등록을 마치고 실제 영업 중</b>이어야 신청할 수 있다. 계약이 먼저, 대출은 그 뒤라는 뜻이다. 계약금·권리금을 치르고 사업자등록을 한 다음에야 은행 문을 두드리게 되는데, 이 시점에 한도가 기대에 못 미치면 이미 되돌리기 어렵다.'],
+   ['해법은 \'예비창업자 사전보증\'… 계약 전에 한도를 확정','신용보증기금과 지역신용보증재단은 사업자등록 전 예비창업 단계에서도 사전심사를 받아 <b>보증예정통지(보증 가능 여부·예상 한도)</b>를 받아둘 수 있는 창구를 운영한다. 계약서에 도장을 찍기 전에 \'내가 받을 수 있는 대출 규모\'를 먼저 가늠할 수 있는 것이다.'],
+   ['현실적인 자금 순서','순서를 뒤집어야 한다. <b>희망 조건 정리 → 사전보증 상담(한도 확정) → 매물 계약·사업자등록 → 보증서 기반 대출 실행 → 개업</b>. 이 순서를 지키면 자금이 모자라 계약을 파기하는 최악의 상황을 피할 수 있다. 특히 권리금이 큰 매물일수록 총 가용자금을 먼저 확인한 뒤 매물을 고르는 습관이 필요하다.']],
+  summary:['권리금·임차보증금은 정책자금 대출 대상이 아니다(자기자본 준비).','정책자금은 사업자등록 후 영업 중이어야 신청 가능 — 계약이 먼저, 대출이 나중.','예비창업자 사전보증으로 계약 전에 대출 가능액을 확정할 수 있다.','\'조건정리→사전보증→계약→대출→개업\' 순서로 자금 사고를 예방한다.'],
+  src:'근거: 소상공인시장진흥공단 정책자금 안내(ols.semas.or.kr), 신용보증기금·지역신용보증재단 창업단계 보증 프로그램. 대출 승인·한도·수익을 보장하지 않으며, 세부 조건은 기관 확인이 필요하다.'},
 
-  <section>
-    <h2>담당 <span class="g">컨설턴트</span></h2>
-    <div class="advisor">
-      <div class="av">김</div>
-      <div>
-        <div class="nm">김태욱 컨설턴트</div>
-        <div class="rl">창업이지 · 점포 양수도 자문</div>
-        <a href="tel:010-9433-4557">010 9433 4557</a>
-      </div>
-    </div>
-  </section>
+ {slug:'gwolligeum',cat:'권리금',date:'2026.07.14',
+  title:'권리금 부르는 대로 주면 회수에만 몇 년… \'적정선\' 판단하는 4가지 기준',
+  excerpt:'바닥·영업·시설 권리금의 차이와 매출 대비 적정 권리금을 판단하는 현실적 기준.',
+  lead:'점포 양수도에서 가장 협상이 어려운 항목이 권리금이다. 명확한 공시가격이 없다 보니 \'부르는 게 값\'처럼 느껴지지만, 성격별로 뜯어보면 협상의 근거가 분명히 존재한다. 무엇을 얼마에 사는 것인지부터 구분해야 한다.',
+  blocks:[
+   ['권리금은 세 가지로 나뉜다','권리금은 통상 <b>바닥·영업·시설권리금</b>으로 구분된다. 바닥권리금은 입지·상권이 주는 자릿세 성격, 영업권리금은 단골·매출·거래처 등 기존 영업이 쌓은 무형의 가치, 시설권리금은 인테리어·주방설비의 잔존가치다. 세 가지를 뭉뚱그리지 말고 각각의 근거를 요구해야 협상 테이블이 만들어진다.'],
+   ['영업권리금의 잣대는 \'검증된 월 순이익\'','실무에서는 통상 월 순이익의 <b>6~12개월치</b> 안팎을 기준선으로 보지만, 업종·상권·양도 사유에 따라 편차가 크다. 핵심은 그 순이익이 진짜인지 확인하는 일이다. POS 매출, 부가세 신고 내역, 카드매출 비중을 교차 확인해 매도인이 말하는 수익을 검증해야 한다.'],
+   ['시설권리금은 \'감가\'가 핵심이다','새것 기준이 아니라 <b>감가된 잔존가치</b>로 봐야 한다. 설치 시점·상태, 내가 그 업종을 이어받아 재사용할 수 있는지가 관건이다. 업종을 바꾸면 기존 설비 상당수는 가치가 없어질 뿐 아니라, 노후 설비는 오히려 철거·원상복구 비용이 든다.'],
+   ['권리금에도 계약서와 세금이 따라온다','반드시 <b>권리(시설·영업)양도양수 계약서</b>로 남긴다. 상가건물 임대차보호법은 임차인의 권리금 회수 기회를 일정 부분 보호한다. 세금도 놓치기 쉽다 — 권리금은 양도인에게 기타소득·사업양수도로 과세될 수 있으니 대금 지급 전에 세무 처리를 확인해야 분쟁을 피한다.']],
+  summary:['권리금은 바닥·영업·시설로 나눠 각각의 근거를 요구한다.','영업권리금은 검증된 월 순이익(통상 6~12개월치) 기준 — 매출 검증이 먼저.','시설권리금은 감가·재사용 가능성으로 판단, 노후 설비는 철거비 유의.','권리양수도계약서 작성과 기타소득·양수도 과세 확인은 필수.'],
+  src:'근거: 상가건물 임대차보호법(권리금 회수기회 보호 조항), 국세청 기타소득·사업양수도 과세 안내. 적정 권리금은 개별 상권·매출 검증이 필요하며 특정 금액을 보장하지 않는다.'},
 
-  <section>
-    <h2>자주 묻는 <span class="g">질문</span></h2>
-    <div class="faq">
-      <details><summary>정말 비용이 안 드나요?<span class="pm">+</span></summary><div class="a">네. 매수 고객님께는 상담비·매칭비·가입비가 없습니다. 수수료는 계약 성사 시 매도인 측에서 발생합니다.</div></details>
-      <details><summary>계속 전화가 오나요?<span class="pm">+</span></summary><div class="a">아니요. 조건에 맞는 매물이 있을 때만 연락드리고, 원치 않으시면 즉시 중단합니다.</div></details>
-      <details><summary>개인정보는 안전한가요?<span class="pm">+</span></summary><div class="a">매물 안내 목적 외에는 쓰지 않습니다. 제3자 제공 없이, 동의를 철회하시면 즉시 파기합니다.</div></details>
-    </div>
-  </section>
+ {slug:'unyoung-bangsik',cat:'운영방식',date:'2026.07.13',
+  title:'같은 매장도 \'운영 방식\'따라 손에 쥐는 돈이 다르다… 4가지 비교',
+  excerpt:'직영·풀오토·위탁·본사(프랜차이즈)의 수익률과 리스크, 내 상황에 맞는 선택 기준.',
+  lead:'창업을 준비할 때 업종·입지만큼 중요한 것이 \'어떻게 운영할 것인가\'다. 같은 매출을 내는 매장이라도 운영 방식에 따라 사장이 실제로 손에 쥐는 돈과 감당할 리스크가 크게 갈린다.',
+  blocks:[
+   ['직영 — 수익률 최고, 시간 투입도 최고','사장이 직접 운영한다. 인건비가 빠지지 않아 <b>수익률이 가장 높다</b>. 대신 사장의 시간과 노동이 통째로 들어간다. 초기 자본이 넉넉지 않고 몸으로 뛸 준비가 된 창업자에게 적합하다.'],
+   ['풀오토 — 시간은 자유, 관건은 인력관리','점장·직원에게 맡기고 사장은 관리·정산만 한다. 인건비만큼 수익률은 내려가지만 <b>시간이 자유롭다</b>. 핵심 리스크는 인력 관리와 매출 누수 — 믿을 점장, 현금·재고 관리 체계가 없으면 \'오토\'가 아니라 \'방치\'가 된다.'],
+   ['위탁 — 진입장벽은 낮지만 계약조건이 관건','운영을 전문 업체·점장에 맡기고 수수료를 낸다. 초보도 진입할 수 있지만 <b>수수료 구조·정산 투명성·해지 조항</b>을 반드시 따져야 한다. 손실 시 책임 소재, 중도 해지 위약 조건을 계약서로 확인하지 않으면 분쟁 소지가 크다.'],
+   ['본사(프랜차이즈) — 시스템을 사는 대신 종속을 감수','검증된 매뉴얼·물류·브랜드를 얻는 대신 <b>로열티·필수구매·계약 종속</b>이 따른다. 계약 전 반드시 공정위 등록 <b>정보공개서</b>(가맹점 평균매출·인근 점포 수·폐점률·필수구매 마진)를 확인한다. 화려한 홍보보다 정보공개서의 숫자가 정직하다.']],
+  summary:['직영은 수익률 최고·시간 투입 최고 — 몸으로 뛸 준비된 창업자에게.','풀오토는 시간 자유 대신 인력관리·매출누수 리스크 관리가 핵심.','위탁은 진입장벽이 낮지만 수수료·정산·해지 계약조건을 반드시 확인.','프랜차이즈는 정보공개서(평균매출·폐점률·필수구매)로 수익성을 검증.'],
+  src:'근거: 가맹사업거래의 공정화에 관한 법률(정보공개서 제공 의무), 각 운영형태 표준계약 관행. 수익률·안정성은 입지·업종·운영 역량에 따라 달라지며 보장되지 않는다.'},
 
-  <section>
-    <div class="sec-head">
-      <h2>창업 <span class="g">정보</span></h2>
-      <a class="seemore" href="./posts/">전체 보기 →</a>
-    </div>
-    <div class="feed">
-      <!--HOMEFEED:START (자동 발행 시 최신 3편으로 유지)-->
-<a class="article" href="./posts/2026-07-16-imdaecha.html">
-        <div class="meta">2026.07.16 · 권리금</div>
-        <div class="title">계약서 도장 찍기 전, 상가 임대차에서 반드시 확인할 5가지</div>
-        <p class="excerpt">환산보증금·계약갱신요구권·제소전화해·원상복구·권리금 회수까지 — 초보가 놓치는 독소조항.</p>
-        <span class="more">자세히 읽기 →</span>
-      </a>
-<a class="article" href="./posts/2026-07-15-sajeonbojeung.html">
-        <div class="meta">2026.07.15 · 정책자금</div>
-        <div class="title">계약 전에 대출 한도부터 확정하는 법</div>
-        <p class="excerpt">권리금·보증금은 정책자금 대출이 되지 않습니다. 사업자등록 전에 대출 가능액을 확정하는 공식 절차.</p>
-        <span class="more">자세히 읽기 →</span>
-      </a>
-<a class="article" href="./posts/2026-07-14-gwolligeum.html">
-        <div class="meta">2026.07.14 · 권리금</div>
-        <div class="title">권리금, 얼마가 적정한지 판단하는 4가지 기준</div>
-        <p class="excerpt">바닥·영업·시설 권리금의 차이와, 매출 대비 적정 권리금을 가늠하는 현실적 기준.</p>
-        <span class="more">자세히 읽기 →</span>
-      </a>
-    <!--HOMEFEED:END-->
-    </div>
-  </section>
+ {slug:'sanggwon-data',cat:'상권분석',date:'2026.07.12',
+  title:'감으로 자리 고르지 마라… 무료 공공데이터로 상권 검증하는 4단계',
+  excerpt:'상권정보시스템·인허가데이터·SGIS로 유동인구와 폐업률을 직접 확인하는 순서.',
+  lead:'창업 실패의 상당수는 \'자리\'에서 갈린다. 그런데 좋은 자리는 감이나 발품에만 기댈 문제가 아니다. 정부·지자체가 무료로 공개하는 상권 데이터만 제대로 써도 후보지의 위험 신호를 미리 걸러낼 수 있다.',
+  blocks:[
+   ['1단계 — 상권정보시스템으로 매출·유동인구 추정','소상공인시장진흥공단 <b>상권정보시스템(sg.sbiz.or.kr)</b>에서 업종별 점포 수·추정 매출·유동인구·증감을 무료로 본다. 서울이라면 <b>우리마을가게 상권분석(golmok.seoul.go.kr)</b>이 더 촘촘하다. 목적은 여러 후보지를 같은 잣대로 비교해 \'가망 없는 자리\'를 빠르게 거르는 것.'],
+   ['2단계 — 인허가데이터로 개·폐업 이력 확인','행정안전부 <b>지방행정 인허가데이터(localdata.go.kr)</b>에서 그 자리·업종의 개업·폐업 이력을 본다. 같은 자리에서 폐업이 반복됐다면 임대료·동선·상권에 이유가 있다. 숫자로 남은 이력은 중개인의 설명보다 정직하다.'],
+   ['3단계 — 배후세대·생활인구의 \'성격\'을 본다','통계청 <b>SGIS(sgis.kostat.go.kr)</b>로 주거·오피스 배후와 시간대별 생활인구를 확인한다. 점심 장사가 핵심인데 저녁·주말형 상권이면 유동인구가 많아도 매출로 이어지지 않는다. \'누가, 언제, 왜\' 지나가는지가 절대량보다 중요하다.'],
+   ['4단계 — 데이터 다음은 반드시 임장','후보를 2~3곳으로 좁혔다면 요일·시간대를 바꿔 직접 방문해 실제 유동·경쟁·주차·공실을 눈으로 확인한다. 추정 데이터와 현장은 다를 수 있다. \'데이터로 좁히고 발로 검증\'하는 순서면 실패 확률이 크게 준다.']],
+  summary:['상권정보시스템·서울 우리마을가게로 매출·유동인구를 먼저 비교한다.','인허가데이터(localdata)로 개·폐업 이력을 확인해 위험 자리를 거른다.','SGIS로 배후세대·시간대별 생활인구의 성격이 업종과 맞는지 본다.','데이터로 후보를 좁힌 뒤 요일·시간대를 바꿔 임장으로 최종 검증한다.'],
+  src:'근거: 소상공인시장진흥공단 상권정보시스템, 서울시 우리마을가게 상권분석서비스, 행정안전부 지방행정인허가데이터, 통계청 SGIS. 추정·이력 데이터이므로 최종 판단 전 현장 확인이 필요하다.'},
 
-  <div class="transfer">
-    <h3>가게를 양도하려는 사장님이신가요?</h3>
-    <p>지역·업종·희망 조건을 문자로 보내주세요.<br><a href="sms:010-9433-4557">010-9433-4557</a></p>
-  </div>
+ {slug:'imdaechataccount',cat:'권리금',date:'2026.07.16',
+  title:'계약서 도장 찍기 전, 상가 임대차에서 반드시 확인할 5가지',
+  excerpt:'환산보증금·계약갱신요구권·제소전화해·원상복구·권리금 회수까지 — 초보가 놓치는 독소조항.',
+  lead:'점포를 넘겨받을 때 매도인과의 권리 양수도만 챙기다 정작 건물주와의 임대차 계약을 소홀히 하는 경우가 많다. 임대차 계약서 한 줄이 몇 년 뒤 수천만 원의 차이를 만든다.',
+  blocks:[
+   ['환산보증금과 보호 범위','상가건물 임대차보호법의 여러 보호는 <b>환산보증금(보증금 + 월세×100)</b>이 지역별 기준 이하일 때 더 두텁게 적용된다. 내 계약이 그 안에 드는지부터 확인해야 5%로 제한되는 임대료 인상 상한 같은 보호를 받을 수 있다.'],
+   ['계약갱신요구권 — 최대 10년','임차인은 특별한 사유가 없는 한 <b>최초 계약을 포함해 최대 10년까지 갱신을 요구</b>할 수 있다. 잔여 계약기간과 이미 경과한 기간을 확인해, 내가 안정적으로 영업할 수 있는 기간이 얼마나 남았는지 반드시 계산한다.'],
+   ['제소전화해·원상복구 조항 점검','임대인이 요구하는 <b>제소전화해</b>는 분쟁 시 곧바로 명도집행이 가능해 임차인에게 불리할 수 있다. <b>원상복구 범위</b>도 \'인수 당시 상태\'인지 \'최초 골조\'인지에 따라 퇴거 비용이 크게 갈리므로 문구를 명확히 한다.'],
+   ['권리금 회수기회 보호','임대차 종료 6개월 전부터 종료 시까지, 임대인이 정당한 사유 없이 신규 임차인과의 계약을 방해하면 <b>권리금 회수 방해</b>로 손해배상 책임을 질 수 있다. 이 조항의 존재를 알고 있어야 나중에 권리금을 지킬 수 있다.'],
+   ['확정일자·전대 가능 여부','보증금 보호를 위해 <b>사업자등록과 확정일자</b>를 갖추고, 향후 양도·전대(재임대) 가능 여부를 계약서에 확인해 둔다. 나중에 매장을 넘길 때 임대인 동의 조건이 발목을 잡는 경우가 흔하다.']],
+  summary:['환산보증금이 지역 기준 이하인지 확인해 보호 범위를 파악한다.','계약갱신요구권(최대 10년)과 잔여 기간으로 안정 영업 기간을 계산한다.','제소전화해·원상복구 범위 등 독소조항 문구를 명확히 한다.','권리금 회수기회 보호·확정일자·전대 가능 여부를 미리 챙긴다.'],
+  src:'근거: 상가건물 임대차보호법 및 국토교통부·법무부 상가임대차 표준계약서 안내. 개별 계약은 지역·조건에 따라 다르며, 실제 계약은 개업공인중개사·전문가 확인이 필요하다.'}
+];
 
-  <footer>
-    <p class="corp"><b>창업이지</b> · 김태욱 컨설턴트 010-9433-4557<br>서울특별시 강남구 테헤란로 13길 12, 5층 (역삼동, 한주빌딩)</p>
-    <p class="legal">공공데이터(소상공인시장진흥공단·서울시·공정거래위원회 등)에 근거하며 특정 수익을 보장하지 않습니다. 임대차·양수도 계약은 개업공인중개사를 통해 진행됩니다. 개인정보는 매물 안내 목적 외에 사용되지 않습니다.</p>
-  </footer>
+// 기사별 공식 출처 링크 (공공기관)
+var SOURCES={
+ 'yangdo-segeum':[['국세청 홈택스','https://www.hometax.go.kr'],['국세청','https://www.nts.go.kr'],['국가법령정보센터','https://www.law.go.kr']],
+ 'muin-maejang':[['소상공인 상권정보시스템','https://sg.sbiz.or.kr'],['통계청 SGIS','https://sgis.kostat.go.kr'],['지방행정 인허가데이터(LOCALDATA)','https://www.localdata.go.kr']],
+ 'jeongbogonggae':[['공정거래위원회 가맹사업거래(정보공개서)','https://franchise.ftc.go.kr'],['공정거래위원회','https://www.ftc.go.kr']],
+ 'jeongchaek-jonglyu':[['소상공인시장진흥공단 정책자금','https://ols.semas.or.kr'],['소상공인마당','https://www.sbiz.or.kr'],['중소벤처24','https://www.smes.go.kr']],
+ 'sajeonbojeung':[['소상공인시장진흥공단 정책자금','https://ols.semas.or.kr'],['신용보증기금','https://www.kodit.co.kr'],['중소벤처24 지원사업','https://www.smes.go.kr']],
+ 'gwolligeum':[['국가법령정보센터 — 상가건물 임대차보호법','https://www.law.go.kr'],['국세청 홈택스','https://www.hometax.go.kr']],
+ 'unyoung-bangsik':[['공정거래위원회 가맹사업거래(정보공개서)','https://franchise.ftc.go.kr'],['공정거래위원회','https://www.ftc.go.kr']],
+ 'sanggwon-data':[['소상공인 상권정보시스템','https://sg.sbiz.or.kr'],['서울 우리마을가게 상권분석','https://golmok.seoul.go.kr'],['지방행정 인허가데이터(LOCALDATA)','https://www.localdata.go.kr'],['통계청 SGIS','https://sgis.kostat.go.kr']],
+ 'imdaechataccount':[['국가법령정보센터 — 상가건물 임대차보호법','https://www.law.go.kr'],['국토교통부','https://www.molit.go.kr']]
+};
 
-</main>
+//==================== 유틸 ====================
+var app=document.getElementById('app');
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function isNew(d){return d===TODAY;}
+function card(a){
+  return '<a class="card" data-go="post/'+a.slug+'">'+
+    '<div class="ctop"><span class="tag">'+esc(a.cat)+'</span><span class="date">'+a.date+'</span>'+(isNew(a.date)?'<span class="new">NEW</span>':'')+'</div>'+
+    '<div class="ctitle">'+esc(a.title)+'</div><p class="cex">'+esc(a.excerpt)+'</p>'+
+    '<span class="cmore">자세히 읽기 →</span></a>';
+}
+function sorted(){return ARTICLES.slice().sort(function(a,b){return a.date<b.date?1:-1;});}
+function srcBlock(a){
+  var links=(SOURCES[a.slug]||[]).map(function(s){return '<li><a href="'+s[1]+'" target="_blank" rel="noopener nofollow noreferrer">'+esc(s[0])+' ↗</a></li>';}).join('');
+  return '<div class="src"><b>출처 · 근거 자료</b>'+(links?'<ul class="srclist">'+links+'</ul>':'')+'<p class="srcnote">'+esc(a.src)+'</p></div>';
+}
 
-<div class="sticky"><a href="./s/">30초 설문하고 매물 먼저 받기</a></div>
+//==================== 뷰 ====================
+function viewHome(){
+  var latest=sorted().slice(0,3).map(card).join('');
+  return ''+
+  '<section class="hero">'+
+    '<span class="pill"><span class="dot"></span>매일 아침 업데이트 · '+TODAY+'</span>'+
+    '<h1>오늘도 사장님이 되는<br>가장 <span class="g">빠른 길</span>을 찾는 중</h1>'+
+    '<p class="lead">가게를 양도하려는 사장님과 창업을 준비하는 분을 공공데이터로 검증해 연결합니다. 30초 설문을 남기면, 딱 맞는 매물이 나왔을 때 가장 먼저 알려드려요.</p>'+
+    '<a class="btn" data-go="survey" style="margin:1.6rem 0 .7rem">내 조건에 맞는 매물 무료로 받기</a>'+
+    '<div class="trust"><span><b>상담비</b> 무료</span><span><b>가입비</b> 없음</span><span><b>연락 중단</b> 언제든</span></div>'+
+  '</section>'+
+  '<div class="metrics"><div class="metric"><div class="fig">5</div><div class="cap">공공데이터<br>기반 분석</div></div>'+
+    '<div class="metric"><div class="fig">0</div><div class="cap">상담·매칭<br>비용 (원)</div></div>'+
+    '<div class="metric"><div class="fig">1:1</div><div class="cap">전담 컨설턴트<br>동행</div></div></div>'+
+  '<section><div class="sh"><h2>오늘의 <span class="g">창업 인사이트</span></h2><a class="more-lnk" data-go="info">전체 보기 →</a></div>'+
+    '<div class="feed">'+latest+'</div>'+
+    '<p style="text-align:center;color:var(--sub);font-size:.85rem;margin:1.1rem 0 0">계약 전에 알았다면 달랐을 이야기, <b style="color:var(--ink)">매일</b> 올라옵니다.</p></section>'+
+  '<section><h2>왜 <span class="g">무료</span>인가요?</h2><div class="why">'+
+    wrow('수수료는 계약 성사 시 매도인 측에서 발생합니다.','매수 고객님께는 비용이 없습니다.')+
+    wrow('계약은 개업공인중개사를 통해 진행합니다.','저희는 조건에 맞는 연결과 자문을 담당해요.')+
+    wrow('연락처는 매물 안내 목적에만 씁니다.','제3자 제공 없음, 강매 없음.')+'</div></section>'+
+  '<section><h2>이번 주 <span class="g">연결 가능한</span> 매물</h2><div class="ledger">'+
+    lr('마포권','카페 · 보증금 3,000 · 월 200')+lr('강남권','외식업 · 권리금 협의 가능')+lr('성동권','풀오토 · 위탁 운영 가능')+
+    '</div><p style="color:var(--sub);font-size:.84rem;margin:.9rem .2rem 0">매물 상세는 <b style="color:var(--ink)">설문을 남긴 분께만</b> 개별 안내드려요.</p></section>'+
+  '<section><h2>담당 <span class="g">컨설턴트</span></h2><div class="advisor"><div class="av">김</div><div>'+
+    '<div class="nm">김태욱 컨설턴트</div><div class="rl">창업이지 · 점포 양수도 자문</div><a href="tel:010-9433-4557">010 9433 4557</a></div></div></section>'+
+  '<section><h2>자주 묻는 <span class="g">질문</span></h2><div class="faq">'+
+    faq('정말 비용이 안 드나요?','매수 고객님께는 상담비·매칭비·가입비가 없습니다. 수수료는 계약 성사 시 매도인 측에서 발생합니다.')+
+    faq('계속 전화가 오나요?','아니요. 조건에 맞는 매물이 있을 때만 연락드리고, 원치 않으시면 즉시 중단합니다.')+
+    faq('개인정보는 안전한가요?','매물 안내 목적 외에는 쓰지 않습니다. 제3자 제공 없이, 동의를 철회하시면 즉시 파기합니다.')+'</div></section>'+
+  '<div class="transfer"><h3>가게를 양도하려는 사장님이신가요?</h3><p>지역·업종·희망 조건을 문자로 보내주세요.<br><a href="sms:010-9433-4557">010-9433-4557</a></p></div>'+
+  footer();
+}
+function wrow(b,s){return '<div class="wrow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><div><b>'+b+'</b><span>'+s+'</span></div></div>';}
+function lr(r,d){return '<div class="lr"><span class="region">'+r+'</span><span class="blur">'+d+'</span><span class="sealed">비공개</span></div>';}
+function faq(q,a){return '<details><summary>'+q+'<span class="pm">+</span></summary><div class="a">'+a+'</div></details>';}
+function footer(){return '<footer>'+
+  '<div class="flinks"><a data-go="terms">이용약관</a><a data-go="privacy">개인정보처리방침</a><a data-go="ads">광고등록안내</a></div>'+
+  '<b>(주)창업이지컴퍼니</b> · 대표 박갑준 · 사업자등록번호 440-86-03378<br>서울특별시 강남구 테헤란로13길 12, 5층<br>문의: 김태욱 컨설턴트 010-9433-4557 · changupeasy@gmail.com<br><br>'+
+  '본 정보는 공공데이터에 근거하며 특정 수익·승인을 보장하지 않습니다. 창업이지는 사업체(권리금) 양도·양수를 주 업무로 하며, 게재 매물은 「공인중개사법」상 중개대상물이 아닙니다. 임대차·양수도 계약은 개업공인중개사를 통해 진행됩니다.</footer>';}
 
+var curCat='전체';
+function viewInfo(){
+  var chips=CATS_ORDER.map(function(c){return '<button class="fchip'+(c===curCat?' on':'')+'" data-cat="'+c+'">'+c+'</button>';}).join('');
+  var list=sorted().filter(function(a){return curCat==='전체'||a.cat===curCat;}).map(card).join('') || '<p style="color:var(--mute);text-align:center;padding:2rem 0">해당 주제의 글이 아직 없습니다.</p>';
+  return '<section style="padding-top:1.6rem"><span class="pill"><span class="dot"></span>매일 업데이트</span>'+
+    '<h1 style="font-size:1.9rem;margin:.7rem 0 .5rem">계약 전에 알았다면<br>달랐을 이야기들</h1>'+
+    '<p class="lead" style="margin:0 0 1.3rem;text-align:left">예비창업자가 가장 많이 놓치는 정책자금·권리금·운영방식·상권을 공공데이터 근거로 정리했습니다.</p>'+
+    '<div class="filters" id="filters">'+chips+'</div><div class="feed">'+list+'</div>'+
+    '<div class="promo"><h2>글만 읽고 끝내지 마세요</h2><p>30초 설문을 남기면 조건에 맞는 매물이 나왔을 때 가장 먼저 안내드립니다.</p><a class="btn" data-go="survey" style="display:inline-block">무료로 매물 추천받기</a></div>'+
+    footer()+'</section>';
+}
+function viewPost(slug){
+  var a=ARTICLES.filter(function(x){return x.slug===slug;})[0];
+  if(!a) return '<section style="padding:3rem 0;text-align:center"><h2>글을 찾을 수 없어요</h2><a class="backlnk" data-go="info">← 창업 정보 전체보기</a></section>';
+  var body=a.blocks.map(function(b){return '<h3>'+b[0]+'</h3><p>'+b[1]+'</p>';}).join('');
+  var sm=a.summary.map(function(s){return '<li>'+esc(s)+'</li>';}).join('');
+  return '<article class="article" style="padding-top:.6rem"><span class="tag">'+esc(a.cat)+'</span>'+
+    '<p class="amd">'+a.date+' · 창업정보 모임</p><h1>'+esc(a.title)+'</h1>'+
+    '<p class="alead">'+esc(a.lead)+'</p>'+body+
+    '<div class="summary"><b>핵심 요약</b><ul>'+sm+'</ul></div>'+
+    srcBlock(a)+
+    '<a class="btn" data-go="survey" style="margin-top:1.8rem">내 조건에 맞는 매물 추천받기 (30초 설문)</a>'+
+    '<a class="backlnk" data-go="info">← 창업 정보 전체보기</a>'+footer()+'</article>';
+}
+function viewSurvey(){
+  return '<section style="padding-top:1.4rem"><span class="pill">30초 설문</span>'+
+   '<h1 style="font-size:1.7rem;margin:.7rem 0 .5rem">어떤 가게를 찾고 계신가요?</h1>'+
+   '<p class="lead" style="text-align:left;margin:0 0 .3rem">희망 조건을 남겨주시면 딱 맞는 매물이 나왔을 때 <b style="color:var(--ink)">가장 먼저</b> 안내드려요.</p>'+
+   '<div class="form" id="form-view"><form id="f">'+
+     '<span class="lb">운영 방식 <span class="hint">(복수 선택)</span></span>'+
+     '<div class="chips" id="ops"><button type="button" class="chip" data-v="DIRECT">직영</button><button type="button" class="chip" data-v="FULL_AUTO">풀오토</button><button type="button" class="chip" data-v="CONSIGNMENT">위탁</button><button type="button" class="chip" data-v="FRANCHISE_HQ">본사</button></div>'+
+     '<span class="lb">희망 종류 <span class="hint">(대분류 · 복수 선택)</span></span><div class="chips" id="cats"></div><div id="subwrap"></div>'+
+     '<label for="industries">기타 희망 업종 <span class="hint">(목록에 없으면 직접 입력 · 쉼표로 구분)</span></label><input id="industries" placeholder="예: 밀키트, 애견카페 (무관이면 비워두세요)">'+
+     '<label for="regions">희망 지역 <span class="hint">(예: 마포구, 강남구)</span></label><input id="regions" placeholder="무관이면 비워두세요">'+
+     '<label for="deposit">보증금 최대 <span class="hint">(만원)</span></label><input id="deposit" inputmode="numeric" placeholder="예: 3000">'+
+     '<label for="rent">월세 최대 <span class="hint">(만원)</span></label><input id="rent" inputmode="numeric" placeholder="예: 200">'+
+     '<label for="premium">권리금 최대 <span class="hint">(만원)</span></label><input id="premium" inputmode="numeric" placeholder="예: 5000">'+
+     '<label for="name">성함</label><input id="name" maxlength="50">'+
+     '<label for="phone">휴대폰 번호</label><input id="phone" type="tel" placeholder="010-0000-0000">'+
+     '<label for="channel">연락 받으실 방법</label><select id="channel"><option value="PHONE">전화</option><option value="SMS">문자</option></select>'+
+     '<span class="lb" style="margin-top:1.5rem">오프미팅 희망 일정 <span class="hint">(선택 · 평일 오전 11시~오후 4시)</span></span>'+
+     '<p class="mhint">매물을 직접 보고 <b style="color:var(--sub)">계약까지 진행</b>하고 싶으실 때, 방문 상담(오프미팅)을 잡아드려요. 원하시는 평일 날짜·시간을 고르세요. <span style="color:var(--mute)">(미선택 시 상담 때 조율)</span></p>'+
+     '<div id="cal" class="calwrap"></div>'+
+     '<input class="hp" id="website" tabindex="-1" autocomplete="off" aria-hidden="true">'+
+     '<label class="agree"><input type="checkbox" id="agree"> <span>(필수) 개인정보 수집·이용 동의 — 수집: 성함·연락처·희망 조건 / 목적: 매물 안내·상담 / 보유: 상담 종료 또는 동의 철회 시 즉시 파기. 제3자 제공 없음.</span></label>'+
+     '<p class="ferr" id="err" hidden></p><button class="fbtn" id="submit" type="submit">무료로 매물 추천받기</button>'+
+     '<p class="fnote">설문 접수 후 1~2일 내 김태욱 컨설턴트(010-9433-4557)가 순차 연락드립니다.</p></form></div>'+
+   '<div class="done" id="done-view" hidden><div class="ck"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></div><h3>접수 완료</h3><p>희망 조건을 잘 받았습니다.<br>1~2일 내 <b style="color:var(--ink)">김태욱 컨설턴트(010-9433-4557)</b>가 연락드립니다.</p></div>'+
+   footer()+'</section>';
+}
+
+//==================== 약관·정책 뷰 ====================
+function viewTerms(){return '<section class="legal">'+
+ '<h1>서비스 이용약관</h1><p class="upd">시행일: 2026년 7월 16일</p>'+
+ '<h3>제1조 (목적)</h3><p>본 약관은 (주)창업이지컴퍼니(이하 "회사")가 운영하는 창업정보 모임 웹사이트(이하 "서비스")의 이용과 관련하여 회사와 이용자 간의 권리·의무 및 책임사항, 이용조건과 절차 등 기본적인 사항을 규정함을 목적으로 합니다.</p>'+
+ '<h3>제2조 (정의)</h3><p>① "서비스"란 회사가 창업 관련 정보 제공 및 사업체(점포) 양도·양수 매칭 상담을 위하여 운영하는 웹사이트를 말합니다.<br>② "이용자"란 본 서비스에 접속하여 본 약관에 따라 서비스를 이용하는 자를 말합니다.</p>'+
+ '<h3>제3조 (약관의 게시와 개정)</h3><p>① 회사는 본 약관의 내용을 이용자가 쉽게 확인할 수 있도록 서비스 화면에 게시합니다.<br>② 회사는 관련 법령을 위반하지 않는 범위에서 본 약관을 개정할 수 있으며, 개정 시 적용일자와 개정사유를 명시하여 최소 7일 전(이용자에게 불리한 변경은 30일 전)부터 공지합니다.</p>'+
+ '<h3>제4조 (서비스의 제공)</h3><p>회사는 다음의 서비스를 제공합니다.<br>1. 창업·상권·정책자금·권리금·운영방식 등 창업 관련 정보 콘텐츠 제공<br>2. 이용자가 남긴 희망 조건(설문)에 맞는 사업체(점포) 매물 안내 및 매칭 상담<br>3. 매물 확인을 위한 방문(오프미팅) 일정 조율<br>4. 기타 회사가 정하는 서비스</p>'+
+ '<h3>제5조 (서비스의 변경 및 중단)</h3><p>① 회사는 서비스의 내용, 운영상·기술상 사항을 변경할 수 있습니다.<br>② 회사는 설비 보수·점검, 고장, 통신두절 등 부득이한 사유가 있는 경우 서비스 제공을 일시 중단할 수 있으며, 사전 또는 사후에 이용자에게 통지합니다.</p>'+
+ '<h3>제6조 (이용자의 의무)</h3><p>이용자는 신청·문의 시 허위 정보를 기재하여서는 안 되며, 서비스의 정상적 운영을 방해하는 행위, 타인의 정보를 도용하는 행위, 회사의 지식재산권을 침해하는 행위를 하여서는 안 됩니다.</p>'+
+ '<h3>제7조 (매물 정보 및 면책)</h3>'+
+ '<div class="box">창업이지는 사업체(권리금) 양도·양수를 주 업무로 하는 회사로, 일반 부동산에서 취급하는 중개대상물을 다루지 않습니다. 따라서 서비스에 안내되는 사업체(매물)는 「공인중개사법」상 중개대상물이 아닙니다.</div>'+
+ '<p>① 게재·안내되는 매물 정보는 실제 존재하는 사업체를 기준으로 작성됩니다. 다만 양도인의 보안 유지 요청(건물주·직원 관계, 매출 저하 우려 등)에 따라 정확한 위치·임대차 조건·매출·지출 내역은 공개 화면에 그대로 기재되지 않을 수 있습니다.<br>② 정확한 위치·운영상태 확인 및 현장답사를 원하는 이용자에게는 상담·방문을 통해 세부 내역을 상세히 안내합니다.<br>③ 회사는 프랜차이즈·제휴업체 등이 제공한 정보의 정확성·안정성을 보장하지 않으며, 실제 임대차·양수도 계약은 개업공인중개사 등 전문가를 통해 진행됩니다.<br>④ 본 서비스의 창업 정보 콘텐츠는 공공데이터 등에 근거한 일반적 참고 자료로, 특정 수익·대출 승인·계약 성사를 보장하지 않습니다.</p>'+
+ '<h3>제8조 (수수료)</h3><p>매수(창업) 희망 이용자에 대한 상담·매칭에는 별도의 비용이 청구되지 않습니다. 중개(양도양수) 수수료는 계약이 성사된 경우 매도인(양도인) 측과의 약정에 따릅니다.</p>'+
+ '<h3>제9조 (지식재산권)</h3><p>서비스 및 회사가 작성한 콘텐츠에 대한 저작권 등 지식재산권은 회사에 귀속하며, 이용자는 회사의 사전 승낙 없이 이를 영리 목적으로 복제·배포·전송할 수 없습니다.</p>'+
+ '<h3>제10조 (준거법 및 관할)</h3><p>본 약관은 대한민국 법을 준거법으로 하며, 회사와 이용자 간 분쟁에 관한 소송은 민사소송법상 관할법원에 제기합니다.</p>'+
+ '<p class="upd" style="margin-top:1.5rem">부칙 — 본 약관은 2026년 7월 16일부터 시행됩니다.</p>'+
+ '<a class="backlnk" data-go="home">← 홈으로</a>'+footer()+'</section>';}
+
+function viewPrivacy(){return '<section class="legal">'+
+ '<h1>개인정보 처리방침</h1><p class="upd">시행일: 2026년 7월 16일</p>'+
+ '<p>(주)창업이지컴퍼니(이하 "회사")는 「개인정보 보호법」 등 관계 법령을 준수하며, 정보주체의 개인정보를 보호하기 위해 다음과 같이 개인정보 처리방침을 수립·공개합니다.</p>'+
+ '<h3>1. 수집하는 개인정보 항목 및 이용목적</h3>'+
+ '<div class="tblwrap"><table class="tbl"><tr><th>구분</th><th>수집 항목</th><th>이용 목적</th><th>보유기간</th></tr>'+
+ '<tr><td>매물 상담 설문</td><td>성함, 휴대폰번호, 연락 방법, 희망 운영방식·업종·지역, 희망 예산(보증금·월세·권리금), 오프미팅 희망 일정, 문의 내용</td><td>조건에 맞는 매물 안내·매칭 상담, 방문(오프미팅) 일정 조율, 문의 응대</td><td>상담 종료 또는 동의 철회 시까지(관계 법령상 보존 필요 시 3년)</td></tr>'+
+ '<tr><td>자동 수집</td><td>접속 IP, 서비스 이용 시각, 브라우저 정보(User Agent)</td><td>서비스 이용 통계·분석, 부정 이용 방지</td><td>수집일로부터 2년</td></tr></table></div>'+
+ '<h3>2. 개인정보의 보유 및 파기</h3><p>보유기간의 경과, 처리목적 달성 등으로 개인정보가 불필요하게 된 때에는 지체 없이 파기합니다. 전자적 파일은 복원이 불가능한 방법으로 삭제하고, 출력물은 파쇄 또는 소각합니다. 관계 법령에 따라 보존이 필요한 경우 해당 기간 동안 별도 보관합니다.</p>'+
+ '<h3>3. 개인정보의 제3자 제공</h3><p>회사는 정보주체의 동의 없이 개인정보를 외부에 제공하지 않습니다. 다만 매물 양수도 계약 진행을 위해 개업공인중개사 등에게 제공이 필요한 경우 사전에 별도의 동의를 받습니다.</p>'+
+ '<h3>4. 개인정보 처리의 위탁</h3><p>회사는 안정적인 서비스 운영(데이터 보관·알림 발송 등)을 위해 국내외 클라우드 인프라를 이용할 수 있으며, 이 경우 관계 법령에 따라 개인정보가 안전하게 관리되도록 필요한 조치를 합니다.</p>'+
+ '<h3>5. 정보주체의 권리와 행사 방법</h3><p>정보주체는 언제든지 개인정보의 열람·정정·삭제·처리정지를 요구할 수 있으며, 서면·전자우편 등으로 요청하면 회사는 지체 없이 조치합니다. 요청은 아래 문의처로 하실 수 있습니다.</p>'+
+ '<h3>6. 개인정보의 안전성 확보 조치</h3><p>회사는 관리적 조치(내부관리계획 수립·시행, 담당자 교육), 기술적 조치(접근권한 관리, 접근통제, 개인정보 암호화, 보안프로그램 운영), 물리적 조치(자료보관 장소 접근통제)를 통해 개인정보를 안전하게 관리합니다.</p>'+
+ '<h3>7. 쿠키의 운영</h3><p>회사는 이용 통계 분석 등을 위해 쿠키를 사용할 수 있으며, 이용자는 웹브라우저 설정을 통해 쿠키 저장을 거부할 수 있습니다(거부 시 일부 맞춤 기능 이용이 제한될 수 있습니다).</p>'+
+ '<h3>8. 개인정보 보호책임자 및 문의처</h3>'+
+ '<div class="box">(주)창업이지컴퍼니 · 김태욱 컨설턴트<br>010-9433-4557 · changupeasy@gmail.com</div>'+
+ '<h3>9. 처리방침의 변경</h3><p>본 방침의 내용 추가·삭제·수정이 있을 경우 최소 7일 전(이용자 권리에 중요한 변경은 30일 전)부터 서비스 화면을 통해 공지합니다.</p>'+
+ '<p class="upd" style="margin-top:1.5rem">시행일자: 2026. 07. 16</p>'+
+ '<a class="backlnk" data-go="home">← 홈으로</a>'+footer()+'</section>';}
+
+function viewAds(){return '<section class="legal">'+
+ '<h1>광고등록안내</h1><p class="upd">가게(사업체)를 양도하려는 사장님을 위한 안내입니다.</p>'+
+ '<div class="box">창업이지는 사업체(권리금) 양도·양수를 주 업무로 하는 회사입니다. 게재되는 매물은 「공인중개사법」상 중개대상물이 아니며, 실제 계약은 개업공인중개사 등을 통해 진행됩니다.</div>'+
+ '<h3>진행 절차</h3>'+
+ '<ul><li><b>1. 등록 문의</b> — 아래 연락처로 지역·업종·희망 조건을 알려주세요.</li>'+
+ '<li><b>2. 상담·검토</b> — 담당 컨설턴트가 매물 정보와 희망 조건을 확인합니다.</li>'+
+ '<li><b>3. 매칭·안내</b> — 조건에 맞는 예비창업자에게 보안이 유지된 형태로 안내하고, 관심 매수자와 방문(오프미팅) 일정을 조율합니다.</li>'+
+ '<li><b>4. 계약</b> — 양수도 계약은 개업공인중개사 등 전문가를 통해 안전하게 진행됩니다.</li></ul>'+
+ '<h3>등록 시 준비하면 좋은 정보</h3>'+
+ '<ul><li>업종 및 운영방식(직영·풀오토·위탁·본사)</li><li>위치(지역/상권), 점포 규모</li><li>보증금 · 월세 · 권리금 희망가</li><li>양도 사유, 현재 운영 상태(매출·비용 등)</li></ul>'+
+ '<h3>보안 안내</h3>'+
+ '<p>대다수 양도인은 건물주·직원 관계나 매출 저하 우려로 매장이 매물로 나온 사실이 공개되기를 원하지 않습니다. 이에 정확한 위치·임대차·매출 내역은 공개 화면에 그대로 노출하지 않고, 검증된 매수 희망자에게 상담·현장답사를 통해 있는 그대로 안내합니다.</p>'+
+ '<h3>수수료</h3>'+
+ '<p>중개(양도양수) 수수료는 계약이 성사된 경우에 한하여 사전 약정에 따라 발생합니다.</p>'+
+ '<div class="box" style="text-align:center"><b>매물 등록 문의</b><br>김태욱 컨설턴트 <a href="tel:010-9433-4557" style="color:var(--brand-d);font-weight:800;text-decoration:none">010-9433-4557</a><br>changupeasy@gmail.com</div>'+
+ '<a class="backlnk" data-go="home">← 홈으로</a>'+footer()+'</section>';}
+
+//==================== 설문 로직 ====================
+var CATS={'외식·음식점':['한식','분식','고기·구이','치킨','피자','햄버거','중식','일식','양식','아시안','족발·보쌈','국밥·찌개','도시락'],'카페·디저트':['카페','커피전문점','베이커리','디저트','아이스크림·빙수','브런치','무인카페'],'주점·술집':['호프·맥주','이자카야','포차','바(Bar)','와인'],'판매·소매':['편의점','무인점포','마트·식자재','반찬·식품','화장품','의류·패션','문구·팬시'],'서비스':['세탁','인쇄·출력','수리','렌탈','부동산'],'뷰티·건강':['미용실','네일','피부·왁싱','헬스·PT','필라테스·요가','마사지'],'교육':['입시학원','공부방·교습소','유아·어린이','예체능','코딩'],'숙박':['모텔·호텔','게스트하우스','펜션','파티룸'],'오락·스포츠':['PC방','코인노래방','스크린골프','당구장','볼링','실내스포츠']};
+var LEADS_URL='https://buzcnfnimzlsjvbeefjb.supabase.co/functions/v1/changup-leads';
+function initSurvey(){
+  var ops=[],selCats=[],selSubs={};
+  var g=function(id){return document.getElementById(id);};
+  var tags=function(s){return s.split(',').map(function(t){return t.trim();}).filter(Boolean);};
+  var man=function(s){var n=Number(s.replace(/[^0-9]/g,''));return(s.trim()===''||isNaN(n)||n<=0)?null:n*10000;};
+  g('ops').addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;var v=b.dataset.v,i=ops.indexOf(v);if(i>=0){ops.splice(i,1);b.classList.remove('on');}else{ops.push(v);b.classList.add('on');}});
+  var catsEl=g('cats'),subWrap=g('subwrap');
+  Object.keys(CATS).forEach(function(c){var b=document.createElement('button');b.type='button';b.className='chip';b.textContent=c;b.dataset.cat=c;catsEl.appendChild(b);});
+  catsEl.addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;var c=b.dataset.cat,i=selCats.indexOf(c);if(i>=0){selCats.splice(i,1);delete selSubs[c];b.classList.remove('on');}else{selCats.push(c);selSubs[c]=selSubs[c]||[];b.classList.add('on');}renderSubs();});
+  function renderSubs(){subWrap.innerHTML='';selCats.forEach(function(c){var w=document.createElement('div');w.className='subgroup';var l=document.createElement('div');l.className='sgl';l.textContent=c+' 세부 업종';w.appendChild(l);var ch=document.createElement('div');ch.className='chips';CATS[c].forEach(function(s){var sb=document.createElement('button');sb.type='button';sb.className='chip'+(selSubs[c].indexOf(s)>=0?' on':'');sb.textContent=s;sb.addEventListener('click',function(){var j=selSubs[c].indexOf(s);if(j>=0){selSubs[c].splice(j,1);sb.classList.remove('on');}else{selSubs[c].push(s);sb.classList.add('on');}});ch.appendChild(sb);});w.appendChild(ch);subWrap.appendChild(w);});}
+  function collectIndustries(){var out=[];selCats.forEach(function(c){var subs=selSubs[c]||[];if(subs.length===0){out.push(c);}else{subs.forEach(function(s){out.push(s);});}});tags(g('industries').value).forEach(function(t){out.push(t);});return out.filter(function(s){return s.length<=30;}).slice(0,10);}
+  // ===== 오프미팅 달력(선택 · 평일 11~16시 · 실시간 예약 마감 반영) =====
+  var meeting={date:null,time:null};
+  var DOW=['일','월','화','수','목','금','토'];
+  var SLOTS=['11:00','12:00','13:00','14:00','15:00','16:00'];
+  var takenSet=new Set();
+  var SLOTS_URL='https://buzcnfnimzlsjvbeefjb.supabase.co/functions/v1/slots';
+  var calBox=g('cal');
+  var today=new Date();today.setHours(0,0,0,0);
+  var view=new Date(today.getFullYear(),today.getMonth(),1);
+  var maxV=new Date(today.getFullYear(),today.getMonth()+2,1);
+  function sameDay(a,b){return a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+  function fmtSlot(t){var h=parseInt(t,10);return (h<12?'오전 ':'오후 ')+(h>12?h-12:h)+':00';}
+  function fmtDate(d){return (d.getMonth()+1)+'월 '+d.getDate()+'일('+DOW[d.getDay()]+')';}
+  function keyOf(d,t){var mm=('0'+(d.getMonth()+1)).slice(-2),dd=('0'+d.getDate()).slice(-2);return d.getFullYear()+'-'+mm+'-'+dd+' '+t;}
+  function dayFull(d){return SLOTS.every(function(t){return takenSet.has(keyOf(d,t));});}
+  function meetingStr(){if(!meeting.date||!meeting.time)return null;var d=meeting.date,mm=('0'+(d.getMonth()+1)).slice(-2),dd=('0'+d.getDate()).slice(-2);return d.getFullYear()+'-'+mm+'-'+dd+'('+DOW[d.getDay()]+') '+meeting.time;}
+  function renderCal(){
+    var y=view.getFullYear(),m=view.getMonth();
+    var start=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
+    var pd=(y===today.getFullYear()&&m===today.getMonth());
+    var nd=(y===maxV.getFullYear()&&m===maxV.getMonth());
+    var h='<div class="calnav"><button type="button" data-nav="-1"'+(pd?' disabled':'')+'>‹</button><b>'+y+'년 '+(m+1)+'월</b><button type="button" data-nav="1"'+(nd?' disabled':'')+'>›</button></div>';
+    h+='<div class="caldow">'+DOW.map(function(d,i){return '<span'+(i===0?' style="color:#d1584f"':'')+'>'+d+'</span>';}).join('')+'</div><div class="calgrid">';
+    for(var i=0;i<start;i++)h+='<span></span>';
+    for(var d=1;d<=days;d++){var cd=new Date(y,m,d),w=cd.getDay(),base=(w===0||w===6||cd<today),full=(!base&&dayFull(cd)),off=base||full,sel=sameDay(cd,meeting.date);h+='<span class="cell'+(off?' off':'')+(w===0?' sun':'')+(sel?' sel':'')+'"'+(off?'':' data-d="'+d+'"')+(full?' title="예약 마감"':'')+'>'+d+'</span>';}
+    h+='</div>';
+    if(meeting.date){h+='<div class="slots">'+SLOTS.map(function(t){var taken=takenSet.has(keyOf(meeting.date,t));return '<button type="button" class="chip'+(meeting.time===t?' on':'')+(taken?' slotoff':'')+'"'+(taken?' disabled':' data-t="'+t+'"')+'>'+fmtSlot(t)+(taken?' 마감':'')+'</button>';}).join('')+'</div>';}
+    if(meeting.date&&meeting.time){h+='<div class="msum"><span>선택: '+fmtDate(meeting.date)+' '+fmtSlot(meeting.time)+'</span><button type="button" class="clr" data-clr="1">지우기</button></div>';}
+    calBox.innerHTML=h;
+  }
+  calBox.addEventListener('click',function(e){
+    var nav=e.target.closest('[data-nav]');if(nav){view=new Date(view.getFullYear(),view.getMonth()+parseInt(nav.dataset.nav,10),1);renderCal();return;}
+    var cell=e.target.closest('[data-d]');if(cell){meeting.date=new Date(view.getFullYear(),view.getMonth(),parseInt(cell.dataset.d,10));meeting.time=null;renderCal();return;}
+    var slot=e.target.closest('[data-t]');if(slot){meeting.time=slot.dataset.t;renderCal();return;}
+    if(e.target.closest('[data-clr]')){meeting.date=null;meeting.time=null;renderCal();return;}
+  });
+  renderCal();
+  // 실시간 예약 현황 로드 → 마감된 날짜·시간 자동 비활성화
+  fetch(SLOTS_URL,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){takenSet=new Set(d.taken||[]);if(meeting.date&&meeting.time&&takenSet.has(keyOf(meeting.date,meeting.time)))meeting.time=null;renderCal();}).catch(function(){});
+  g('f').addEventListener('submit',function(e){e.preventDefault();var err=g('err');
+    if(ops.length===0){err.textContent='운영 방식을 하나 이상 선택해주세요.';err.hidden=false;return;}
+    if(!g('name').value.trim()){err.textContent='성함을 입력해주세요.';err.hidden=false;return;}
+    if(!g('phone').value.trim()){err.textContent='휴대폰 번호를 입력해주세요.';err.hidden=false;return;}
+    if(!g('agree').checked){err.textContent='개인정보 수집·이용에 동의해주세요.';err.hidden=false;return;}
+    err.hidden=true;g('submit').disabled=true;g('submit').textContent='접수 중…';
+    fetch(LEADS_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:g('name').value,phone:g('phone').value,contactChannel:g('channel').value,operationTypes:ops,industries:collectIndustries(),regions:tags(g('regions').value).filter(function(s){return s.length<=30;}).slice(0,10),depositMax:man(g('deposit').value),rentMax:man(g('rent').value),premiumMax:man(g('premium').value),meetingPreference:meetingStr(),website:g('website').value})})
+    .then(function(res){if(!res.ok)throw new Error('제출 실패 — 잠시 후 다시 시도해주세요');g('form-view').hidden=true;g('done-view').hidden=false;window.scrollTo(0,0);})
+    .catch(function(ex){err.textContent=ex.message||'제출 실패';err.hidden=false;})
+    .finally(function(){g('submit').disabled=false;g('submit').textContent='무료로 매물 추천받기';});});
+}
+
+//==================== 라우터 ====================
+function route(){
+  var h=(location.hash||'#home').replace(/^#/,'');
+  var sticky=document.getElementById('sticky');
+  var view, active='home';
+  if(h.indexOf('post/')===0){ view=viewPost(h.slice(5)); active='info'; }
+  else if(h==='info'){ view=viewInfo(); active='info'; }
+  else if(h==='survey'){ view=viewSurvey(); active='survey'; }
+  else if(h==='terms'){ view=viewTerms(); active=''; }
+  else if(h==='privacy'){ view=viewPrivacy(); active=''; }
+  else if(h==='ads'){ view=viewAds(); active=''; }
+  else { view=viewHome(); active='home'; }
+  app.innerHTML=view;
+  document.querySelectorAll('.nav a[data-go]').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-go')===active && !a.classList.contains('cta'));});
+  sticky.hidden=(h==='survey');
+  window.scrollTo(0,0);
+  if(h==='info'){ var fl=document.getElementById('filters'); if(fl)fl.addEventListener('click',function(e){var b=e.target.closest('.fchip');if(!b)return;curCat=b.dataset.cat;route();}); }
+  if(h==='survey'){ initSurvey(); }
+}
+document.addEventListener('click',function(e){var el=e.target.closest('[data-go]');if(!el)return;e.preventDefault();var to=el.getAttribute('data-go');location.hash='#'+to;});
+window.addEventListener('hashchange',route);
+route();
+</script>
 </body>
 </html>
