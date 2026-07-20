@@ -35,6 +35,11 @@ jobs:
           OUT=apps/changup-site/reel
           BASE=https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6
 
+          # 트레이드마크 오프닝 (유니): "그거 알죠 여러분?"
+          INTRO="$BASE/hf_20260720_092501_ca5b35a8-8931-4964-bd97-944682085e72.mp3"
+          mkdir -p "$OUT/audio"
+          curl -fsSL --retry 3 "$INTRO" -o "$OUT/audio/intro.mp3"
+
           declare -a ADIN=(
             "$BASE/hf_20260720_091219_802c5395-58ea-4687-bca8-7ca39934c387.mp3"
             "$BASE/hf_20260720_091226_ddee5850-5916-4085-b0d4-3886d612ee9e.mp3"
@@ -61,7 +66,14 @@ jobs:
             for i in 1 2 3 4 5 6; do
               curl -fsSL --retry 3 "${urls[$((i-1))]}" -o "$adir/c$i.mp3"
               local n=$(printf "%02d" "$i")
-              ffmpeg -y -loglevel error -loop 1 -i "$CARDS/${prefix}_$n.png" -i "$adir/c$i.mp3" \
+              local audiofile="$adir/c$i.mp3"
+              if [ "$i" = "1" ]; then
+                # 커버 카드 오디오 = 트레이드마크 오프닝 + 커버 내레이션
+                ffmpeg -y -loglevel error -i "$OUT/audio/intro.mp3" -i "$adir/c1.mp3" \
+                  -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1[a]" -map "[a]" -c:a libmp3lame -q:a 2 "$adir/cover.mp3"
+                audiofile="$adir/cover.mp3"
+              fi
+              ffmpeg -y -loglevel error -loop 1 -i "$CARDS/${prefix}_$n.png" -i "$audiofile" \
                 -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=0x0c0b09,setsar=1,fps=30,fade=t=in:st=0:d=0.3,format=yuv420p[v]" \
                 -map "[v]" -map 1:a -c:v libx264 -preset medium -crf 20 -tune stillimage \
                 -c:a aac -b:a 160k -ar 48000 -shortest "/tmp/${prefix}_clip$i.mp4"
@@ -80,7 +92,7 @@ jobs:
           set -e
           git config user.name "reel-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add apps/changup-site/reel/reel_adin.mp4 apps/changup-site/reel/reel_susin.mp4 apps/changup-site/reel/audio/adin apps/changup-site/reel/audio/susin
+          git add apps/changup-site/reel/reel_adin.mp4 apps/changup-site/reel/reel_susin.mp4 apps/changup-site/reel/audio/adin apps/changup-site/reel/audio/susin apps/changup-site/reel/audio/intro.mp3
           if git diff --cached --quiet; then echo "no changes"; exit 0; fi
-          git commit -m "reel(changup-site): 연결 캠페인 릴스(양도인·양수인) 자동 합성 [skip ci]"
+          git commit -m "reel(changup-site): 연결 캠페인 릴스 + 유니 트레이드마크 오프닝 [skip ci]"
           git push origin HEAD:claude/store-listing-marketplace-2csxjf
