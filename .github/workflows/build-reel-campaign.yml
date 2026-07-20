@@ -1,0 +1,86 @@
+name: 연결 캠페인 릴스 빌드 (양도인·양수인)
+
+# 유니 보이스오버 + 캠페인 카드뉴스로 양도인/양수인 릴스 2편을 합성해 브랜치에 커밋.
+# 트리거는 이 워크플로 파일 push 로 한정(결과 커밋이 재실행 유발하지 않음).
+
+on:
+  push:
+    branches: [claude/store-listing-marketplace-2csxjf]
+    paths: ['.github/workflows/build-reel-campaign.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-reel-campaign
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'hosthelper/hosthelper' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/store-listing-marketplace-2csxjf
+
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg && ffmpeg -version | head -1
+
+      - name: Build reels
+        run: |
+          set -euo pipefail
+          CARDS=apps/changup-site/mkt/cardnews
+          OUT=apps/changup-site/reel
+          BASE=https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6
+
+          declare -a ADIN=(
+            "$BASE/hf_20260720_091219_802c5395-58ea-4687-bca8-7ca39934c387.mp3"
+            "$BASE/hf_20260720_091226_ddee5850-5916-4085-b0d4-3886d612ee9e.mp3"
+            "$BASE/hf_20260720_091231_d142e3db-b9ec-4181-b2f9-0cb7598ef4df.mp3"
+            "$BASE/hf_20260720_091403_83e42eaa-e5c4-4190-b4e3-66c6ea1eb828.mp3"
+            "$BASE/hf_20260720_091240_cd187530-774a-4a6e-9697-108431a26fac.mp3"
+            "$BASE/hf_20260720_091248_d3e8bf16-bf6c-4628-b99c-4951d28340af.mp3"
+          )
+          declare -a SUSIN=(
+            "$BASE/hf_20260720_091252_66e11d36-0559-42a5-90db-468890852764.mp3"
+            "$BASE/hf_20260720_091256_c601c165-1325-4120-8275-093e13b3207e.mp3"
+            "$BASE/hf_20260720_091259_335d2aaf-ee3b-48d8-8dba-de76c005d28a.mp3"
+            "$BASE/hf_20260720_091301_753a55a9-e438-4620-82e8-a241fc0391bb.mp3"
+            "$BASE/hf_20260720_091305_ab22776d-a1c7-429d-b538-74608f53e6f9.mp3"
+            "$BASE/hf_20260720_091345_61b10f0f-7168-4c39-a7c6-3db243290725.mp3"
+          )
+
+          build_reel () {
+            local prefix="$1"; shift
+            local urls=("$@")
+            local adir="$OUT/audio/$prefix"
+            mkdir -p "$adir"
+            : > /tmp/list_$prefix.txt
+            for i in 1 2 3 4 5 6; do
+              curl -fsSL --retry 3 "${urls[$((i-1))]}" -o "$adir/c$i.mp3"
+              local n=$(printf "%02d" "$i")
+              ffmpeg -y -loglevel error -loop 1 -i "$CARDS/${prefix}_$n.png" -i "$adir/c$i.mp3" \
+                -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=0x0c0b09,setsar=1,fps=30,fade=t=in:st=0:d=0.3,format=yuv420p[v]" \
+                -map "[v]" -map 1:a -c:v libx264 -preset medium -crf 20 -tune stillimage \
+                -c:a aac -b:a 160k -ar 48000 -shortest "/tmp/${prefix}_clip$i.mp4"
+              echo "file '/tmp/${prefix}_clip$i.mp4'" >> /tmp/list_$prefix.txt
+            done
+            ffmpeg -y -loglevel error -f concat -safe 0 -i /tmp/list_$prefix.txt -c copy "$OUT/reel_$prefix.mp4"
+            ls -la "$OUT/reel_$prefix.mp4"
+            ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 "$OUT/reel_$prefix.mp4" || true
+          }
+
+          build_reel adin "${ADIN[@]}"
+          build_reel susin "${SUSIN[@]}"
+
+      - name: Commit result
+        run: |
+          set -e
+          git config user.name "reel-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add apps/changup-site/reel/reel_adin.mp4 apps/changup-site/reel/reel_susin.mp4 apps/changup-site/reel/audio/adin apps/changup-site/reel/audio/susin
+          if git diff --cached --quiet; then echo "no changes"; exit 0; fi
+          git commit -m "reel(changup-site): 연결 캠페인 릴스(양도인·양수인) 자동 합성 [skip ci]"
+          git push origin HEAD:claude/store-listing-marketplace-2csxjf
