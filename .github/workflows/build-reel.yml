@@ -1,0 +1,84 @@
+name: 유니 카드뉴스 릴스 빌드
+
+# 유니 보이스오버(각 카드 낭독) + 6장 카드뉴스 이미지를 슬라이드쇼 MP4로 합성합니다.
+# GitHub Actions 러너는 외부 인터넷이 열려 있어 CRM(cloudfront) 음성을 내려받아
+# 저장소에 이미 커밋된 카드 이미지와 ffmpeg으로 합성한 뒤, 결과물을 브랜치에 커밋합니다.
+#
+# 트리거는 이 워크플로 파일 push 로 한정해(무한루프 방지) 결과 커밋이 재실행을 유발하지 않습니다.
+
+on:
+  push:
+    branches: [claude/store-listing-marketplace-2csxjf]
+    paths: ['.github/workflows/build-reel.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-reel
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'hosthelper/hosthelper' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/store-listing-marketplace-2csxjf
+
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffmpeg -version | head -1
+
+      - name: Build reel (유니 보이스오버 + 카드 슬라이드쇼)
+        run: |
+          set -euo pipefail
+          CARDS=apps/changup-site/mkt/cardnews
+          OUT=apps/changup-site/reel
+          mkdir -p "$OUT/audio"
+
+          BASE=https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6
+          declare -a URLS=(
+            "$BASE/hf_20260720_082246_77c8d5b2-3470-45b9-86bd-923de50362c3.mp3"
+            "$BASE/hf_20260720_082247_40766dfa-c8d0-41f3-a813-bbb5fd204542.mp3"
+            "$BASE/hf_20260720_082248_6b682f69-fcb8-415d-9882-6ad87edfdacb.mp3"
+            "$BASE/hf_20260720_082250_34288fee-4a56-4a0a-9484-aeb1a77112ff.mp3"
+            "$BASE/hf_20260720_082251_ab141c80-6212-4baa-9db4-b1a2c1691c58.mp3"
+            "$BASE/hf_20260720_082253_25722ee4-44c2-43a4-9c8e-49d4f7397c06.mp3"
+          )
+
+          for i in 1 2 3 4 5 6; do
+            curl -fsSL --retry 3 "${URLS[$((i-1))]}" -o "$OUT/audio/c$i.mp3"
+            echo "downloaded c$i.mp3 ($(stat -c%s "$OUT/audio/c$i.mp3") bytes)"
+          done
+
+          : > /tmp/list.txt
+          for i in 1 2 3 4 5 6; do
+            n=$(printf "%02d" "$i")
+            ffmpeg -y -loglevel error -loop 1 -i "$CARDS/info_gwolligeum_$n.png" -i "$OUT/audio/c$i.mp3" \
+              -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=0x0c0b09,setsar=1,fps=30,fade=t=in:st=0:d=0.3,format=yuv420p[v]" \
+              -map "[v]" -map 1:a -c:v libx264 -preset medium -crf 20 -tune stillimage \
+              -c:a aac -b:a 160k -ar 48000 -shortest "/tmp/clip$i.mp4"
+            echo "file '/tmp/clip$i.mp4'" >> /tmp/list.txt
+            echo "built clip$i.mp4"
+          done
+
+          ffmpeg -y -loglevel error -f concat -safe 0 -i /tmp/list.txt -c copy "$OUT/reel_gwolligeum.mp4"
+          ls -la "$OUT/reel_gwolligeum.mp4"
+          ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 "$OUT/reel_gwolligeum.mp4" || true
+
+      - name: Commit result
+        run: |
+          set -e
+          git config user.name "reel-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add apps/changup-site/reel/reel_gwolligeum.mp4 apps/changup-site/reel/audio
+          if git diff --cached --quiet; then
+            echo "no changes"; exit 0
+          fi
+          git commit -m "reel(changup-site): 유니 보이스오버 권리금 카드뉴스 릴스 자동 합성 [skip ci]"
+          git push origin HEAD:claude/store-listing-marketplace-2csxjf
