@@ -496,17 +496,21 @@ function viewPost(slug){
 }
 function viewSurvey(){
   return '<section style="padding-top:1.4rem"><span class="pill">30초 설문</span>'+
-   '<h1 style="font-size:1.7rem;margin:.7rem 0 .5rem">어떤 가게를 찾고 계신가요?</h1>'+
-   '<p class="lead" style="text-align:left;margin:0 0 .3rem">희망 조건을 남겨주시면 딱 맞는 매물이 나왔을 때 <b style="color:var(--ink)">가장 먼저</b> 안내드려요.</p>'+
+   '<h1 id="surveyTitle" style="font-size:1.7rem;margin:.7rem 0 .5rem">어떤 가게를 찾고 계신가요?</h1>'+
+   '<p id="surveyLead" class="lead" style="text-align:left;margin:0 0 .3rem">희망 조건을 남겨주시면 딱 맞는 매물이 나왔을 때 <b style="color:var(--ink)">가장 먼저</b> 안내드려요.</p>'+
    '<div class="form" id="form-view"><form id="f">'+
-     '<span class="lb">운영 방식 <span class="hint">(복수 선택)</span></span>'+
+     '<span class="lb">무엇을 도와드릴까요?</span>'+
+     '<div class="chips" id="role"><button type="button" class="chip on" data-role="BUYER">🔍 매물 찾기 (창업)</button><button type="button" class="chip" data-role="SELLER">🏪 가게 내놓기 (양도)</button></div>'+
+     '<span class="lb" id="lbOps">희망 운영 방식 <span class="hint">(복수 선택)</span></span>'+
      '<div class="chips" id="ops"><button type="button" class="chip" data-v="DIRECT">직영</button><button type="button" class="chip" data-v="FULL_AUTO">풀오토</button><button type="button" class="chip" data-v="CONSIGNMENT">위탁</button><button type="button" class="chip" data-v="FRANCHISE_HQ">본사</button></div>'+
-     '<span class="lb">희망 종류 <span class="hint">(대분류 · 복수 선택)</span></span><div class="chips" id="cats"></div><div id="subwrap"></div>'+
-     '<label for="industries">기타 희망 업종 <span class="hint">(목록에 없으면 직접 입력 · 쉼표로 구분)</span></label><input id="industries" placeholder="예: 밀키트, 애견카페 (무관이면 비워두세요)">'+
-     '<label for="regions">희망 지역 <span class="hint">(예: 마포구, 강남구)</span></label><input id="regions" placeholder="무관이면 비워두세요">'+
-     '<label for="deposit">보증금 최대 <span class="hint">(만원)</span></label><input id="deposit" inputmode="numeric" placeholder="예: 3000">'+
-     '<label for="rent">월세 최대 <span class="hint">(만원)</span></label><input id="rent" inputmode="numeric" placeholder="예: 200">'+
-     '<label for="premium">권리금 최대 <span class="hint">(만원)</span></label><input id="premium" inputmode="numeric" placeholder="예: 5000">'+
+     '<span class="lb" id="lbCats">희망 종류 <span class="hint">(대분류 · 복수 선택)</span></span><div class="chips" id="cats"></div><div id="subwrap"></div>'+
+     '<label for="industries" id="lbInd">기타 희망 업종 <span class="hint">(목록에 없으면 직접 입력 · 쉼표로 구분)</span></label><input id="industries" placeholder="예: 밀키트, 애견카페 (무관이면 비워두세요)">'+
+     '<label for="regions" id="lbReg">희망 지역 <span class="hint">(예: 마포구, 강남구)</span></label><input id="regions" placeholder="무관이면 비워두세요">'+
+     '<label for="deposit" id="lbDeposit">보증금 최대 <span class="hint">(만원)</span></label><input id="deposit" inputmode="numeric" placeholder="예: 3000">'+
+     '<label for="rent" id="lbRent">월세 최대 <span class="hint">(만원)</span></label><input id="rent" inputmode="numeric" placeholder="예: 200">'+
+     '<label for="premium" id="lbPremium">권리금 최대 <span class="hint">(만원)</span></label><input id="premium" inputmode="numeric" placeholder="예: 5000">'+
+     '<div id="sellerBox" hidden><label for="revenue">월 매출 <span class="hint">(대략, 만원)</span></label><input id="revenue" inputmode="numeric" placeholder="예: 2000"></div>'+
+     '<label for="notes" id="lbNotes">추가 요청사항 <span class="hint">(선택)</span></label><textarea id="notes" placeholder="예: 오픈 주방 선호 / 야간 영업 위주"></textarea>'+
      '<label for="name">성함</label><input id="name" maxlength="50">'+
      '<label for="phone">휴대폰 번호</label><input id="phone" type="tel" placeholder="010-0000-0000">'+
      '<label for="channel">연락 받으실 방법</label><select id="channel"><option value="PHONE">전화</option><option value="SMS">문자</option></select>'+
@@ -584,6 +588,23 @@ function initSurvey(){
   var tags=function(s){return s.split(',').map(function(t){return t.trim();}).filter(Boolean);};
   var man=function(s){var n=Number(s.replace(/[^0-9]/g,''));return(s.trim()===''||isNaN(n)||n<=0)?null:n*10000;};
   g('ops').addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;var v=b.dataset.v,i=ops.indexOf(v);if(i>=0){ops.splice(i,1);b.classList.remove('on');}else{ops.push(v);b.classList.add('on');}});
+  // ===== 역할(양수인/양도인) 전환 =====
+  var role='BUYER';
+  function applyRole(){var s=(role==='SELLER');
+    g('surveyTitle').textContent=s?'어떤 가게를 넘기려 하시나요?':'어떤 가게를 찾고 계신가요?';
+    g('surveyLead').innerHTML=s?'매장 정보를 남겨주시면 조건에 맞는 <b style="color:var(--ink)">예비 창업자</b>와 연결해 드려요. (상담·검증 무료)':'희망 조건을 남겨주시면 딱 맞는 매물이 나왔을 때 <b style="color:var(--ink)">가장 먼저</b> 안내드려요.';
+    g('lbOps').innerHTML=(s?'현재 운영 방식':'희망 운영 방식')+' <span class="hint">(복수 선택)</span>';
+    g('lbCats').innerHTML=(s?'업종 종류':'희망 종류')+' <span class="hint">(대분류 · 복수 선택)</span>';
+    g('lbInd').innerHTML=(s?'기타 업종':'기타 희망 업종')+' <span class="hint">(목록에 없으면 직접 입력)</span>';
+    g('lbReg').innerHTML=(s?'매장 지역':'희망 지역')+' <span class="hint">'+(s?'(예: 마포구 망원동)':'(예: 마포구, 강남구)')+'</span>';
+    g('lbDeposit').innerHTML=(s?'보증금':'보증금 최대')+' <span class="hint">(만원)</span>';
+    g('lbRent').innerHTML=(s?'월세':'월세 최대')+' <span class="hint">(만원)</span>';
+    g('lbPremium').innerHTML=(s?'희망 권리금':'권리금 최대')+' <span class="hint">(만원)</span>';
+    g('lbNotes').innerHTML=(s?'매장 소개 / 양도 사유':'추가 요청사항')+' <span class="hint">(선택)</span>';
+    g('sellerBox').hidden=!s;
+    g('submit').textContent=s?'무료로 매물 등록·상담받기':'무료로 매물 추천받기';
+  }
+  g('role').addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;role=b.dataset.role;Array.prototype.forEach.call(g('role').children,function(c){c.classList.toggle('on',c===b);});applyRole();});
   var catsEl=g('cats'),subWrap=g('subwrap');
   Object.keys(CATS).forEach(function(c){var b=document.createElement('button');b.type='button';b.className='chip';b.textContent=c;b.dataset.cat=c;catsEl.appendChild(b);});
   catsEl.addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;var c=b.dataset.cat,i=selCats.indexOf(c);if(i>=0){selCats.splice(i,1);delete selSubs[c];b.classList.remove('on');}else{selCats.push(c);selSubs[c]=selSubs[c]||[];b.classList.add('on');}renderSubs();});
@@ -629,15 +650,15 @@ function initSurvey(){
   // 실시간 예약 현황 로드 → 마감된 날짜·시간 자동 비활성화
   fetch(SLOTS_URL,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){takenSet=new Set(d.taken||[]);if(meeting.date&&meeting.time&&takenSet.has(keyOf(meeting.date,meeting.time)))meeting.time=null;renderCal();}).catch(function(){});
   g('f').addEventListener('submit',function(e){e.preventDefault();var err=g('err');
-    if(ops.length===0){err.textContent='운영 방식을 하나 이상 선택해주세요.';err.hidden=false;return;}
+    if(role!=='SELLER' && ops.length===0){err.textContent='희망 운영 방식을 하나 이상 선택해주세요.';err.hidden=false;return;}
     if(!g('name').value.trim()){err.textContent='성함을 입력해주세요.';err.hidden=false;return;}
     if(!g('phone').value.trim()){err.textContent='휴대폰 번호를 입력해주세요.';err.hidden=false;return;}
     if(!g('agree').checked){err.textContent='개인정보 수집·이용에 동의해주세요.';err.hidden=false;return;}
     err.hidden=true;g('submit').disabled=true;g('submit').textContent='접수 중…';
-    fetch(LEADS_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:g('name').value,phone:g('phone').value,contactChannel:g('channel').value,operationTypes:ops,industries:collectIndustries(),regions:tags(g('regions').value).filter(function(s){return s.length<=30;}).slice(0,10),depositMax:man(g('deposit').value),rentMax:man(g('rent').value),premiumMax:man(g('premium').value),meetingPreference:meetingStr(),website:g('website').value})})
+    fetch(LEADS_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({role:role,name:g('name').value,phone:g('phone').value,contactChannel:g('channel').value,operationTypes:ops,industries:collectIndustries(),regions:tags(g('regions').value).filter(function(s){return s.length<=30;}).slice(0,10),depositMax:man(g('deposit').value),rentMax:man(g('rent').value),premiumMax:man(g('premium').value),monthlyRevenue:man(g('revenue').value),notes:g('notes').value,meetingPreference:meetingStr(),website:g('website').value})})
     .then(function(res){if(!res.ok)throw new Error('제출 실패 — 잠시 후 다시 시도해주세요');g('form-view').hidden=true;g('done-view').hidden=false;window.scrollTo(0,0);})
     .catch(function(ex){err.textContent=ex.message||'제출 실패';err.hidden=false;})
-    .finally(function(){g('submit').disabled=false;g('submit').textContent='무료로 매물 추천받기';});});
+    .finally(function(){g('submit').disabled=false;g('submit').textContent=(role==='SELLER'?'무료로 매물 등록·상담받기':'무료로 매물 추천받기');});});
 }
 
 //==================== 라우터 ====================
