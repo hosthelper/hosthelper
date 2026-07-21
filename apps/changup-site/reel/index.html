@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>창업정보 모임 · 유니 릴스 — 권리금 적정선</title>
+<meta name="robots" content="noindex" />
+<style>
+  :root{ --onyx:#0c0b09; --gold:#c9a44e; --ink:#f4efe4; }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%; background:#000; color:var(--ink);
+    font-family:"Pretendard",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;}
+  /* 9:16 무대 */
+  #stage{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:var(--onyx);}
+  #frame{position:relative; height:100%; aspect-ratio:9/16; max-width:100%; overflow:hidden; background:var(--onyx);}
+  .card{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:var(--onyx);
+    opacity:0; transition:opacity .35s ease;}
+  .card.on{opacity:1;}
+  /* 진행 표시 */
+  #dots{position:absolute; left:0; right:0; bottom:calc(env(safe-area-inset-bottom) + 18px);
+    display:flex; gap:8px; justify-content:center; z-index:3;}
+  #dots i{width:8px; height:8px; border-radius:50%; background:rgba(244,239,228,.28);}
+  #dots i.on{background:var(--gold); transform:scale(1.15);}
+  #bar{position:absolute; top:0; left:0; height:3px; width:0; background:var(--gold); z-index:3; transition:width .2s linear;}
+  /* 시작 오버레이 */
+  #start{position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:22px; text-align:center; background:linear-gradient(180deg,rgba(12,11,9,.55),rgba(12,11,9,.9)); padding:32px;}
+  #start h1{font-size:clamp(20px,5.4vw,30px); font-weight:800; letter-spacing:-.02em; line-height:1.35;}
+  #start h1 b{color:var(--gold)}
+  #start p{font-size:14px; color:#cbc4b4; line-height:1.6}
+  .btn{appearance:none; border:1px solid var(--gold); background:var(--gold); color:#191307; font-weight:800;
+    font-size:16px; padding:14px 30px; border-radius:999px; cursor:pointer; letter-spacing:-.01em;}
+  .btn.ghost{background:transparent; color:var(--gold);}
+  #tools{position:absolute; top:calc(env(safe-area-inset-top) + 12px); right:12px; z-index:4; display:flex; gap:8px;}
+  #tools button{font-size:12px; padding:8px 12px; border-radius:999px; border:1px solid rgba(201,164,78,.5);
+    background:rgba(12,11,9,.6); color:var(--gold); cursor:pointer; backdrop-filter:blur(6px);}
+  #hint{position:absolute; left:0; right:0; bottom:calc(env(safe-area-inset-bottom) + 40px); text-align:center;
+    font-size:12px; color:#a99f8b; z-index:3;}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="frame">
+    <div id="bar"></div>
+    <!-- 카드 이미지 (저장소 /mkt/cardnews) -->
+    <img class="card" data-i="0" src="../mkt/cardnews/info_gwolligeum_01.png" alt="권리금 적정선 커버" />
+    <img class="card" data-i="1" src="../mkt/cardnews/info_gwolligeum_02.png" alt="권리금 3분류" />
+    <img class="card" data-i="2" src="../mkt/cardnews/info_gwolligeum_03.png" alt="영업권리금 기준" />
+    <img class="card" data-i="3" src="../mkt/cardnews/info_gwolligeum_04.png" alt="시설권리금 감가" />
+    <img class="card" data-i="4" src="../mkt/cardnews/info_gwolligeum_05.png" alt="양수도 계약·세금" />
+    <img class="card" data-i="5" src="../mkt/cardnews/info_gwolligeum_06.png" alt="무료 설문 안내" />
+
+    <div id="dots"></div>
+    <div id="hint" class="hidden">화면 녹화로 저장하거나, 우측 상단 "영상으로 저장"을 누르세요</div>
+
+    <div id="tools" class="hidden">
+      <button id="saveBtn" type="button">영상으로 저장</button>
+    </div>
+
+    <div id="start">
+      <h1><b>권리금 적정선</b> 네 가지 기준<br />유니가 카드별로 읽어드려요</h1>
+      <button class="btn" id="play" type="button">재생 (소리 켜짐)</button>
+      <p>창업정보 모임 · changup-moim.netlify.app<br />세로 화면(9:16) · 약 1분</p>
+    </div>
+  </div>
+</div>
+
+<!-- 유니 낭독 (카드별) — 저장소 /reel/audio -->
+<audio id="a0" preload="auto" src="./audio/c1.mp3"></audio>
+<audio id="a1" preload="auto" src="./audio/c2.mp3"></audio>
+<audio id="a2" preload="auto" src="./audio/c3.mp3"></audio>
+<audio id="a3" preload="auto" src="./audio/c4.mp3"></audio>
+<audio id="a4" preload="auto" src="./audio/c5.mp3"></audio>
+<audio id="a5" preload="auto" src="./audio/c6.mp3"></audio>
+
+<script>
+(function(){
+  var N = 6;
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  var auds  = []; for (var k=0;k<N;k++) auds.push(document.getElementById('a'+k));
+  var dots = document.getElementById('dots');
+  for (var d=0; d<N; d++){ var el=document.createElement('i'); dots.appendChild(el); }
+  var dotEls = Array.prototype.slice.call(dots.children);
+  var bar = document.getElementById('bar');
+  var startEl = document.getElementById('start');
+  var hint = document.getElementById('hint');
+  var tools = document.getElementById('tools');
+  var cur = -1, rafId = null;
+
+  function show(i){
+    cards.forEach(function(c,idx){ c.classList.toggle('on', idx===i); });
+    dotEls.forEach(function(t,idx){ t.classList.toggle('on', idx<=i); });
+    cur = i;
+  }
+
+  function tick(){
+    var a = auds[cur];
+    if (a && a.duration){ bar.style.width = (100*(a.currentTime/a.duration)) + '%'; }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function playFrom(i){
+    if (i>=N){ finish(); return; }
+    show(i);
+    var a = auds[i];
+    a.currentTime = 0;
+    var p = a.play();
+    if (p && p.catch) p.catch(function(){});
+    a.onended = function(){ playFrom(i+1); };
+  }
+
+  function finish(){
+    cancelAnimationFrame(rafId);
+    bar.style.width='100%';
+    // 마지막 카드(CTA) 유지
+  }
+
+  document.getElementById('play').addEventListener('click', function(){
+    startEl.classList.add('hidden');
+    hint.classList.remove('hidden');
+    tools.classList.remove('hidden');
+    // 사용자 제스처 내에서 모든 오디오를 살짝 건드려 모바일 자동재생 허용
+    auds.forEach(function(a){ try{ a.play().then(function(){a.pause(); a.currentTime=0;}).catch(function(){}); }catch(e){} });
+    setTimeout(function(){ tick(); playFrom(0); }, 60);
+  });
+
+  // ── 브라우저에서 바로 영상 파일로 저장 (자산이 동일 출처일 때 동작) ──
+  document.getElementById('saveBtn').addEventListener('click', async function(){
+    var btn = this;
+    try{
+      btn.disabled = true; btn.textContent = '녹화 준비…';
+      var canvas = document.createElement('canvas');
+      canvas.width = 1080; canvas.height = 1920;
+      var ctx = canvas.getContext('2d');
+      var vstream = canvas.captureStream(30);
+
+      // 오디오 그래프: 6개 오디오를 하나의 스트림으로
+      var AC = window.AudioContext || window.webkitAudioContext;
+      var actx = new AC();
+      var dest = actx.createMediaStreamDestination();
+      var srcNodes = auds.map(function(a){
+        a.crossOrigin = 'anonymous';
+        var s = actx.createMediaElementSource(a); s.connect(dest); return s;
+      });
+
+      var mixed = new MediaStream();
+      vstream.getVideoTracks().forEach(function(t){ mixed.addTrack(t); });
+      dest.stream.getAudioTracks().forEach(function(t){ mixed.addTrack(t); });
+
+      var mime = MediaRecorder.isTypeSupported('video/mp4') ? 'video/mp4' : 'video/webm';
+      var rec = new MediaRecorder(mixed, { mimeType: mime, videoBitsPerSecond: 6000000 });
+      var chunks = [];
+      rec.ondataavailable = function(e){ if(e.data && e.data.size) chunks.push(e.data); };
+      rec.onstop = function(){
+        var blob = new Blob(chunks, { type: mime });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url; link.download = 'changup_uni_reel_gwolligeum.' + (mime==='video/mp4'?'mp4':'webm');
+        document.body.appendChild(link); link.click(); link.remove();
+        btn.disabled=false; btn.textContent='영상으로 저장';
+      };
+
+      // 캔버스에 카드 그리기 루프
+      var drawing = true;
+      function paint(){
+        var img = cards[cur<0?0:cur];
+        ctx.fillStyle = '#0c0b09'; ctx.fillRect(0,0,1080,1920);
+        if (img && img.complete){
+          var iw=img.naturalWidth, ih=img.naturalHeight;
+          var scale = Math.min(1080/iw, 1920/ih);
+          var w=iw*scale, h=ih*scale, x=(1080-w)/2, y=(1920-h)/2;
+          ctx.drawImage(img, x, y, w, h);
+        }
+        if (drawing) requestAnimationFrame(paint);
+      }
+      paint();
+
+      btn.textContent = '녹화 중…';
+      rec.start();
+      // 처음부터 재생
+      show(0);
+      for (var i=0;i<N;i++){
+        await new Promise(function(res){
+          var a = auds[i]; show(i); a.currentTime=0;
+          a.onended = res; var pp=a.play(); if(pp&&pp.catch) pp.catch(res);
+        });
+      }
+      drawing = false;
+      rec.stop();
+      actx.close();
+    }catch(err){
+      btn.disabled=false; btn.textContent='영상으로 저장';
+      alert('이 브라우저에서는 자동 저장이 어려워요. 화면 녹화 기능을 사용해 주세요.');
+    }
+  });
+})();
+</script>
+</body>
+</html>
