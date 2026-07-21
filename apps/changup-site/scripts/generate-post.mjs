@@ -255,5 +255,11 @@ async function main() {
 export { renderArticle, insertBetween, plainLen, Article, TOPICS };
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  // API 키 미설정 시: 실패(exit 1)로 스케줄마다 빨간불 내지 말고 조용히 건너뛴다.
+  // 저장소 Settings → Secrets and variables → Actions 에 ANTHROPIC_API_KEY 를 등록하면 정상 생성된다.
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.warn('[skip] ANTHROPIC_API_KEY 미설정 — 자동 기사 생성을 건너뜁니다. (저장소 Actions 시크릿에 등록하세요)');
+    process.exit(0);
+  }
   main().catch((e) => { console.error('[error]', e.message); process.exit(1); });
 }
