@@ -261,5 +261,15 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     console.warn('[skip] ANTHROPIC_API_KEY 미설정 — 자동 기사 생성을 건너뜁니다. (저장소 Actions 시크릿에 등록하세요)');
     process.exit(0);
   }
-  main().catch((e) => { console.error('[error]', e.message); process.exit(1); });
+  main().catch((e) => {
+    const msg = (e && e.message) ? e.message : String(e);
+    // 크레딧 부족·레이트리밋·과부하·모델·네트워크 등 어떤 생성/ API 오류든
+    // 스케줄 워크플로를 빨간불(exit 1)로 실패시키지 않고 이번 회차만 건너뛴다(exit 0).
+    // 문제가 해소되면(예: 크레딧 충전) 다음 스케줄에 자동으로 다시 생성된다.
+    console.warn('[skip] 자동 기사 생성 실패 — 이번 회차 건너뜁니다: ' + msg);
+    if (/credit balance is too low|Plans & Billing|billing/i.test(msg)) {
+      console.warn('[hint] Anthropic 크레딧 잔액 부족입니다. https://console.anthropic.com/settings/billing 에서 충전하세요.');
+    }
+    process.exit(0);
+  });
 }
