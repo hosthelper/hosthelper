@@ -115,6 +115,29 @@ h2{font-size:1.5rem;font-weight:800;letter-spacing:-.03em;margin:0 0 1.1rem;text
 .metric::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--grad);opacity:.85}
 .metric .fig{font-size:1.95rem;font-weight:800;background:linear-gradient(120deg,var(--brand-l),var(--brand-d));-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;line-height:1}
 .metric .cap{font-size:.72rem;color:var(--sub);margin-top:.4rem;line-height:1.4;font-weight:600}
+/* 신뢰 배지 (정직한 사회적 증거) */
+.badges{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:1.15rem 0 .2rem}
+.badges span{display:inline-flex;align-items:center;gap:.35rem;font-size:.76rem;font-weight:700;color:var(--sub);background:var(--card);border:1px solid var(--line);padding:.4rem .78rem;border-radius:999px;box-shadow:var(--shadow-sm)}
+.badges span::before{content:"✓";color:var(--brand);font-weight:900}
+/* 무료 권리금 진단 (lead magnet) */
+.gwiz{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:1.4rem 1.25rem;box-shadow:var(--shadow);margin-top:1.05rem}
+.gwiz label{display:block;font-size:.84rem;font-weight:700;color:var(--ink);margin:1rem 0 .4rem}
+.gwiz label:first-child{margin-top:0}
+.gwiz select,.gwiz input{width:100%;padding:.8rem .95rem;border:1px solid var(--line);border-radius:var(--r-sm);font-size:.95rem;background:var(--bg);color:var(--ink);font-family:inherit;transition:border-color .14s,box-shadow .14s}
+.gwiz input::placeholder{color:var(--mute)}
+.gwiz input:focus,.gwiz select:focus{outline:none;border-color:var(--brand);box-shadow:var(--ring)}
+.gwiz .btn{margin-top:1.2rem}
+.gwout{margin-top:1.15rem;padding:1.3rem 1.1rem;border-radius:var(--r);background:var(--tint);border:1px solid color-mix(in srgb,var(--brand) 18%,transparent);text-align:center}
+.gwout .gwrange{font-size:1.7rem;font-weight:800;background:linear-gradient(120deg,var(--brand-l),var(--brand-d));-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;letter-spacing:-.01em;line-height:1.2}
+.gwout .gwnote{font-size:.85rem;color:var(--brand-d);font-weight:700;margin-top:.35rem}
+.gwout .gwdisc{font-size:.76rem;color:var(--sub);line-height:1.55;margin:.75rem 0 1rem}
+.gwout .btn{margin-top:0}
+/* 진행 4단계 (마찰 제거) */
+.steps{display:grid;grid-template-columns:repeat(2,1fr);gap:.7rem}
+.step{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.1rem 1rem;box-shadow:var(--shadow-sm)}
+.step .sn{width:30px;height:30px;border-radius:50%;background:var(--grad);color:var(--on-brand);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.95rem;margin-bottom:.6rem}
+.step b{display:block;color:var(--ink);font-size:.98rem;margin-bottom:.15rem}
+.step span{font-size:.8rem;color:var(--sub);line-height:1.45}
 
 /* 섹션 헤더 */
 .sh{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1rem}
@@ -443,6 +466,28 @@ function viewHome(){
   '<div class="metrics"><div class="metric"><div class="fig">5</div><div class="cap">공공데이터<br>기반 분석</div></div>'+
     '<div class="metric"><div class="fig">0</div><div class="cap">상담·매칭<br>비용 (원)</div></div>'+
     '<div class="metric"><div class="fig">1:1</div><div class="cap">전담 컨설턴트<br>동행</div></div></div>'+
+  '<div class="badges"><span>공공데이터 검증</span><span>개업공인중개사 협업</span><span>사업자 729-33-00827</span><span>개인정보 즉시 파기</span></div>'+
+  '<section><span class="pill"><span class="dot"></span>30초 무료 진단</span>'+
+    '<h2 style="margin-top:.7rem">내 가게 <span class="g">권리금 적정가</span>는 얼마?</h2>'+
+    '<p class="lead" style="text-align:left;max-width:none;margin:.5rem 0 0">지금 넘기면 얼마나 회수할 수 있을까요? 업종·월 순이익·상권만 넣으면 참고 구간을 바로 알려드려요.</p>'+
+    '<div class="gwiz">'+
+      '<label for="gwBiz">업종</label>'+
+      '<select id="gwBiz"><option value="10,20">카페·베이커리·디저트</option><option value="8,16">외식·식당·주점</option><option value="6,12">편의점·무인매장</option><option value="10,18">학원·스터디카페·교육</option><option value="12,20">미용·뷰티·피부</option><option value="8,14">기타·서비스업</option></select>'+
+      '<label for="gwProfit">월 순이익 <span style="color:var(--mute);font-weight:600">(만원 · 월세·인건비 제외 후)</span></label>'+
+      '<input id="gwProfit" inputmode="numeric" placeholder="예: 500">'+
+      '<label>상권 급지</label>'+
+      '<div class="chips" id="gwLoc"><button type="button" class="chip on" data-v="1.15">핵심상권</button><button type="button" class="chip" data-v="1">일반상권</button><button type="button" class="chip" data-v="0.85">주택가·외곽</button></div>'+
+      '<button class="btn" id="gwGo" type="button">권리금 적정가 진단하기</button>'+
+      '<div class="gwout" id="gwOut" hidden><div class="gwrange" id="gwRange"></div><div class="gwnote" id="gwNote"></div>'+
+        '<p class="gwdisc">참고용 추정치입니다. 실제 권리금은 입지·시설·매출 추이·바닥권리금에 따라 달라지며, 정확한 산정에는 검증이 필요합니다.</p>'+
+        '<a class="btn" data-go="survey">이 조건으로 무료 매물·매칭 받기</a></div>'+
+    '</div></section>'+
+  '<section><h2><span class="g">이렇게</span> 연결됩니다</h2><div class="steps">'+
+    '<div class="step"><div class="sn">1</div><b>30초 설문</b><span>희망 조건만 남기면 끝. 가입·비용 없음.</span></div>'+
+    '<div class="step"><div class="sn">2</div><b>조건 매칭</b><span>공공데이터로 검증된 매물만 골라 대조.</span></div>'+
+    '<div class="step"><div class="sn">3</div><b>1:1 안내</b><span>맞는 매물이 생기면 가장 먼저 연락.</span></div>'+
+    '<div class="step"><div class="sn">4</div><b>안전 계약</b><span>실제 계약은 개업공인중개사를 통해.</span></div>'+
+    '</div></section>'+
   '<section><div class="sh"><h2>오늘의 <span class="g">창업 인사이트</span></h2><a class="more-lnk" data-go="info">전체 보기 →</a></div>'+
     '<div class="feed">'+latest+'</div>'+
     '<p style="text-align:center;color:var(--sub);font-size:.85rem;margin:1.1rem 0 0">계약 전에 알았다면 달랐을 이야기, <b style="color:var(--ink)">매일</b> 올라옵니다.</p></section>'+
@@ -582,6 +627,23 @@ function viewAds(){return '<section class="legal">'+
 //==================== 설문 로직 ====================
 var CATS={'외식·음식점':['한식','분식','고기·구이','치킨','피자','햄버거','중식','일식','양식','아시안','족발·보쌈','국밥·찌개','도시락'],'카페·디저트':['카페','커피전문점','베이커리','디저트','아이스크림·빙수','브런치','무인카페'],'주점·술집':['호프·맥주','이자카야','포차','바(Bar)','와인'],'판매·소매':['편의점','무인점포','마트·식자재','반찬·식품','화장품','의류·패션','문구·팬시'],'서비스':['세탁','인쇄·출력','수리','렌탈','부동산'],'뷰티·건강':['미용실','네일','피부·왁싱','헬스·PT','필라테스·요가','마사지'],'교육':['입시학원','공부방·교습소','유아·어린이','예체능','코딩'],'숙박':['모텔·호텔','게스트하우스','펜션','파티룸'],'오락·스포츠':['PC방','코인노래방','스크린골프','당구장','볼링','실내스포츠']};
 var LEADS_URL='https://buzcnfnimzlsjvbeefjb.supabase.co/functions/v1/changup-leads';
+function fmtMoney(man){if(man>=10000){var eok=Math.floor(man/10000),rest=man%10000;return eok+'억'+(rest?' '+rest.toLocaleString()+'만':'')+'원';}return man.toLocaleString()+'만원';}
+function initHome(){
+  var g=function(id){return document.getElementById(id);};
+  var loc=1.15, locEl=g('gwLoc');
+  if(locEl) locEl.addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;loc=parseFloat(b.dataset.v);Array.prototype.forEach.call(locEl.children,function(c){c.classList.toggle('on',c===b);});});
+  var go=g('gwGo');
+  if(go) go.addEventListener('click',function(){
+    var out=g('gwOut'),note=g('gwNote'),rng=g('gwRange');
+    var profit=Number((g('gwProfit').value||'').replace(/[^0-9]/g,''));
+    if(!profit||profit<=0){rng.textContent='월 순이익을 입력해 주세요';note.textContent='';out.hidden=false;out.scrollIntoView({behavior:'smooth',block:'nearest'});return;}
+    var p=g('gwBiz').value.split(','),lo=parseFloat(p[0]),hi=parseFloat(p[1]);
+    var low=Math.round(profit*lo*loc/10)*10,high=Math.round(profit*hi*loc/10)*10;
+    rng.textContent=fmtMoney(low)+' ~ '+fmtMoney(high);
+    note.textContent='월 순이익의 '+Math.round(lo*loc)+'~'+Math.round(hi*loc)+'개월치 기준 · 참고용';
+    out.hidden=false;out.scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+}
 function initSurvey(){
   var ops=[],selCats=[],selSubs={};
   var g=function(id){return document.getElementById(id);};
@@ -679,6 +741,7 @@ function route(){
   window.scrollTo(0,0);
   if(h==='info'){ var fl=document.getElementById('filters'); if(fl)fl.addEventListener('click',function(e){var b=e.target.closest('.fchip');if(!b)return;curCat=b.dataset.cat;route();}); }
   if(h==='survey'){ initSurvey(); }
+  if(active==='home'){ initHome(); }
 }
 document.addEventListener('click',function(e){var el=e.target.closest('[data-go]');if(!el)return;e.preventDefault();var to=el.getAttribute('data-go');location.hash='#'+to;});
 window.addEventListener('hashchange',route);
