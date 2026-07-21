@@ -80,18 +80,16 @@ a{color:inherit}
 .nav a{font-size:.86rem;font-weight:700;color:var(--sub);text-decoration:none;padding:.42rem .62rem;border-radius:9px;cursor:pointer;transition:color .15s,background .15s}
 .nav a:not(.cta):hover{color:var(--ink);background:color-mix(in srgb,var(--tint) 60%,transparent)}
 .nav a.on{color:var(--brand)}
-.nav a.cta{color:var(--on-brand);background:var(--grad);padding:.52rem 1rem;border-radius:999px;margin-left:.3rem;box-shadow:0 6px 16px rgba(239,91,64,.3);transition:transform .12s,box-shadow .12s}
-.nav a.cta:hover{transform:translateY(-1px);box-shadow:0 9px 22px rgba(239,91,64,.4)}
+.nav a.cta{color:var(--brand-d);background:transparent;border:1.5px solid var(--brand);padding:.4rem .85rem;border-radius:8px;margin-left:.3rem;transition:background .12s}
+.nav a.cta:hover{background:var(--tint)}
 
 /* 공통 */
 h1{letter-spacing:-.045em;text-wrap:balance}
 .hero h1,h2,.ctitle,.article h1,.article h3,.legal h1,.done h3,.promo h2,.advisor .nm{font-family:'Noto Serif KR','Nanum Myeongjo',serif;font-weight:700;letter-spacing:-.02em}
 .hero h1,.article h1{font-weight:900}
 .g{background:linear-gradient(120deg,var(--brand-l),var(--brand-d));-webkit-background-clip:text;background-clip:text;color:transparent}
-.btn{position:relative;display:block;text-align:center;padding:1.1rem 1.4rem;border-radius:999px;border:none;background:var(--grad);color:var(--on-brand);font-weight:800;font-size:1.05rem;text-decoration:none;cursor:pointer;box-shadow:0 10px 26px rgba(239,91,64,.32),inset 0 1px 0 rgba(255,255,255,.2);font-family:inherit;letter-spacing:-.01em;transition:transform .14s ease,box-shadow .14s ease;overflow:hidden}
-.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-120%);transition:transform .6s ease}
-.btn:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(239,91,64,.42),inset 0 1px 0 rgba(255,255,255,.2)}
-.btn:hover::after{transform:translateX(120%)}
+.btn{display:inline-block;text-align:center;padding:.68rem 1.5rem;border-radius:8px;border:1.5px solid var(--brand);background:transparent;color:var(--brand-d);font-weight:700;font-size:.9rem;text-decoration:none;cursor:pointer;font-family:inherit;transition:background .14s ease,border-color .14s ease}
+.btn:hover{background:var(--tint)}
 .pill{display:inline-flex;align-items:center;gap:.45rem;background:color-mix(in srgb,var(--tint) 80%,transparent);color:var(--brand-d);font-weight:700;font-size:.78rem;padding:.4rem .85rem;border-radius:999px;border:1px solid color-mix(in srgb,var(--brand) 16%,transparent);box-shadow:var(--shadow-sm)}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--brand);position:relative}
 .dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;background:var(--brand);opacity:.4;animation:ping 1.8s cubic-bezier(0,0,.2,1) infinite}
@@ -240,9 +238,9 @@ footer b{color:var(--ink)}
 .subgroup{margin-top:.4rem}.subgroup .sgl{font-size:.8rem;font-weight:700;color:var(--brand);margin:.75rem 0 .45rem}
 .agree{display:flex;gap:.55rem;align-items:flex-start;margin-top:1.2rem;font-size:.78rem;color:var(--sub);line-height:1.6}
 .agree input{width:auto;margin-top:.15rem;accent-color:var(--brand)}
-.fbtn{margin-top:1.4rem;width:100%;padding:1.1rem;border-radius:999px;border:none;cursor:pointer;background:var(--grad);color:var(--on-brand);font-size:1.05rem;font-weight:800;font-family:inherit;letter-spacing:-.01em;box-shadow:0 10px 26px rgba(239,91,64,.32),inset 0 1px 0 rgba(255,255,255,.2);transition:transform .14s,box-shadow .14s}
-.fbtn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(239,91,64,.42),inset 0 1px 0 rgba(255,255,255,.2)}
-.fbtn:disabled{opacity:.55;cursor:default}
+.fbtn{margin-top:1.4rem;width:100%;padding:.95rem;border-radius:8px;border:1.5px solid var(--brand);cursor:pointer;background:transparent;color:var(--brand-d);font-size:.98rem;font-weight:700;font-family:inherit;transition:background .14s}
+.fbtn:not(:disabled):hover{background:var(--tint)}
+.fbtn:disabled{opacity:.5;cursor:default}
 .fnote{color:var(--mute);font-size:.76rem;margin-top:.8rem;line-height:1.6}.ferr{color:#c0392b;font-size:.85rem;margin-top:.9rem}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 .mhint{color:var(--mute);font-size:.78rem;line-height:1.6;margin:.1rem 0 .3rem}
@@ -290,7 +288,8 @@ footer .flinks a:hover{color:var(--brand)}
 
 /* 하단 고정 CTA */
 .sticky{position:fixed;left:0;right:0;bottom:0;z-index:25;padding:.7rem 1rem calc(.7rem + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
-.sticky a{display:block;max-width:600px;margin:0 auto;text-align:center;padding:1rem;border-radius:999px;background:var(--grad);color:var(--on-brand);font-weight:800;text-decoration:none;letter-spacing:-.01em;box-shadow:0 10px 26px rgba(239,91,64,.34),inset 0 1px 0 rgba(255,255,255,.2)}
+.sticky a{display:block;max-width:600px;margin:0 auto;text-align:center;padding:.82rem;border-radius:8px;background:var(--card);border:1.5px solid var(--brand);color:var(--brand-d);font-weight:700;font-size:.92rem;text-decoration:none}
+.sticky a:hover{background:var(--tint)}
 .sticky[hidden]{display:none}
 a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
@@ -306,7 +305,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
 </div></div>
 
 <main id="app" class="wrap"></main>
-<div class="sticky" id="sticky"><a data-go="survey">30초 설문하고 매물 먼저 받기</a></div>
+<div class="sticky" id="sticky"><a data-go="survey">무료로 매물 받기</a></div>
 
 <script>
 //==================== 데이터 ====================
@@ -457,10 +456,10 @@ function viewHome(){
   var latest=sorted().slice(0,3).map(card).join('');
   return ''+
   '<section class="hero">'+
-    '<span class="pill"><span class="dot"></span>매일 아침 업데이트 · '+TODAY+'</span>'+
-    '<h1>오늘도 사장님이 되는<br>가장 <span class="g">빠른 길</span>을 찾는 중</h1>'+
-    '<p class="lead">가게를 양도하려는 사장님과 창업을 준비하는 분을 공공데이터로 검증해 연결합니다. 30초 설문을 남기면, 딱 맞는 매물이 나왔을 때 가장 먼저 알려드려요.</p>'+
-    '<a class="btn" data-go="survey" style="margin:1.6rem 0 .7rem">내 조건에 맞는 매물 무료로 받기</a>'+
+    '<span class="pill"><span class="dot"></span>점포 양수도 무료 매칭</span>'+
+    '<h1>가게 양도·창업 매물,<br><span class="g">한곳에서</span></h1>'+
+    '<p class="lead">넘기려는 사장님과 창업 준비자를 공공데이터로 검증해 연결합니다.</p>'+
+    '<a class="btn" data-go="survey" style="margin:1.5rem 0 .7rem">무료로 매물 받기</a>'+
     '<div class="trust"><span><b>상담비</b> 무료</span><span><b>가입비</b> 없음</span><span><b>연락 중단</b> 언제든</span></div>'+
   '</section>'+
   '<div class="metrics"><div class="metric"><div class="fig">5</div><div class="cap">공공데이터<br>기반 분석</div></div>'+
@@ -480,7 +479,7 @@ function viewHome(){
       '<button class="btn" id="gwGo" type="button">권리금 적정가 진단하기</button>'+
       '<div class="gwout" id="gwOut" hidden><div class="gwrange" id="gwRange"></div><div class="gwnote" id="gwNote"></div>'+
         '<p class="gwdisc">참고용 추정치입니다. 실제 권리금은 입지·시설·매출 추이·바닥권리금에 따라 달라지며, 정확한 산정에는 검증이 필요합니다.</p>'+
-        '<a class="btn" data-go="survey">이 조건으로 무료 매물·매칭 받기</a></div>'+
+        '<a class="btn" data-go="survey">이 조건으로 매물 받기</a></div>'+
     '</div></section>'+
   '<section><h2><span class="g">이렇게</span> 연결됩니다</h2><div class="steps">'+
     '<div class="step"><div class="sn">1</div><b>30초 설문</b><span>희망 조건만 남기면 끝. 가입·비용 없음.</span></div>'+
