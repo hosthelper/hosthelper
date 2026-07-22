@@ -1,0 +1,78 @@
+name: 창업정보 데일리 릴스 빌드
+
+# 유니 보이스오버 + 카드뉴스 6장을 릴스 MP4로 합성하는 범용 파이프라인.
+# apps/changup-site/reel/daily/manifest.json 이 갱신되면 그 내용대로 합성해 커밋합니다.
+# manifest: { prefix, intro, audios[6] } — 카드는 mkt/cardnews/<prefix>_01..06.png 사용.
+
+on:
+  push:
+    branches: [main]
+    paths: ['apps/changup-site/reel/daily/manifest.json']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-reel-daily
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'hosthelper/hosthelper' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg jq && ffmpeg -version | head -1
+
+      - name: Build reel from manifest
+        run: |
+          set -euo pipefail
+          M=apps/changup-site/reel/daily/manifest.json
+          CARDS=apps/changup-site/mkt/cardnews
+          OUT=apps/changup-site/reel
+          PREFIX=$(jq -r '.prefix' "$M")
+          INTRO=$(jq -r '.intro' "$M")
+          ADIR="$OUT/audio/$PREFIX"
+          mkdir -p "$ADIR"
+
+          curl -fsSL --retry 3 "$INTRO" -o "$ADIR/intro.mp3"
+
+          : > /tmp/list.txt
+          for i in 0 1 2 3 4 5; do
+            n=$(printf "%02d" $((i+1)))
+            URL=$(jq -r ".audios[$i]" "$M")
+            EXT="${URL##*.}"
+            curl -fsSL --retry 3 "$URL" -o "$ADIR/c$((i+1)).$EXT"
+            audiofile="$ADIR/c$((i+1)).$EXT"
+            if [ "$i" = "0" ]; then
+              ffmpeg -y -loglevel error -i "$ADIR/intro.mp3" -i "$audiofile" \
+                -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1[a]" -map "[a]" -c:a libmp3lame -q:a 2 "$ADIR/cover.mp3"
+              audiofile="$ADIR/cover.mp3"
+            fi
+            ffmpeg -y -loglevel error -loop 1 -i "$CARDS/${PREFIX}_$n.png" -i "$audiofile" \
+              -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=0xfaf6f1,setsar=1,fps=30,fade=t=in:st=0:d=0.3,format=yuv420p[v]" \
+              -map "[v]" -map 1:a -c:v libx264 -preset medium -crf 20 -tune stillimage \
+              -c:a aac -b:a 160k -ar 48000 -shortest "/tmp/clip$((i+1)).mp4"
+            echo "file '/tmp/clip$((i+1)).mp4'" >> /tmp/list.txt
+          done
+
+          ffmpeg -y -loglevel error -f concat -safe 0 -i /tmp/list.txt -c copy "$OUT/reel_${PREFIX}.mp4"
+          ls -la "$OUT/reel_${PREFIX}.mp4"
+          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 "$OUT/reel_${PREFIX}.mp4" || true
+
+      - name: Commit result
+        run: |
+          set -e
+          M=apps/changup-site/reel/daily/manifest.json
+          PREFIX=$(jq -r '.prefix' "$M")
+          git config user.name "reel-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add "apps/changup-site/reel/reel_${PREFIX}.mp4" "apps/changup-site/reel/audio/${PREFIX}"
+          if git diff --cached --quiet; then echo "no changes"; exit 0; fi
+          git commit -m "reel(changup-site): 데일리 릴스 자동 합성 — ${PREFIX} [skip ci]"
+          git push origin HEAD:main
