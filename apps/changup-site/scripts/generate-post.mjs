@@ -1,9 +1,10 @@
 // 창업정보 모임 — 자동 콘텐츠 발행 (AI 원본 + 공공자료 재가공)
 //
-// 매일 09:00 KST(=00:00 UTC)에 GitHub Action이 실행합니다. Google Gemini 무료 API
-// (gemini-2.5-flash 기본)로 주제를 로테이션하며 창업 정보 기사를 생성해, 라이브 SPA
-// (app.html)의 ARTICLES/SOURCES에 직접 삽입하고 index.html로 복사(Netlify 배포본과 동일)합니다.
-// 무료 키 발급: https://aistudio.google.com/apikey (신용카드 불필요)
+// 매일 09:00 KST(=00:00 UTC)에 GitHub Action이 실행합니다. GitHub Models 무료 추론
+// (openai/gpt-4o-mini 기본, GITHUB_TOKEN 사용 — 별도 키·가입 불필요)로 주제를 로테이션하며
+// 창업 정보 기사를 생성해, 라이브 SPA(app.html)의 ARTICLES/SOURCES에 직접 삽입하고
+// index.html로 복사(Netlify 배포본과 동일)합니다.
+// 워크플로에 permissions: models: read 필요. https://github.com/marketplace/models
 //
 // 중요: 라이브 사이트는 app.html 단일 파일이 원본이며, 기사는 그 안의 var ARTICLES=[...] 에서
 // 읽습니다. 과거의 posts/ 개별 페이지 구조는 더 이상 쓰지 않습니다.
@@ -21,7 +22,7 @@ const SITE = path.resolve(HERE, '..');
 const APP_HTML = path.join(SITE, 'app.html');
 const INDEX_HTML = path.join(SITE, 'index.html');
 
-const MODEL = process.env.CHANGUP_AI_MODEL || 'gemini-2.5-flash'; // 무료 티어(하루 1편에 충분)
+const MODEL = process.env.CHANGUP_AI_MODEL || 'openai/gpt-4o-mini'; // GitHub Models 무료(하루 1편에 충분)
 
 // 카테고리는 목록 필터 칩과 일치해야 함(정책자금·권리금·운영방식·상권분석)
 const TOPICS = [
@@ -80,28 +81,31 @@ JSON 스키마:
 본문 p 안에는 <b>강조</b>만 허용하고 다른 태그·링크는 넣지 마세요.`;
 
 async function generate(topic, cat) {
-  const key = process.env.GEMINI_API_KEY;
+  const token = process.env.GITHUB_TOKEN;
   const today = new Date().toISOString().slice(0, 10);
   const userPrompt = `오늘 날짜: ${today}\n카테고리: ${cat}\n주제: ${topic}\n\n`
     + `위 주제로 뉴스 기사형 원본 글을 작성하세요. 공공기관(소상공인시장진흥공단·중기부·공정위 등) 자료를 근거로 재구성하고, "sources"에는 실제 존재하는 공식 공공기관 https URL만 2~4개 넣으세요(예: ${GOV_DOMAINS.join(', ')}). category는 "${cat}"로 고정. 오직 JSON 객체만 출력하세요.`;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`;
-  const res = await fetch(url, {
+  const res = await fetch('https://models.github.ai/inference/chat/completions', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', 'authorization': `Bearer ${token}` },
     body: JSON.stringify({
-      system_instruction: { parts: [{ text: SYSTEM }] },
-      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-      generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 8000, temperature: 0.8 },
+      model: MODEL,
+      messages: [
+        { role: 'system', content: SYSTEM },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.8,
+      max_tokens: 4000,
+      response_format: { type: 'json_object' },
     }),
   });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
-    throw new Error(`Gemini API ${res.status}: ${body.slice(0, 300)}`);
+    throw new Error(`GitHub Models ${res.status}: ${body.slice(0, 300)}`);
   }
   const data = await res.json();
-  const text = ((data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [])
-    .map(p => p.text || '').join('').trim();
-  if (!text) throw new Error('Gemini 응답이 비었습니다: ' + JSON.stringify(data).slice(0, 300));
+  const text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
+  if (!text) throw new Error('GitHub Models 응답이 비었습니다: ' + JSON.stringify(data).slice(0, 300));
   const jsonStr = text.replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
   const start = jsonStr.indexOf('{'), end = jsonStr.lastIndexOf('}');
   const parsed = JSON.parse(jsonStr.slice(start, end + 1));
@@ -211,21 +215,21 @@ async function main() {
 export { applyToApp, articleLiteral, sourcesLiteral, insertAfter, plainLen, jsStr, Article, TOPICS, slugify };
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  // API 키 미설정 시: 실패로 빨간불 내지 말고 조용히 건너뛴다(등록하면 정상 동작).
-  // 무료 키 발급: https://aistudio.google.com/apikey
-  if (!process.env.GEMINI_API_KEY) {
-    console.warn('[skip] GEMINI_API_KEY 미설정 — 자동 기사 생성을 건너뜁니다. (저장소 Actions 시크릿에 등록하세요: https://aistudio.google.com/apikey)');
+  // 토큰 미설정 시(로컬 등): 실패로 빨간불 내지 말고 조용히 건너뛴다.
+  // GitHub Actions에서는 GITHUB_TOKEN이 자동 주입되므로 항상 동작합니다(permissions: models: read 필요).
+  if (!process.env.GITHUB_TOKEN) {
+    console.warn('[skip] GITHUB_TOKEN 미설정 — 자동 기사 생성을 건너뜁니다. (GitHub Actions에서는 자동 주입됩니다)');
     process.exit(0);
   }
   main().catch((e) => {
     const msg = (e && e.message) ? e.message : String(e);
     // 무료 한도 초과·과부하·네트워크 등 "일시적 API 오류"만 조용히 건너뛴다(exit 0).
     // 구조/코드 오류(anchor not found 등)는 빨간불(exit 1)로 드러내 재발을 즉시 알린다.
-    const transient = /rate.?limit|RESOURCE_EXHAUSTED|quota|overloaded|UNAVAILABLE|deadline|ETIMEDOUT|ECONNRESET|fetch failed|Gemini API (429|500|502|503|529)/i.test(msg);
+    const transient = /rate.?limit|RateLimitReached|tokens per|requests per|quota|overloaded|unavailable|ETIMEDOUT|ECONNRESET|fetch failed|GitHub Models (429|500|502|503|529)/i.test(msg);
     if (transient) {
       console.warn('[skip] 일시적 API 오류 — 이번 회차 건너뜁니다: ' + msg);
-      if (/RESOURCE_EXHAUSTED|quota|rate.?limit/i.test(msg)) {
-        console.warn('[hint] Gemini 무료 한도(분당/일일 요청)를 넘었습니다. 잠시 후 다음 회차에 자동 재시도됩니다.');
+      if (/rate.?limit|RateLimitReached|429/i.test(msg)) {
+        console.warn('[hint] GitHub Models 무료 한도를 넘었습니다. 잠시 후 다음 회차에 자동 재시도됩니다.');
       }
       process.exit(0);
     }
