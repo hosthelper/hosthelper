@@ -4,10 +4,8 @@ name: 창업정보 모임 자동 콘텐츠
 # ARTICLES 배열에 직접 삽입하고 index.html로 동기화한 뒤 main에 바로 커밋합니다.
 # (Netlify가 main을 자동 배포 → 사이트에 즉시 반영)
 #
-# 필요 설정(사용자, 최초 1회):
-#   저장소 Settings → Secrets and variables → Actions → New secret:
-#     GEMINI_API_KEY = <Google Gemini 무료 API 키>  (무료 발급: https://aistudio.google.com/apikey)
-#   * 키가 없으면 그날 회차는 조용히 건너뜁니다(빨간불 없음). 신용카드 불필요.
+# AI는 GitHub Models 무료 추론을 사용합니다 — 별도 API 키·시크릿·가입이 필요 없습니다.
+# (워크플로의 내장 GITHUB_TOKEN + permissions: models: read 로 동작)
 
 on:
   schedule:
@@ -16,6 +14,7 @@ on:
 
 permissions:
   contents: write
+  models: read
 
 concurrency:
   group: changup-content
@@ -42,8 +41,8 @@ jobs:
         id: gen
         working-directory: apps/changup-site/scripts
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          CHANGUP_AI_MODEL: ${{ vars.CHANGUP_AI_MODEL || 'gemini-2.5-flash' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHANGUP_AI_MODEL: ${{ vars.CHANGUP_AI_MODEL || 'openai/gpt-4o-mini' }}
         run: node generate-post.mjs
 
       - name: Commit to main (자동 발행)
@@ -53,7 +52,7 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           git add apps/changup-site/app.html apps/changup-site/index.html
           if git diff --cached --quiet; then
-            echo "변경 없음(키·크레딧 미설정 또는 이미 오늘 발행) — 스킵"; exit 0
+            echo "변경 없음(이미 오늘 발행됨 또는 일시 스킵) — 종료"; exit 0
           fi
           TITLE="${{ steps.gen.outputs.title }}"
           CAT="${{ steps.gen.outputs.cat }}"
