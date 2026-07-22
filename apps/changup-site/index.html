@@ -468,8 +468,9 @@ function viewHome(){
   '<section class="hero">'+
     '<span class="pill"><span class="dot"></span>점포 양수도 무료 매칭</span>'+
     '<h1>가게 양도·창업 매물,<br><span class="g">한곳에서</span></h1>'+
-    '<p class="lead">넘기려는 사장님과 창업 준비자를 공공데이터로 검증해 연결합니다.</p>'+
-    '<a class="btn" data-go="survey" style="margin:1.5rem 0 .7rem">무료로 매물 받기</a>'+
+    '<p class="lead">매물을 보유한 파트너사·공인중개사 네트워크와 창업 준비자를 연결합니다. 정보는 공공데이터로 검증합니다.</p>'+
+    '<a class="btn" data-go="survey" style="margin:1.5rem 0 .5rem">무료로 매물 받기</a>'+
+    '<p style="font-size:.8rem;color:var(--sub);margin:.2rem 0 .5rem">설문 완료 시 <b style="color:var(--brand-d)">인수 전 3종 안심 패키지</b> 무료</p>'+
     '<div class="trust"><span><b>상담비</b> 무료</span><span><b>가입비</b> 없음</span><span><b>연락 중단</b> 언제든</span></div>'+
   '</section>'+
   '<div class="metrics"><div class="metric"><div class="fig">5</div><div class="cap">공공데이터<br>기반 분석</div></div>'+
@@ -493,10 +494,15 @@ function viewHome(){
     '</div></section>'+
   '<section><h2><span class="g">이렇게</span> 연결됩니다</h2><div class="steps">'+
     '<div class="step"><div class="sn">1</div><b>30초 설문</b><span>희망 조건만 남기면 끝. 가입·비용 없음.</span></div>'+
-    '<div class="step"><div class="sn">2</div><b>조건 매칭</b><span>공공데이터로 검증된 매물만 골라 대조.</span></div>'+
+    '<div class="step"><div class="sn">2</div><b>조건 매칭</b><span>매물 보유 파트너·공인중개사 네트워크와 대조.</span></div>'+
     '<div class="step"><div class="sn">3</div><b>1:1 안내</b><span>맞는 매물이 생기면 가장 먼저 연락.</span></div>'+
     '<div class="step"><div class="sn">4</div><b>안전 계약</b><span>계약은 공인중개사를 통해 — 연결까지 도와드려요.</span></div>'+
     '</div></section>'+
+  '<section><h2>설문 완료 시 — <span class="g">인수 전 3종 안심 패키지</span></h2><div class="why">'+
+    wrow('권리금 적정성 진단','업종·순이익·상권 기준 참고 구간 + 해설. 감이 아니라 숫자로 협상하세요.')+
+    wrow('상권 공공데이터 리포트','인허가·폐업 이력, 경쟁점 밀도 등 계약 전 확인해야 할 검증 자료.')+
+    wrow('매물 보유 파트너·공인중개사 연결','조건에 맞는 파트너사 매물을 안내하고, 계약은 공인중개사와 안전하게.')+
+    '</div><p style="color:var(--sub);font-size:.84rem;margin:.9rem .2rem 0">전부 무료입니다. 30초 설문이 입장권이에요.</p></section>'+
   '<section><div class="sh"><h2>오늘의 <span class="g">창업 인사이트</span></h2><a class="more-lnk" data-go="info">전체 보기 →</a></div>'+
     '<div class="feed">'+latest+'</div>'+
     '<p style="text-align:center;color:var(--sub);font-size:.85rem;margin:1.1rem 0 0">계약 전에 알았다면 달랐을 이야기, <b style="color:var(--ink)">매일</b> 올라옵니다.</p></section>'+
@@ -513,7 +519,7 @@ function viewHome(){
     faq('정말 비용이 안 드나요?','매수 고객님께는 상담비·매칭비·가입비가 없습니다. 수수료는 계약 성사 시 매도인 측에서 발생합니다.')+
     faq('계속 전화가 오나요?','아니요. 조건에 맞는 매물이 있을 때만 연락드리고, 원치 않으시면 즉시 중단합니다.')+
     faq('개인정보는 안전한가요?','매물 안내 목적 외에는 쓰지 않습니다. 제3자 제공 없이, 동의를 철회하시면 즉시 파기합니다.')+'</div></section>'+
-  '<div class="transfer"><h3>가게를 양도하려는 사장님이신가요?</h3><p>지역·업종·희망 조건을 문자로 보내주세요.<br><a href="sms:010-9433-4557">010-9433-4557</a></p></div>'+
+  '<div class="transfer"><h3>가게, 폐업 말고 정리하세요</h3><p>폐업하면 권리금은 0원이 됩니다. <b style="color:var(--ink)">우리 가게 정리 진단</b>(무료)으로 권리금 근거를 정리하고, 검증된 예비창업자와 연결받으세요.<br style="margin-bottom:.4rem">설문에서 <b style="color:var(--ink)">"가게 내놓기"</b>를 선택하시거나, 문자 주세요.<br><a href="sms:010-9433-4557">010-9433-4557</a></p><a class="btn" data-go="survey" style="margin-top:.9rem">무료 정리 진단 받기</a></div>'+
   footer();
 }
 function wrow(b,s){return '<div class="wrow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><div><b>'+b+'</b><span>'+s+'</span></div></div>';}
@@ -551,7 +557,7 @@ function viewPost(slug){
 function viewSurvey(){
   return '<section style="padding-top:1.4rem"><span class="pill">30초 설문</span>'+
    '<h1 id="surveyTitle" style="font-size:1.7rem;margin:.7rem 0 .5rem">어떤 가게를 찾고 계신가요?</h1>'+
-   '<p id="surveyLead" class="lead" style="text-align:left;margin:0 0 .3rem">희망 조건을 남겨주시면 딱 맞는 매물이 나왔을 때 <b style="color:var(--ink)">가장 먼저</b> 안내드려요.</p>'+
+   '<p id="surveyLead" class="lead" style="text-align:left;margin:0 0 .3rem">희망 조건을 남겨주시면 <b style="color:var(--ink)">인수 전 3종 안심 패키지</b>(권리금 진단·상권 리포트·파트너 연결)를 무료로 안내드려요.</p>'+
    '<div class="form" id="form-view"><form id="f">'+
      '<span class="lb">무엇을 도와드릴까요?</span>'+
      '<div class="chips" id="role"><button type="button" class="chip on" data-role="BUYER">매물 찾기 (창업)</button><button type="button" class="chip" data-role="SELLER">가게 내놓기 (양도)</button></div>'+
@@ -672,7 +678,7 @@ function initSurvey(){
   var role='BUYER';
   function applyRole(){var s=(role==='SELLER');
     g('surveyTitle').textContent=s?'어떤 가게를 넘기려 하시나요?':'어떤 가게를 찾고 계신가요?';
-    g('surveyLead').innerHTML=s?'매장 정보를 남겨주시면 조건에 맞는 <b style="color:var(--ink)">예비 창업자</b>와 연결해 드려요. (상담·검증 무료)':'희망 조건을 남겨주시면 딱 맞는 매물이 나왔을 때 <b style="color:var(--ink)">가장 먼저</b> 안내드려요.';
+    g('surveyLead').innerHTML=s?'폐업 말고 정리 — 매장 정보를 남겨주시면 <b style="color:var(--ink)">우리 가게 정리 진단</b>(권리금 근거 정리 + 검증된 예비창업자 연결)을 무료로 도와드려요.':'희망 조건을 남겨주시면 <b style="color:var(--ink)">인수 전 3종 안심 패키지</b>(권리금 진단·상권 리포트·파트너 연결)를 무료로 안내드려요.';
     g('lbOps').innerHTML=(s?'현재 운영 방식':'희망 운영 방식')+' <span class="hint">(복수 선택)</span>';
     g('lbCats').innerHTML=(s?'업종 종류':'희망 종류')+' <span class="hint">(대분류 · 복수 선택)</span>';
     g('lbInd').innerHTML=(s?'기타 업종':'기타 희망 업종')+' <span class="hint">(목록에 없으면 직접 입력)</span>';
