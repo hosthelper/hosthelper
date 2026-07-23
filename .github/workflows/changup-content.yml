@@ -9,7 +9,7 @@ name: 창업정보 모임 자동 콘텐츠
 
 on:
   schedule:
-    - cron: '0 0 * * *'   # 매일 00:00 UTC = 09:00 KST
+    - cron: '17 0 * * *'   # 매일 00:17 UTC = 09:17 KST (00:00은 지연·스킵 잦아 off-peak 분으로)
   workflow_dispatch:        # 수동 실행 버튼
 
 permissions:
@@ -42,7 +42,8 @@ jobs:
         working-directory: apps/changup-site/scripts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CHANGUP_AI_MODEL: ${{ vars.CHANGUP_AI_MODEL || 'openai/gpt-4o-mini' }}
+          # GitHub Models 유효 모델로 고정 (Gemini 시절 남은 저장소 변수 오염 방지)
+          CHANGUP_AI_MODEL: openai/gpt-4o-mini
         run: node generate-post.mjs
 
       - name: Commit to main (자동 발행)
