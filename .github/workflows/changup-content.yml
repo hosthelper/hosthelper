@@ -1,16 +1,11 @@
-name: 창업정보 모임 자동 콘텐츠
+name: 창업정보 모임 자동 콘텐츠 (수동 전용 · 폐기 예정)
 
-# 매일 오전 9시(KST)에 AI로 창업 정보 기사를 1편 생성해, 라이브 SPA(app.html)의
-# ARTICLES 배열에 직접 삽입하고 index.html로 동기화한 뒤 main에 바로 커밋합니다.
-# (Netlify가 main을 자동 배포 → 사이트에 즉시 반영)
-#
-# AI는 GitHub Models 무료 추론을 사용합니다 — 별도 API 키·시크릿·가입이 필요 없습니다.
-# (워크플로의 내장 GITHUB_TOKEN + permissions: models: read 로 동작)
+# [중단됨] 매일 기사 발행은 이제 Claude 데일리 루틴이 "직접 작성"해 발행합니다.
+# GitHub Models 자동 생성 경로는 은퇴시켰고, 이 워크플로는 수동 실행(workflow_dispatch)
+# 시에만 동작합니다. 스케줄 자동 실행은 제거되었습니다.
 
 on:
-  schedule:
-    - cron: '0 0 * * *'   # 매일 00:00 UTC = 09:00 KST
-  workflow_dispatch:        # 수동 실행 버튼
+  workflow_dispatch:        # 수동 실행만 (스케줄 제거)
 
 permissions:
   contents: write
