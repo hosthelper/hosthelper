@@ -1,15 +1,14 @@
 {
-  "prefix": "sanggwon",
-  "date": "2026-07-24",
-  "title": "상권분석, 계약 전 확인할 공공데이터 (C보이스)",
+  "prefix": "jeongchaek",
+  "date": "2026-07-25",
+  "title": "소상공인 정책자금, 신청 전 확인 (C보이스)",
   "intro": "https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6/hf_20260722_064323_45b62461-b651-4d77-9954-9e384ee815e8.mp3",
   "audios": [
-    "https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6/hf_20260725_005157_caab1ae2-5e85-4fdd-8167-55d844334a56.mp3",
-    "https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6/hf_20260725_005158_b52be930-ac65-4177-b5f1-f9e3b52e9756.mp3",
-    "https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6/hf_20260725_005200_3d52e7a6-8ef5-4afd-b45c-7a6060ba98e4.mp3",
-    "https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6/hf_20260725_005201_b06b4b89-7a11-44ff-ab38-f5f47396dbe4.mp3",
-    "https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6/hf_20260725_005203_4122a1d1-66b5-4d75-b3b7-6f69a96f6cfc.mp3",
-    "https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6/hf_20260725_005204_867228ba-139d-4d17-9be6-8e6f68c1a141.mp3"
-  ],
-  "build_nonce": "20260725-0100"
+    "https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6/hf_20260726_005106_56435bf0-57af-4c02-b2f7-9fb926ab0ef2.mp3",
+    "https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6/hf_20260726_005108_aaf4d03a-5ffa-434d-bdc1-090f3bf7b56e.mp3",
+    "https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6/hf_20260726_005109_aab1ef8b-77fe-477a-b0fb-9e4353063a1a.mp3",
+    "https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6/hf_20260726_005111_6827b8fb-b498-4940-8d58-5481ee37e9bc.mp3",
+    "https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6/hf_20260726_005112_d66a0fda-2326-46d3-bd62-7c09e75fa8f4.mp3",
+    "https://d8j0ntlcm91z4.cloudfront.net/user_3FItN7VShheRApQ6eyPewDP7sd6/hf_20260726_005114_08c58380-f050-45d3-b29a-43e0b278c523.mp3"
+  ]
 }
