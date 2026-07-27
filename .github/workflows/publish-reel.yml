@@ -54,6 +54,7 @@ jobs:
         env:
           META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_API_HOST: ${{ secrets.IG_API_HOST }}
           VIDEO_URL: ${{ steps.meta.outputs.video_url }}
           CAPTION: ${{ steps.meta.outputs.caption }}
         run: |
@@ -62,7 +63,10 @@ jobs:
             echo "IG 토큰 미설정 — 인스타 게시 건너뜀"; echo "status=skipped" >> "$GITHUB_OUTPUT"; exit 0
           fi
           GV=v21.0
-          CREATE=$(curl -sS -X POST "https://graph.facebook.com/$GV/$IG_USER_ID/media" \
+          # 인스타 로그인 기반 API(페이스북 페이지 불필요) = graph.instagram.com.
+          # 페이지 연결 방식(graph.facebook.com)을 쓰려면 Secret IG_API_HOST 를 graph.facebook.com 으로 지정.
+          GH="${IG_API_HOST:-graph.instagram.com}"
+          CREATE=$(curl -sS -X POST "https://$GH/$GV/$IG_USER_ID/media" \
             -d "media_type=REELS" --data-urlencode "video_url=$VIDEO_URL" \
             --data-urlencode "caption=$CAPTION" -d "access_token=$META_ACCESS_TOKEN")
           CID=$(echo "$CREATE" | jq -r '.id // empty')
@@ -70,12 +74,12 @@ jobs:
           # 업로드 처리 대기 (최대 5분)
           for i in $(seq 1 30); do
             sleep 10
-            ST=$(curl -sS "https://graph.facebook.com/$GV/$CID?fields=status_code&access_token=$META_ACCESS_TOKEN" | jq -r '.status_code // empty')
+            ST=$(curl -sS "https://$GH/$GV/$CID?fields=status_code&access_token=$META_ACCESS_TOKEN" | jq -r '.status_code // empty')
             echo "IG 처리상태: $ST"
             [ "$ST" = "FINISHED" ] && break
             [ "$ST" = "ERROR" ] && { echo "IG 처리 오류"; echo "status=error" >> "$GITHUB_OUTPUT"; exit 0; }
           done
-          PUB=$(curl -sS -X POST "https://graph.facebook.com/$GV/$IG_USER_ID/media_publish" \
+          PUB=$(curl -sS -X POST "https://$GH/$GV/$IG_USER_ID/media_publish" \
             -d "creation_id=$CID" -d "access_token=$META_ACCESS_TOKEN")
           PID=$(echo "$PUB" | jq -r '.id // empty')
           if [ -n "$PID" ]; then echo "IG 게시 완료 id=$PID"; echo "status=ok" >> "$GITHUB_OUTPUT"; else echo "IG 게시 실패: $PUB"; echo "status=error" >> "$GITHUB_OUTPUT"; fi
