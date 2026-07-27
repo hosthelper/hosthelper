@@ -4,6 +4,7 @@ name: 창업정보 릴스 자동 게시 (인스타·유튜브)
 # 토큰(Secrets)이 없으면 각 채널을 조용히 건너뜁니다 — 세팅 전에도 CI가 실패하지 않음.
 # 필요한 Secrets:
 #   META_ACCESS_TOKEN, IG_USER_ID                (인스타 릴스)
+#   THREADS_ACCESS_TOKEN, THREADS_USER_ID         (스레드 @changupmoim)
 #   YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN (유튜브 쇼츠)
 #   TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID          (결과 알림, 선택)
 # 자세한 발급법: apps/changup-site/reel/daily/PUBLISH_SETUP.md
@@ -79,6 +80,37 @@ jobs:
           PID=$(echo "$PUB" | jq -r '.id // empty')
           if [ -n "$PID" ]; then echo "IG 게시 완료 id=$PID"; echo "status=ok" >> "$GITHUB_OUTPUT"; else echo "IG 게시 실패: $PUB"; echo "status=error" >> "$GITHUB_OUTPUT"; fi
 
+      - name: Publish Threads
+        id: th
+        env:
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          VIDEO_URL: ${{ steps.meta.outputs.video_url }}
+          CAPTION: ${{ steps.meta.outputs.caption }}
+        run: |
+          set -uo pipefail
+          if [ -z "${THREADS_ACCESS_TOKEN:-}" ] || [ -z "${THREADS_USER_ID:-}" ]; then
+            echo "스레드 토큰 미설정 — 스레드 게시 건너뜀"; echo "status=skipped" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          GT=https://graph.threads.net/v1.0
+          CREATE=$(curl -sS -X POST "$GT/$THREADS_USER_ID/threads" \
+            -d "media_type=VIDEO" --data-urlencode "video_url=$VIDEO_URL" \
+            --data-urlencode "text=$CAPTION" -d "access_token=$THREADS_ACCESS_TOKEN")
+          CID=$(echo "$CREATE" | jq -r '.id // empty')
+          if [ -z "$CID" ]; then echo "스레드 생성 실패: $CREATE"; echo "status=error" >> "$GITHUB_OUTPUT"; exit 0; fi
+          # 미디어 처리 대기 (최대 5분)
+          for i in $(seq 1 30); do
+            sleep 10
+            ST=$(curl -sS "$GT/$CID?fields=status&access_token=$THREADS_ACCESS_TOKEN" | jq -r '.status // empty')
+            echo "스레드 처리상태: $ST"
+            [ "$ST" = "FINISHED" ] && break
+            [ "$ST" = "ERROR" ] && { echo "스레드 처리 오류"; echo "status=error" >> "$GITHUB_OUTPUT"; exit 0; }
+          done
+          PUB=$(curl -sS -X POST "$GT/$THREADS_USER_ID/threads_publish" \
+            -d "creation_id=$CID" -d "access_token=$THREADS_ACCESS_TOKEN")
+          PID=$(echo "$PUB" | jq -r '.id // empty')
+          if [ -n "$PID" ]; then echo "스레드 게시 완료 id=$PID"; echo "status=ok" >> "$GITHUB_OUTPUT"; else echo "스레드 게시 실패: $PUB"; echo "status=error" >> "$GITHUB_OUTPUT"; fi
+
       - name: Publish YouTube Short
         id: yt
         env:
@@ -115,10 +147,11 @@ jobs:
           TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
           PREFIX: ${{ steps.meta.outputs.prefix }}
           IG: ${{ steps.ig.outputs.status }}
+          TH: ${{ steps.th.outputs.status }}
           YT: ${{ steps.yt.outputs.status }}
         run: |
           set -uo pipefail
           [ -z "${TG_TOKEN:-}" ] || [ -z "${TG_CHAT:-}" ] && { echo "텔레그램 알림 미설정 — 종료"; exit 0; }
-          MSG="[릴스 자동 게시] ${PREFIX} — 인스타: ${IG:-skip} · 유튜브: ${YT:-skip}. private로 올라간 경우 확인 후 공개로 전환하세요."
+          MSG="[릴스 자동 게시] ${PREFIX} — 인스타: ${IG:-skip} · 스레드: ${TH:-skip} · 유튜브: ${YT:-skip}. private로 올라간 경우 확인 후 공개로 전환하세요."
           curl -sS -X POST "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \
             --data-urlencode "chat_id=$TG_CHAT" --data-urlencode "text=$MSG" >/dev/null || true

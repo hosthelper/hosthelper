@@ -30,6 +30,23 @@
 
 ---
 
+## A-2. 스레드 (@changupmoim) (Secrets 2개: THREADS_ACCESS_TOKEN, THREADS_USER_ID)
+
+전제: @changupmoim 스레드 계정이 있어야 합니다(이미 개설됨). 스레드 API는 Meta 계열이라 인스타와 절차가 비슷합니다.
+
+1. developers.facebook.com → 위 A에서 만든 앱(또는 새 앱)에 **Threads** 제품(Threads API) 추가.
+2. **Threads API → Settings**에서 앱을 @changupmoim 계정에 연결(스레드 로그인 동의).
+3. 권한(스코프)에 `threads_basic`, `threads_content_publish` 추가.
+4. Threads Graph API Explorer(또는 Tools)에서 **액세스 토큰 생성** → @changupmoim 선택 → 토큰 복사.
+   - 장기 토큰 교환(선택): `https://graph.threads.net/access_token?grant_type=th_exchange_token&client_secret=앱시크릿&access_token=단기토큰` → 나오는 값.
+   - → 이 값이 **THREADS_ACCESS_TOKEN**.
+5. **THREADS_USER_ID**: `https://graph.threads.net/v1.0/me?fields=id&access_token=위토큰` 조회 → 나오는 숫자 id.
+
+넣기: Secret 2개 등록 — `THREADS_ACCESS_TOKEN`, `THREADS_USER_ID`.
+(스레드는 릴스와 같은 mp4를 영상 포스트로 자동 게시합니다. 텔레그램의 스레드 텍스트 초안은 별도로 계속 제공됩니다.)
+
+---
+
 ## B. 유튜브 쇼츠 (Secrets 3개: YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN)
 
 1. console.cloud.google.com → 프로젝트 생성 → **YouTube Data API v3** 사용 설정.
