@@ -9,24 +9,23 @@
 
 ---
 
-## A. 인스타그램 릴스 (Secrets 2개: META_ACCESS_TOKEN, IG_USER_ID)
+## A. 인스타그램 릴스 — 페이스북 페이지 없이 (Secrets 2개: META_ACCESS_TOKEN, IG_USER_ID)
 
-전제: 인스타 계정이 **프로페셔널(비즈니스/크리에이터)** 이고 **페이스북 페이지에 연결**돼 있어야 합니다.
-(인스타 앱 → 설정 → 계정 유형 → 프로페셔널 전환 / 페이스북 페이지 연결)
+전제: 인스타 계정이 **프로페셔널(비즈니스/크리에이터)** 이면 됩니다. **페이스북 페이지는 필요 없습니다.**
+(신방식 "Instagram 로그인 기반 API" 사용 — API 주소가 graph.instagram.com)
 
 1. developers.facebook.com → 로그인 → **My Apps → Create App** → 유형 "Business".
-2. 앱 대시보드에서 **Instagram** 제품 추가(또는 "Instagram Graph API").
-3. 상단 **Tools → Graph API Explorer** 이동.
-4. 권한(Permissions)에 다음 추가: `instagram_basic`, `instagram_content_publish`, `pages_show_list`, `pages_read_engagement`.
-5. **Generate Access Token** → 인스타 연결된 페이스북 페이지 선택 → 토큰 복사.
-   - 이 단기 토큰을 장기 토큰으로 바꾸기: 브라우저에 아래 주소를 치고(값 3개 교체) 나오는 `access_token`을 복사
-     `https://graph.facebook.com/v21.0/oauth/access_token?grant_type=fb_exchange_token&client_id=앱ID&client_secret=앱시크릿&fb_exchange_token=위단기토큰`
-   - → 이 값이 **META_ACCESS_TOKEN**.
-6. **IG_USER_ID** 찾기: Graph API Explorer에서 `me/accounts` 조회 → 페이지 id 확인 →
-   `그페이지id?fields=instagram_business_account` 조회 → 나오는 숫자 id가 **IG_USER_ID**.
+2. 앱 대시보드 → **Add Product → Instagram → Set up** → 안에서 **"Instagram API setup with Instagram login"**(=인스타 로그인 방식) 선택.
+3. **"Add account"**(또는 Generate token) → 팝업에서 **@changupmoim 인스타 계정으로 로그인·동의** → 권한 `instagram_business_basic`, `instagram_business_content_publish` 허용.
+4. 화면에 나오는 **Instagram user access token**을 복사 → 이 값이 **META_ACCESS_TOKEN**(임시).
+   - 장기(60일) 토큰으로 교환: 브라우저 주소창에(값 2개 교체)
+     `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=앱시크릿&access_token=위토큰`
+     → 나오는 `access_token`이 최종 **META_ACCESS_TOKEN**.
+5. **IG_USER_ID**: 주소창에 `https://graph.instagram.com/v21.0/me?fields=user_id&access_token=위토큰` → 나오는 숫자 = **IG_USER_ID**.
 
 넣기: Secret 2개 등록 — `META_ACCESS_TOKEN`, `IG_USER_ID`.
-(장기 토큰도 약 60일마다 갱신이 필요할 수 있습니다 — 만료되면 5번만 다시.)
+(앱시크릿은 앱 대시보드 App settings → Basic. 60일마다 4번만 다시 하면 됩니다.)
+(만약 이 계정이 예전 페이스북-페이지 방식이라면, Secret `IG_API_HOST` 를 `graph.facebook.com` 으로 추가하면 그 방식으로도 동작합니다.)
 
 ---
 
