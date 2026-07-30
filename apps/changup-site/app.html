@@ -27,7 +27,7 @@
 {"@context":"https://schema.org","@graph":[
 {"@type":"Organization","@id":"https://changup-moim.netlify.app/#org","name":"창업정보 모임","alternateName":"호스트헬퍼","url":"https://changup-moim.netlify.app/","description":"점포 양수도 무료 매칭 서비스. 가게를 양도하려는 사장님과 창업 준비자를 공공데이터로 검증해 연결합니다.","telephone":"+82-10-9433-4557","email":"hosthelper01@gmail.com","address":{"@type":"PostalAddress","addressLocality":"서울특별시 동대문구","streetAddress":"전농로37길 68-4, 1층 101호","addressCountry":"KR"}},
 {"@type":"WebSite","@id":"https://changup-moim.netlify.app/#website","url":"https://changup-moim.netlify.app/","name":"창업정보 모임","publisher":{"@id":"https://changup-moim.netlify.app/#org"},"inLanguage":"ko-KR"},
-{"@type":"Service","name":"점포 양수도 매칭 상담","provider":{"@id":"https://changup-moim.netlify.app/#org"},"areaServed":"서울","serviceType":"점포 양수도 중개·매칭","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW","description":"매수 희망자 상담·매칭 무료"}},
+{"@type":"Service","name":"점포 양수도 매칭 상담","provider":{"@id":"https://changup-moim.netlify.app/#org"},"areaServed":"서울","serviceType":"점포 양수도 정보·매칭","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW","description":"매수 희망자 상담·매칭 무료"}},
 {"@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"정말 비용이 안 드나요?","acceptedAnswer":{"@type":"Answer","text":"매수 고객께는 상담비·매칭비·가입비가 없습니다. 수수료는 계약 성사 시 매도인 측에서 발생합니다."}},
 {"@type":"Question","name":"계속 전화가 오나요?","acceptedAnswer":{"@type":"Answer","text":"아니요. 조건에 맞는 매물이 있을 때만 연락드리고, 원치 않으시면 즉시 중단합니다."}},
@@ -704,7 +704,7 @@ function viewTerms(){return '<section class="legal">'+
  '<h3>제7조 (매물 정보 및 면책)</h3>'+
  '<div class="box">호스트헬퍼는 사업체(권리금) 양도·양수를 주 업무로 하는 회사로, 일반 부동산에서 취급하는 중개대상물을 다루지 않습니다. 따라서 서비스에 안내되는 사업체(매물)는 「공인중개사법」상 중개대상물이 아닙니다.</div>'+
  '<p>① 게재·안내되는 매물 정보는 실제 존재하는 사업체를 기준으로 작성됩니다. 다만 양도인의 보안 유지 요청(건물주·직원 관계, 매출 저하 우려 등)에 따라 정확한 위치·임대차 조건·매출·지출 내역은 공개 화면에 그대로 기재되지 않을 수 있습니다.<br>② 정확한 위치·운영상태 확인 및 현장답사를 원하는 이용자에게는 상담·방문을 통해 세부 내역을 상세히 안내합니다.<br>③ 회사는 프랜차이즈·제휴업체 등이 제공한 정보의 정확성·안정성을 보장하지 않으며, 실제 임대차·양수도 계약은 공인중개사 등 전문가를 통해 진행됩니다.<br>④ 본 서비스의 창업 정보 콘텐츠는 공공데이터 등에 근거한 일반적 참고 자료로, 특정 수익·대출 승인·계약 성사를 보장하지 않습니다.</p>'+
- '<h3>제8조 (수수료)</h3><p>매수(창업) 희망 이용자에 대한 상담·매칭에는 별도의 비용이 청구되지 않습니다. 중개(양도양수) 수수료는 계약이 성사된 경우 매도인(양도인) 측과의 약정에 따릅니다.</p>'+
+ '<h3>제8조 (수수료)</h3><p>매수(창업) 희망 이용자에 대한 상담·매칭에는 별도의 비용이 청구되지 않습니다. 양수도 매칭 수수료는 계약이 성사된 경우 매도인(양도인) 측과의 약정에 따릅니다.</p>'+
  '<h3>제9조 (지식재산권)</h3><p>서비스 및 회사가 작성한 콘텐츠에 대한 저작권 등 지식재산권은 회사에 귀속하며, 이용자는 회사의 사전 승낙 없이 이를 영리 목적으로 복제·배포·전송할 수 없습니다.</p>'+
  '<h3>제10조 (준거법 및 관할)</h3><p>본 약관은 대한민국 법을 준거법으로 하며, 회사와 이용자 간 분쟁에 관한 소송은 민사소송법상 관할법원에 제기합니다.</p>'+
  '<p class="upd" style="margin-top:1.5rem">부칙 — 본 약관은 2026년 7월 16일부터 시행됩니다.</p>'+
@@ -742,7 +742,7 @@ function viewAds(){return '<section class="legal">'+
  '<h3>보안 안내</h3>'+
  '<p>대다수 양도인은 건물주·직원 관계나 매출 저하 우려로 매장이 매물로 나온 사실이 공개되기를 원하지 않습니다. 이에 정확한 위치·임대차·매출 내역은 공개 화면에 그대로 노출하지 않고, 검증된 매수 희망자에게 상담·현장답사를 통해 있는 그대로 안내합니다.</p>'+
  '<h3>수수료</h3>'+
- '<p>중개(양도양수) 수수료는 계약이 성사된 경우에 한하여 사전 약정에 따라 발생합니다.</p>'+
+ '<p>양수도 매칭 수수료는 계약이 성사된 경우에 한하여 사전 약정에 따라 발생합니다.</p>'+
  '<div class="box" style="text-align:center"><b>매물 등록 문의</b><br>김태욱 컨설턴트 <a href="tel:010-9433-4557" style="color:var(--brand-d);font-weight:800;text-decoration:none">010-9433-4557</a><br>hosthelper01@gmail.com</div>'+
  '<a class="backlnk" data-go="home">← 홈으로</a>'+footer()+'</section>';}
 
