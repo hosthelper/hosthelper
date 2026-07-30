@@ -198,6 +198,28 @@ function collectIndustries(){
   return out.filter(function(s){return s.length<=30;}).slice(0,10);
 }
 
+// 유입 채널 귀속 — utm_source 우선, 없으면 referrer로 추정, 최종 direct. notes에 [유입:채널] 자동 태깅.
+function inflow(){
+  try{
+    var s=new URLSearchParams(location.search).get('utm_source');
+    if(s){try{sessionStorage.setItem('src',s);}catch(e){}}
+    if(!s){try{s=sessionStorage.getItem('src');}catch(e){}}
+    if(!s){
+      var r=document.referrer||'';
+      if(/instagram/i.test(r))s='instagram';
+      else if(/threads/i.test(r))s='threads';
+      else if(/youtube|youtu\.be/i.test(r))s='youtube';
+      else if(/daangn|karrot/i.test(r))s='danggeun';
+      else if(/naver/i.test(r))s='naver';
+      else s=r?'referral':'direct';
+    }
+    return String(s).replace(/[^\w.-]/g,'').slice(0,20)||'direct';
+  }catch(e){return 'direct';}
+}
+function buildNotes(){
+  return ('[유입:'+inflow()+'] '+g('notes').value.trim()).trim().slice(0,2000);
+}
+
 g('f').addEventListener('submit',function(e){
   e.preventDefault();
   var err=g('err');
@@ -208,7 +230,7 @@ g('f').addEventListener('submit',function(e){
     body:JSON.stringify({name:g('name').value,phone:g('phone').value,contactChannel:g('channel').value,
       operationTypes:ops,industries:collectIndustries(),regions:tags(g('regions').value).filter(function(s){return s.length<=30;}).slice(0,10),
       depositMax:man(g('deposit').value),rentMax:man(g('rent').value),premiumMax:man(g('premium').value),
-      notes:g('notes').value.trim()||undefined,website:g('website').value})})
+      notes:buildNotes(),website:g('website').value})})
   .then(function(res){if(!res.ok)throw new Error('제출 실패 — 잠시 후 다시 시도해주세요');
     g('form-view').hidden=true; g('done-view').hidden=false; window.scrollTo(0,0);})
   .catch(function(ex){err.textContent=ex.message||'제출에 실패했습니다. 다시 시도해주세요.';err.hidden=false;})
