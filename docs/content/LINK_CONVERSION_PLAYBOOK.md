@@ -41,3 +41,4 @@
 | 날짜 | 링크 | 전환 주제 | 상태 |
 |---|---|---|---|
 | 2026-08-02 | [instagram.com/reel/DbfsLB0zVJS](https://www.instagram.com/reel/DbfsLB0zVJS/) | 한복 K-문화 체험 → 협업숙소 방문 이유 | 링크 수신. 작업 환경에서 인스타그램 접근 불가 → 릴 내용 요약 수신 대기. 게스트 안내 1페이지는 선행 제작 |
+| 2026-08-04 | [instagram.com/reel/DbcS1o5smdf](https://www.instagram.com/reel/DbcS1o5smdf/) | (한복 K-문화 관련 추정) | 링크 수신. 인스타그램 접근 불가 → 릴 내용 요약 수신 대기 |
