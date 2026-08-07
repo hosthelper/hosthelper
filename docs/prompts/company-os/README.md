@@ -2,6 +2,20 @@
 
 > 운영 체계 본문은 [`docs/AI_COMPANY_OS.md`](../../AI_COMPANY_OS.md)입니다. 이 디렉토리는 **실행용 프롬프트**만 담습니다.
 
+> **이제 복붙 대신 이름으로 불러도 됩니다.** `.claude/agents/`에 AI 직원 7명이 정의돼 있습니다 —
+> "마케팅팀, 이번 주 주제 뽑아줘"처럼요. 명단과 순서는 [`docs/company-os/AI-EMPLOYEES.md`](../../company-os/AI-EMPLOYEES.md).
+> 이 디렉토리는 그대로 남습니다: 에이전트가 **읽는 정본**이자, Claude Code 밖(claude.ai·모바일)에서 쓸 **복붙 원본**입니다.
+
+| 부서 | 복붙 프롬프트 | 에이전트 |
+|---|---|---|
+| 대표실 | `01-ceo.md` | `hu-ceo` |
+| 마케팅팀 | `02-marketing.md` | `hu-marketing` |
+| 영업팀 | `03-sales.md` | `hu-sales` |
+| 고객지원팀 | `04-support.md` | `hu-support` |
+| 재무팀 | `05-finance.md` | `hu-finance` |
+| 개발팀 | `06-build.md` | `hu-build` |
+| 운영팀 | `07-operations.md` | `hu-ops` |
+
 ## 쓰는 법 (3단계)
 
 | 단계 | 할 일 |

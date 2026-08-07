@@ -53,6 +53,10 @@
 
 > **주의**: 현재 `apps/changup`(Next.js)의 `/ops` 대시보드는 NestJS/Postgres를 보므로 위 Supabase 리드를 **보지 못합니다**. 가입·상담 숫자는 Supabase 대시보드에서 직접 확인해야 합니다 (`apps/changup-site/README.md` §데이터 흐름). 이 이원화 해소는 개발팀 백로그 항목입니다.
 
+### 이번 달 약한 고리
+
+**2026년 8월: 인지** — 사람이 들어오지 않습니다. 다만 원인은 콘텐츠 부족이 아니라 **발행 파이프라인 단절과 측정 부재**입니다 (카드뉴스 154장·릴스 11편이 게시되지 않는 상태). 근거와 부서 배정은 [`company-os/runs/2026-08-ceo.md`](company-os/runs/2026-08-ceo.md).
+
 ### 이번 달 하지 않을 일
 
 원문의 4번째 칸입니다. 비워 두면 AI가 여러 방향으로 흩어집니다.
@@ -158,6 +162,11 @@
 | `.github/workflows/build-reel-campaign.yml` | 워크플로 파일 자체 push | 양도인·양수인 캠페인 릴스 2편 합성 |
 | `.github/workflows/publish-reel.yml` | `reel_<prefix>.mp4` push (main) | 인스타 릴스·유튜브 쇼츠·스레드 자동 게시. 토큰 없으면 조용히 건너뜀 |
 | `.github/workflows/ci.yml` | push (main, `claude/**`), PR | 빌드·테스트 |
+
+### 끊겨 있는 것 (확인된 결함)
+
+- **`publish-reel.yml`이 발화하지 않습니다.** `apps/changup-site/reel/reel_*.mp4` push로 트리거되는데, 앞단 합성 워크플로 4개(`build-reel-daily`·`build-reel`·`build-reel-campaign`·`changup-content`)가 커밋 메시지에 `[skip ci]`를 붙여 어떤 워크플로도 실행되지 않습니다. **릴스를 합성해도 채널로 나가지 않습니다.** `apps/changup-site/mkt/CHANNEL_EXPANSION.md`도 이 결함을 명시합니다.
+- **유입 태깅 실적이 0건입니다.** `apps/changup-site/s/index.html`의 태깅 로직은 3단 폴백으로 정상 동작하지만, 게시 링크에 utm이 붙지 않아 실측 데이터가 쌓이지 않았습니다. 채널별 성과를 알 수 없습니다.
 
 ### 자동화가 아닌 것 (수동)
 
