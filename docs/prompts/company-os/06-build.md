@@ -84,3 +84,4 @@
 |---|---|
 | 리드 저장소 이원화 — `apps/changup-site` 설문은 Supabase에 저장되는데 `apps/changup`의 `/ops`는 NestJS/Postgres를 봐서 리드를 보지 못함 | `apps/changup-site/README.md` §데이터 흐름 |
 | 문서-실제 불일치 — `apps/changup-site/README.md`는 콘텐츠 발행을 "자동(권장) 5시간"으로 적었으나 `.github/workflows/changup-content.yml`은 스케줄이 제거된 수동 전용·폐기 예정 상태 | 워크플로 파일 본문 |
+| Netlify 사이트 `helperacademy` 용도 불일치 — 이름은 헬퍼아카데미인데 실제로는 운영자 콘솔(`apps/admin`)을 데모 모드로 퍼블릭 서빙 중. 사이트를 헬퍼아카데미용으로 되돌리거나 이름을 바꿔야 하고, 운영자 콘솔이 인증 없이 공개 URL로 노출돼도 되는지 확인 필요 | https://helperacademy.netlify.app (2026-08-07 확인 — "데모 모드 · 목업 데이터" 배너 표시) |
