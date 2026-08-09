@@ -163,9 +163,22 @@
 | `.github/workflows/publish-reel.yml` | `reel_<prefix>.mp4` push (main) | 인스타 릴스·유튜브 쇼츠·스레드 자동 게시. 토큰 없으면 조용히 건너뜀 |
 | `.github/workflows/ci.yml` | push (main, `claude/**`), PR | 빌드·테스트 |
 
-### 끊겨 있는 것 (확인된 결함)
+### 끊겨 있던 것 (원인 규명 + 수정함, 실측 검증 대기)
 
-- **`publish-reel.yml`이 발화하지 않습니다.** `apps/changup-site/reel/reel_*.mp4` push로 트리거되는데, 앞단 합성 워크플로 4개(`build-reel-daily`·`build-reel`·`build-reel-campaign`·`changup-content`)가 커밋 메시지에 `[skip ci]`를 붙여 어떤 워크플로도 실행되지 않습니다. **릴스를 합성해도 채널로 나가지 않습니다.** `apps/changup-site/mkt/CHANNEL_EXPANSION.md`도 이 결함을 명시합니다.
+**`publish-reel.yml`은 실행 이력이 0건이었습니다.** `build-reel-daily`는 15회 돌아 성공했는데(최근 2026-07-30) 게시 워크플로는 한 번도 발화하지 않았습니다. 릴스 11편이 합성만 되고 채널로 나가지 않은 이유입니다.
+
+원인은 흔히 알려진 `[skip ci]` 하나가 아니라 **두 가지가 겹친 것**이었습니다.
+
+| # | 차단 요인 |
+|---|---|
+| 1 | 합성 커밋 메시지의 `[skip ci]` |
+| 2 | **`GITHUB_TOKEN`으로 푸시한 커밋은 `push` 워크플로를 트리거하지 않음** — GitHub Actions 규칙(`workflow_dispatch`·`repository_dispatch`만 예외) |
+
+`[skip ci]`만 지워도 2번 때문에 돌지 않습니다. 그래서 `publish-reel`의 트리거를 **`workflow_run`**(`build-reel-daily` 완료 수신)으로 바꾸고 `[skip ci]`도 함께 제거했습니다. 새 시크릿은 필요 없습니다. 빌드가 "no changes"로 끝나도 발화하므로, 이번 커밋이 해당 릴스를 건드렸을 때만 게시하는 중복 방지 게이트를 넣었습니다.
+
+> **아직 "고쳤다"고 말할 수 없습니다.** `workflow_run`은 기본 브랜치의 워크플로 파일만 트리거하므로 병합 전에는 검증이 불가능합니다. 병합 후 `manifest.json`을 한 번 갱신해 연쇄가 실제로 도는지 Actions 로그로 확인해야 합니다.
+>
+> **초록색이 게시 완료를 뜻하지 않습니다.** 채널 토큰이 없으면 조용히 건너뛰고 성공으로 끝납니다. 판정은 텔레그램 알림의 채널별 상태(`skip`/`ok`/`error`)로 합니다.
 - **유입 태깅 실적이 0건입니다.** `apps/changup-site/s/index.html`의 태깅 로직은 3단 폴백으로 정상 동작하지만, 게시 링크에 utm이 붙지 않아 실측 데이터가 쌓이지 않았습니다. 채널별 성과를 알 수 없습니다.
 
 ### 자동화가 아닌 것 (수동)
