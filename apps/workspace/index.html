@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>헬퍼유니버스 워크스페이스 — 사업팀별 작업 라이브러리</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="내부 전용 — 사업팀별 프로젝트·작업·자산 라이브러리">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%23223'/%3E%3Crect%20x='14'%20y='16'%20width='36'%20height='6'%20rx='3'%20fill='%23e8a04a'/%3E%3Crect%20x='14'%20y='29'%20width='26'%20height='6'%20rx='3'%20fill='%236f9fc4'/%3E%3Crect%20x='14'%20y='42'%20width='31'%20height='6'%20rx='3'%20fill='%237fa763'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#EEF0F2; --panel:#FFFFFF; --panel-2:#F5F6F8; --ink:#151A1F; --muted:#5B6570; --line:#DDE1E6;
+    --accent:#2F4858; --live:#1E7A54; --live-soft:#E3F1EA; --warn:#8A5A1F; --warn-soft:#F6EBDC;
+    --changup:#3E6E96; --life:#B5622F; --house:#4F7040; --academy:#93692A; --next:#425F79; --hq:#5C5A57;
+    --fs:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
+    --fm:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#14181C; --panel:#1B2126; --panel-2:#232A31; --ink:#E8EDF1; --muted:#98A3AE; --line:#2C343C;
+    --accent:#A9C4D4; --live:#5FBF92; --live-soft:#16271F; --warn:#D5A25A; --warn-soft:#2A2216;
+    --changup:#7FAAD0; --life:#DE9560; --house:#8FB273; --academy:#CFA85C; --next:#7C9DBC; --hq:#9B9791;}}
+  :root[data-theme="dark"]{
+    --bg:#14181C; --panel:#1B2126; --panel-2:#232A31; --ink:#E8EDF1; --muted:#98A3AE; --line:#2C343C;
+    --accent:#A9C4D4; --live:#5FBF92; --live-soft:#16271F; --warn:#D5A25A; --warn-soft:#2A2216;
+    --changup:#7FAAD0; --life:#DE9560; --house:#8FB273; --academy:#CFA85C; --next:#7C9DBC; --hq:#9B9791;}
+  *{box-sizing:border-box} body{margin:0}
+  body{background:var(--bg); color:var(--ink); font-family:var(--fs); font-size:14.5px; line-height:1.6;
+       -webkit-font-smoothing:antialiased; word-break:keep-all}
+  a{color:inherit} a:focus-visible,button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+  /* 상단 바 */
+  .top{position:sticky; top:0; z-index:20; background:var(--panel); border-bottom:1px solid var(--line);
+       padding:11px 18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+  .brand{font-weight:800; font-size:.95rem; letter-spacing:-.01em; display:flex; align-items:center; gap:7px}
+  .brand .tagi{font-size:.63rem; font-weight:800; background:var(--warn-soft); color:var(--warn);
+                padding:2px 7px; border-radius:5px; letter-spacing:.04em}
+  .top .sp{flex:1}
+  .status{display:flex; align-items:center; gap:7px; font-size:.75rem; font-weight:700; padding:5px 11px;
+          border-radius:999px; background:var(--warn-soft); color:var(--warn); white-space:nowrap}
+  .status.live{background:var(--live-soft); color:var(--live)}
+  .dot{width:7px; height:7px; border-radius:50%; background:currentColor}
+  .status.live .dot{animation:p 2s ease-in-out infinite}
+  @keyframes p{0%,100%{opacity:1}50%{opacity:.3}}
+  @media (prefers-reduced-motion:reduce){.status.live .dot{animation:none}}
+  .btn{border:1px solid var(--line); background:var(--panel-2); color:var(--ink); border-radius:8px;
+       padding:5px 11px; font-size:.75rem; font-weight:700; cursor:pointer; font-family:inherit}
+  .btn:hover{background:var(--line)}
+
+  /* 레이아웃 */
+  .shell{display:grid; grid-template-columns:212px 1fr; gap:0; min-height:calc(100vh - 46px)}
+  @media(max-width:860px){.shell{grid-template-columns:1fr}}
+  nav.side{background:var(--panel); border-right:1px solid var(--line); padding:14px 10px}
+  @media(max-width:860px){nav.side{border-right:none; border-bottom:1px solid var(--line);
+    display:flex; gap:6px; overflow-x:auto; padding:10px}}
+  .navlbl{font-size:.63rem; font-weight:800; letter-spacing:.1em; color:var(--muted);
+          text-transform:uppercase; padding:6px 10px 4px}
+  @media(max-width:860px){.navlbl{display:none}}
+  .nav{display:flex; align-items:center; gap:8px; width:100%; border:none; background:none; text-align:left;
+       padding:8px 10px; border-radius:8px; font-family:inherit; font-size:.85rem; color:var(--muted);
+       font-weight:600; cursor:pointer; margin-bottom:2px; white-space:nowrap}
+  .nav:hover{background:var(--panel-2); color:var(--ink)}
+  .nav.on{background:var(--panel-2); color:var(--ink); font-weight:800; box-shadow:inset 3px 0 0 var(--c,var(--accent))}
+  @media(max-width:860px){.nav{width:auto; flex-shrink:0; margin:0}
+    .nav.on{box-shadow:inset 0 -3px 0 var(--c,var(--accent))}}
+  .nav .n{margin-left:auto; font-size:.7rem; font-family:var(--fm); color:var(--muted); font-weight:700}
+  main{padding:20px 22px 70px; min-width:0}
+  @media(max-width:860px){main{padding:16px 14px 60px}}
+
+  /* 팀 헤더 */
+  .th{border-left:4px solid var(--c); background:var(--panel); border:1px solid var(--line);
+      border-left-width:4px; border-radius:12px; padding:16px 18px; margin-bottom:18px}
+  .th h1{font-size:1.25rem; margin:0 0 3px; font-weight:800; letter-spacing:-.01em}
+  .th .def{color:var(--muted); font-size:.87rem; margin:0 0 10px}
+  .th .row{display:flex; gap:18px; flex-wrap:wrap; font-size:.8rem}
+  .th .row b{display:block; font-size:.66rem; color:var(--muted); font-weight:800;
+             letter-spacing:.05em; text-transform:uppercase; margin-bottom:2px}
+  .staff{display:flex; flex-wrap:wrap; gap:4px; margin-top:3px}
+  .staff span{font-family:var(--fm); font-size:.7rem; background:var(--panel-2); border:1px solid var(--line);
+              color:var(--muted); padding:1px 6px; border-radius:5px}
+
+  h2{font-size:.95rem; margin:22px 0 3px; font-weight:800; display:flex; align-items:center; gap:8px}
+  h2 .cnt{font-family:var(--fm); font-size:.72rem; color:var(--muted); font-weight:700}
+  .hint{color:var(--muted); font-size:.78rem; margin:0 0 10px}
+
+  .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:9px}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 13px;
+        display:block; text-decoration:none}
+  a.card:hover{border-color:var(--c); background:var(--panel-2)}
+  .card .k{font-size:.63rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--c)}
+  .card .t{font-size:.87rem; font-weight:700; margin-top:3px; line-height:1.4}
+  .card .d{color:var(--muted); font-size:.76rem; margin-top:3px; line-height:1.5}
+
+  .rows{display:flex; flex-direction:column; gap:6px}
+  .row{background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--rc,var(--hq));
+       border-radius:9px; padding:9px 12px; display:flex; gap:11px; align-items:flex-start}
+  .row .id{font-family:var(--fm); font-size:.72rem; color:var(--muted); font-weight:700;
+           white-space:nowrap; padding-top:2px}
+  .row .bd{flex:1; min-width:0}
+  .row .tt{font-size:.85rem; font-weight:600; line-height:1.45}
+  .row .tt a{text-decoration:none} .row .tt a:hover{text-decoration:underline}
+  .row .mt{color:var(--muted); font-size:.72rem; margin-top:2px; display:flex; gap:7px;
+           flex-wrap:wrap; align-items:center}
+  .tag{font-size:.64rem; font-weight:800; padding:1px 7px; border-radius:999px;
+       background:var(--panel-2); color:var(--rc,var(--hq)); white-space:nowrap}
+  .st{font-size:.64rem; font-weight:800; padding:1px 7px; border-radius:999px; white-space:nowrap}
+  .st.o{background:var(--live-soft); color:var(--live)}
+  .st.d{background:var(--warn-soft); color:var(--warn)}
+  .empty{color:var(--muted); font-size:.82rem; padding:13px; text-align:center;
+         background:var(--panel); border:1px dashed var(--line); border-radius:10px}
+  .skel{height:44px; background:linear-gradient(90deg,var(--panel),var(--panel-2),var(--panel));
+        background-size:200% 100%; animation:sh 1.4s linear infinite; border-radius:9px}
+  @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  @media (prefers-reduced-motion:reduce){.skel{animation:none}}
+  footer{color:var(--muted); font-size:.73rem; margin-top:26px; padding-top:14px;
+         border-top:1px solid var(--line); line-height:1.8}
+  code{font-family:var(--fm); font-size:.72rem; background:var(--panel-2); padding:1px 4px; border-radius:4px}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="brand">🗂️ 헬퍼유니버스 워크스페이스 <span class="tagi">내부 전용</span></div>
+  <div class="sp"></div>
+  <span class="status" id="status"><span class="dot"></span><span id="stx">불러오는 중…</span></span>
+  <button class="btn" id="rf" type="button">새로고침</button>
+</div>
+
+<div class="shell">
+  <nav class="side" id="side" aria-label="사업팀"></nav>
+  <main id="main"></main>
+</div>
+
+<script>
+(function(){
+'use strict';
+var REPO='hosthelper/hosthelper', API='https://api.github.com/repos/';
+
+/* ── 사업팀 정의 + 자산 라이브러리 ─────────────────────────── */
+var TEAMS=[
+ {k:'all', nm:'전체', icon:'📋', color:'var(--accent)', def:'모든 사업팀의 작업을 한 화면에서.',
+  lead:'—', staff:[], kpi:'—', re:null, lib:[]},
+
+ {k:'changup', nm:'공실헬퍼·창업이지', icon:'🔑', color:'var(--changup)',
+  def:'합법 숙소·점포 사업권 양수도 정보 연결. 열람권 구독 수익.',
+  lead:'agency-changup', kpi:'리드 · 검증등록 · 매칭 · 성사',
+  staff:['changup-lead-intake','changup-listing-sourcer','changup-deal-matcher','changup-location-analyst','changup-meeting-coordinator','changup-deal-brief','changup-deal-closer'],
+  re:/changup|gongsil|공실|창업이지|매물|권리금|양도|리드|설문|기사|릴스|정책자금|상권/i,
+  lib:[
+   {k:'플레이북', t:'창업이지 퍼널 플레이북', d:'단계별 담당 직원·시스템 연결점', u:'https://github.com/hosthelper/hosthelper/blob/main/docs/CHANGUP_FUNNEL.md'},
+   {k:'전략', t:'양면 유입 퍼널 구조', d:'수요(양수인)·공급(양도인) 이원 유입 + 중앙 매칭', u:'https://claude.ai/code/artifact/73be812b-9385-4cee-9efa-0671a958a48f'},
+   {k:'전략', t:'회원유입 전략회의록 & 4주 실행안', d:'채널 우선순위·전환·KPI·R&R', u:'https://claude.ai/code/artifact/bad6ca3a-bf56-436c-84d0-403b6b1cc337'},
+   {k:'실행키트', t:'회원모집 4주 실행 키트', d:'복붙 콘텐츠·캘린더·DM 스크립트', u:'https://claude.ai/code/artifact/2ee6453d-3e76-45d4-9481-edf6cdf0d14b'},
+   {k:'서비스', t:'창업정보 모임 (라이브)', d:'랜딩·데일리 기사·30초 설문', u:'https://changup-moim.netlify.app/'},
+   {k:'코드', t:'apps/changup-site', d:'정적 사이트·기사·릴스 자산·생성기', u:'https://github.com/hosthelper/hosthelper/tree/main/apps/changup-site'},
+   {k:'코드', t:'apps/changup (/ops)', d:'리드·매물·캘린더 파이프라인', u:'https://github.com/hosthelper/hosthelper/tree/main/apps/changup'},
+   {k:'코드', t:'공실헬퍼 본체 (hosthelper2)', d:'Next.js+Supabase·서버 페이월·PortOne', u:'https://github.com/hosthelper/hosthelper2'}
+  ]},
+
+ {k:'life', nm:'라이프헬퍼', icon:'🏠', color:'var(--life)',
+  def:'병원 밖 회복 체류공간(리커버리홈) 예약 플랫폼.',
+  lead:'agency-lifehelper', kpi:'예약 · 가동률 · 정산 · 평점',
+  staff:['cs-reply','review-manager','dispute-handler','match-quality','settlement-check','ops-notifier','sop-keeper','manager-recruiter','host-outreach','listing-scout'],
+  re:/lifehelper|라이프헬퍼|숙박|예약|정산|호스트|청소|리커버리|매니저/i,
+  lib:[
+   {k:'코드', t:'lifehelper 저장소', d:'Next.js 14·Supabase·Toss/PortOne·2FA·정책 10종', u:'https://github.com/hosthelper/lifehelper'},
+   {k:'서비스', t:'lifehelper.co.kr', d:'라이브 예약 서비스', u:'https://lifehelper.co.kr'},
+   {k:'진단', t:'사이트 평가 A− (직원 평가서)', d:'보안·정책 우수 / 통신판매업 표기 확인 필요', u:'#'}
+  ]},
+
+ {k:'house', nm:'하우스헬퍼', icon:'🛒', color:'var(--house)',
+  def:'호스트 전용 비품 커머스. 자체 기획상품 + 쿠팡 최저가 하이브리드.',
+  lead:'agency-house', kpi:'패키지 판매 · 재구매 · 객단가',
+  staff:['(본부 차출) ad-copy','market-research','pricing-analyst','newsletter'],
+  re:/househelper|하우스헬퍼|커머스|비품|쿠팡|상품|패키지|어메니티/i,
+  lib:[
+   {k:'상태', t:'초기 단계 — 전담 직원 미배치', d:'본부 차출로 운영. 기획전·소싱 요청 시 리드 호출', u:'#'}
+  ]},
+
+ {k:'academy', nm:'헬퍼아카데미', icon:'📚', color:'var(--academy)',
+  def:'공실 창업·운영 실전 교육. 수료생을 타 사업으로 연결하는 허브.',
+  lead:'agency-academy', kpi:'수강 · 완주 · 타사업 전환',
+  staff:['(본부 차출) blog-seo','shortform-planner','ad-copy','exec-assistant'],
+  re:/academy|아카데미|강의|수강|교육|커리큘럼|강사/i,
+  lib:[
+   {k:'상태', t:'초기 단계 — 전담 직원 미배치', d:'강의 기획·모집 요청 시 리드 호출', u:'#'}
+  ]},
+
+ {k:'next', nm:'넥스트헬퍼', icon:'🧭', color:'var(--next)',
+  def:'검증 레퍼런스 기반 「다음 한 수」 AI 의사결정 구독.',
+  lead:'agency-next', kpi:'구독 전환 · 갱신 · 레퍼런스 검증률',
+  staff:['(dev 스쿼드 차출) dev-product-spec','dev-eng-planner','dev-code-builder','market-research'],
+  re:/nexthelper|넥스트헬퍼|ai 구독|레퍼런스|다음 한 수/i,
+  lib:[
+   {k:'규칙', t:'개발 체인 워크플로', d:'기획→설계→구현→리뷰→QA→릴리스→문서', u:'https://github.com/hosthelper/hosthelper/blob/main/docs/DEV_WORKFLOW.md'},
+   {k:'상태', t:'제품 설계 단계', d:'@hosthelper/ai 게이트웨이 준수 필수', u:'#'}
+  ]},
+
+ {k:'hq', nm:'본부', icon:'🏛️', color:'var(--hq)',
+  def:'공용 서비스 — 조직·콘텐츠·데이터·법무·개발·거버넌스.',
+  lead:'team-orchestrator', kpi:'에이전시 지원 SLA',
+  staff:['team-orchestrator','privacy-guard','skill-evolve','weekly-report','legal-draft','ir-deck','dev-*(7)'],
+  re:/ai-team|company-os|에이전시|직원|스킬|조직|문서|워크스페이스|infra|nvidia/i,
+  lib:[
+   {k:'조직', t:'AI 직원 명부 (42명)', d:'부서·호출법·공통 표준', u:'https://github.com/hosthelper/hosthelper/blob/main/docs/AI_TEAM.md'},
+   {k:'조직', t:'에이전시 모델', d:'사업체별 팀 구조·6단계 매핑·운영 규칙', u:'https://github.com/hosthelper/hosthelper/blob/main/docs/AGENCY_MODEL.md'},
+   {k:'학습', t:'팀 메모리', d:'잘된 것·안된 것·결정 기록 (자기개선 루프)', u:'https://github.com/hosthelper/hosthelper/blob/main/docs/TEAM_MEMORY.md'},
+   {k:'현황', t:'전체 작업 현황판', d:'진행완료·진행중·병목·필요요소 (가상테스트)', u:'https://claude.ai/code/artifact/9b36de82-80c1-45b5-b8a7-10c49d1cdbec'},
+   {k:'제품', t:'헬퍼유니버스 A+ 개선본', d:'페이월·접근성·정책 보강 (second#1)', u:'https://github.com/hosthelper/second/pull/1'},
+   {k:'공개', t:'유저용 에이전시 보드', d:'외부 공개 버전 (/agency.html)', u:'https://helperuniverse-platform.netlify.app/agency.html'}
+  ]}
+];
+
+var cur='all', DATA={prs:[],cms:[]}, rate=false;
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function ago(iso){var d=(Date.now()-new Date(iso).getTime())/1000;
+  if(d<60)return'방금'; if(d<3600)return Math.floor(d/60)+'분 전';
+  if(d<86400)return Math.floor(d/3600)+'시간 전'; return Math.floor(d/86400)+'일 전';}
+function team(txt){for(var i=1;i<TEAMS.length;i++){if(TEAMS[i].re&&TEAMS[i].re.test(txt))return TEAMS[i];}
+  return TEAMS[TEAMS.length-1];}
+function stat(live,t){var e=document.getElementById('status');
+  e.className='status'+(live?' live':''); document.getElementById('stx').textContent=t;}
+function pick(k){return TEAMS.filter(function(t){return t.k===k;})[0]||TEAMS[0];}
+function inTeam(it){return cur==='all'||it.team.k===cur;}
+
+function renderNav(){
+  var counts={};
+  DATA.cms.concat(DATA.prs).forEach(function(i){counts[i.team.k]=(counts[i.team.k]||0)+1;});
+  var total=DATA.cms.length+DATA.prs.length;
+  document.getElementById('side').innerHTML='<div class="navlbl">사업팀</div>'+TEAMS.map(function(t){
+    var n=t.k==='all'?total:(counts[t.k]||0);
+    return '<button class="nav'+(t.k===cur?' on':'')+'" data-k="'+t.k+'" style="--c:'+t.color+'">'
+      +'<span>'+t.icon+'</span><span>'+esc(t.nm)+'</span><span class="n">'+n+'</span></button>';
+  }).join('');
+}
+
+function renderMain(){
+  var t=pick(cur);
+  var prs=DATA.prs.filter(inTeam), cms=DATA.cms.filter(inTeam);
+  var lib=cur==='all'?TEAMS.slice(1).reduce(function(a,x){return a.concat(x.lib.map(function(l){
+    return Object.assign({},l,{_c:x.color,_t:x.nm});}));},[]):t.lib.map(function(l){
+    return Object.assign({},l,{_c:t.color,_t:t.nm});});
+
+  var head=cur==='all'
+    ? '<div class="th" style="--c:var(--accent)"><h1>📋 전체 작업</h1>'
+      +'<p class="def">5개 사업팀 + 본부의 프로젝트·작업·자산을 한 화면에서 봅니다. 왼쪽에서 팀을 골라 좁혀 보세요.</p></div>'
+    : '<div class="th" style="--c:'+t.color+'"><h1>'+t.icon+' '+esc(t.nm)+'</h1>'
+      +'<p class="def">'+esc(t.def)+'</p><div class="row">'
+      +'<div><b>리드</b><code>'+esc(t.lead)+'</code></div>'
+      +'<div><b>KPI</b>'+esc(t.kpi)+'</div></div>'
+      +'<div class="staff">'+t.staff.map(function(s){return '<span>'+esc(s)+'</span>';}).join('')+'</div></div>';
+
+  var libHtml=lib.length?'<div class="cards">'+lib.map(function(l){
+    var tag=cur==='all'?'<span style="color:var(--muted)"> · '+esc(l._t)+'</span>':'';
+    var isLink=l.u&&l.u!=='#';
+    return (isLink?'<a class="card" href="'+esc(l.u)+'" target="_blank" rel="noopener"':'<div class="card"')
+      +' style="--c:'+l._c+'">'
+      +'<div class="k">'+esc(l.k)+tag+'</div><div class="t">'+esc(l.t)+'</div>'
+      +'<div class="d">'+esc(l.d)+'</div>'+(isLink?'</a>':'</div>');
+  }).join('')+'</div>':'<div class="empty">등록된 자산이 없습니다.</div>';
+
+  function rows(list,kind){
+    if(!list.length)return '<div class="empty">'+(kind==='pr'
+      ?'이 팀은 대기 중인 작업이 없습니다.':'이 팀의 작업 기록이 아직 없습니다.')+'</div>';
+    return '<div class="rows">'+list.map(function(i){
+      var st=kind==='pr'?'<span class="st '+(i.draft?'d':'o')+'">'+(i.draft?'초안':'검토 대기')+'</span>':'';
+      var tg=cur==='all'?'<span class="tag" style="--rc:'+i.team.color+'">'+i.team.icon+' '+esc(i.team.nm)+'</span>':'';
+      return '<div class="row" style="--rc:'+i.team.color+'"><span class="id">'+esc(i.id)+'</span>'
+        +'<div class="bd"><div class="tt"><a href="'+esc(i.url)+'" target="_blank" rel="noopener">'+esc(i.title)+'</a></div>'
+        +'<div class="mt">'+tg+st+'<span>'+ago(i.date)+'</span></div></div></div>';
+    }).join('')+'</div>';
+  }
+
+  document.getElementById('main').innerHTML=head
+    +'<h2>📚 자산 라이브러리 <span class="cnt">'+lib.length+'</span></h2>'
+    +'<p class="hint">이 팀이 만든 문서·전략·코드·서비스. 클릭하면 원본으로 이동합니다.</p>'+libHtml
+    +'<h2>⏳ 진행중 · 결정 대기 <span class="cnt">'+prs.length+'</span></h2>'
+    +'<p class="hint">완료해서 대표님 확인을 기다리는 작업(열린 PR)입니다.</p>'+rows(prs,'pr')
+    +'<h2>🕒 작업 로그 <span class="cnt">'+cms.length+'</span></h2>'
+    +'<p class="hint">최근 처리한 작업. 최신순.</p>'+rows(cms,'cm')
+    +'<footer>내부 전용 · 외부 공개 금지 (noindex). 데이터: GitHub 공개 API <code>'+REPO+'</code> · 5분 자동 갱신<br>'
+    +'팀 분류는 제목 키워드 자동 판정 · 조직 구조 <code>docs/AGENCY_MODEL.md</code></footer>';
+}
+
+function get(u){return fetch(u,{headers:{'Accept':'application/vnd.github+json'},cache:'no-store'})
+  .then(function(r){ if(r.status===403){var e=new Error('rate');e.rate=true;throw e;}
+    if(!r.ok)throw new Error('HTTP '+r.status); return r.json();});}
+
+function load(){
+  rate=false; stat(false,'불러오는 중…');
+  Promise.all([
+    get(API+REPO+'/pulls?state=open&per_page=30&sort=updated&direction=desc')
+      .then(function(l){return l.map(function(p){return {id:'#'+p.number,title:p.title,url:p.html_url,
+        date:p.updated_at,draft:!!p.draft,team:team(p.title)};});})
+      .catch(function(e){if(e&&e.rate)rate=true;return[];}),
+    get(API+REPO+'/commits?per_page=60')
+      .then(function(l){return l.map(function(c){var m=(c.commit.message||'').split('\n')[0];
+        return {id:c.sha.slice(0,7),title:m,url:c.html_url,date:c.commit.author.date,team:team(m)};});})
+      .catch(function(e){if(e&&e.rate)rate=true;return[];})
+  ]).then(function(r){
+    if(!r[0].length&&!r[1].length)throw new Error('nodata');
+    DATA.prs=r[0]; DATA.cms=r[1];
+    renderNav(); renderMain();
+    var d=new Date();
+    stat(true,'실시간 · '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'));
+  }).catch(function(){
+    stat(false, rate?'조회 한도 초과 — 잠시 후 자동 복구':'연결 실패 — 새로고침');
+    DATA.prs=[]; DATA.cms=[]; renderNav(); renderMain();
+  });
+}
+
+document.getElementById('side').addEventListener('click',function(e){
+  var b=e.target.closest('.nav'); if(!b)return;
+  cur=b.dataset.k; renderNav(); renderMain(); window.scrollTo({top:0});
+});
+document.getElementById('rf').addEventListener('click',load);
+renderNav(); renderMain(); load(); setInterval(load,300000);
+})();
+</script>
+</body>
+</html>
