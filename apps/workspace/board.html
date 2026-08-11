@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>헬퍼유니버스 작업 현황판</title>
+<style>
+:root{
+  --bg:#F3F2ED; --panel:#fff; --panel2:#EBEAE3; --ink:#191D1B; --muted:#5C6560; --line:#DEDCD3;
+  --todo:#5C6560; --work:#2A7A57; --work-s:#E3F0E9; --block:#B4423C; --block-s:#F7E4E2;
+  --pr:#8A5A1F; --pr-s:#F5EBDB; --done:#3E6E96; --done-s:#E4EDF4;
+  --fs:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
+  --fm:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#13171A; --panel:#1B2024; --panel2:#252B30; --ink:#E9EDF0; --muted:#98A2AA; --line:#2C3339;
+  --todo:#98A2AA; --work:#5FBF92; --work-s:#16281F; --block:#E8837C; --block-s:#2E1D1C;
+  --pr:#D5A25A; --pr-s:#2A2216; --done:#7FAAD0; --done-s:#1A242C;}}
+:root[data-theme="dark"]{
+  --bg:#13171A; --panel:#1B2024; --panel2:#252B30; --ink:#E9EDF0; --muted:#98A2AA; --line:#2C3339;
+  --todo:#98A2AA; --work:#5FBF92; --work-s:#16281F; --block:#E8837C; --block-s:#2E1D1C;
+  --pr:#D5A25A; --pr-s:#2A2216; --done:#7FAAD0; --done-s:#1A242C;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--fs);font-size:15px;line-height:1.6;
+     -webkit-font-smoothing:antialiased;word-break:keep-all;padding:0 16px 60px}
+.c{max-width:1000px;margin:0 auto}
+a{color:inherit}
+header{padding:34px 0 16px;border-bottom:2px solid var(--ink)}
+h1{font-size:clamp(1.4rem,3.6vw,1.95rem);margin:0 0 6px;font-weight:800;letter-spacing:-.01em}
+.bar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;color:var(--muted);font-size:.82rem}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--work);display:inline-block;margin-right:5px}
+.dot.stale{background:var(--block)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px;margin:20px 0 8px}
+.tile{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ac,var(--todo));
+      border-radius:11px;padding:12px 14px}
+.tile .n{font-size:1.7rem;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile .l{font-size:.76rem;color:var(--muted);font-weight:700;margin-top:2px}
+section{padding:24px 0 4px;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:none}
+h2{font-size:1.02rem;margin:0 0 4px;font-weight:800;display:flex;align-items:center;gap:8px}
+.pill{font-size:.68rem;font-weight:800;padding:2px 9px;border-radius:999px;background:var(--panel2);color:var(--muted)}
+.hint{color:var(--muted);font-size:.81rem;margin:0 0 12px}
+.rows{display:flex;flex-direction:column;gap:7px}
+.row{display:flex;gap:11px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);
+     border-left:4px solid var(--ac,var(--todo));border-radius:10px;padding:10px 13px;text-decoration:none}
+a.row:hover{border-color:var(--ac,var(--todo))}
+.row .num{font-family:var(--fm);font-size:.76rem;color:var(--muted);font-weight:700;min-width:42px;padding-top:2px}
+.row .body{flex:1;min-width:0}
+.row .t{font-size:.9rem;font-weight:700;line-height:1.42}
+.row .m{color:var(--muted);font-size:.75rem;margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 10px}
+.chip{font-size:.66rem;font-weight:800;padding:1px 7px;border-radius:999px;background:var(--panel2);color:var(--muted)}
+.chip.b{background:var(--block-s);color:var(--block)}
+.chip.w{background:var(--work-s);color:var(--work)}
+.chip.p{background:var(--pr-s);color:var(--pr)}
+.empty{color:var(--muted);font-size:.85rem;background:var(--panel);border:1px dashed var(--line);
+       border-radius:10px;padding:16px;text-align:center}
+.warn{background:var(--block-s);color:var(--block);border:1px solid var(--block);border-radius:11px;
+      padding:14px 16px;font-size:.87rem;margin:16px 0}
+.warn b{font-weight:800}
+code{font-family:var(--fm);font-size:.78rem;background:var(--panel2);padding:1px 6px;border-radius:5px}
+footer{padding:24px 0 0;color:var(--muted);font-size:.79rem;line-height:1.75}
+.grp{font-size:.74rem;font-weight:800;color:var(--muted);letter-spacing:.04em;margin:12px 0 5px}
+</style>
+</head><body><div class="c">
+
+<header>
+  <h1>📋 헬퍼유니버스 작업 현황판</h1>
+  <div class="bar">
+    <span><span class="dot" id="dot"></span><span id="fresh">불러오는 중…</span></span>
+    <span>다음 갱신 <b id="cd">5:00</b></span>
+    <span>🔋 AI 크레딧 소모 <b>0</b> — GitHub Actions 집계</span>
+  </div>
+</header>
+
+<div id="alert"></div>
+
+<div class="tiles">
+  <div class="tile" style="--ac:var(--block)"><div class="n" id="c-blocked">–</div><div class="l">🚧 막힘</div></div>
+  <div class="tile" style="--ac:var(--work)"><div class="n" id="c-working">–</div><div class="l">🔵 작업중</div></div>
+  <div class="tile" style="--ac:var(--todo)"><div class="n" id="c-todo">–</div><div class="l">⚪ 미작업</div></div>
+  <div class="tile" style="--ac:var(--pr)"><div class="n" id="c-prs">–</div><div class="l">⏳ 대표님 결정 대기</div></div>
+  <div class="tile" style="--ac:var(--done)"><div class="n" id="c-done">–</div><div class="l">✅ 최근 완료</div></div>
+</div>
+
+<section><h2>🚧 막힘 <span class="pill">먼저 뚫어야 나머지가 움직입니다</span></h2>
+  <div class="rows" id="s-blocked"></div></section>
+
+<section><h2>🔵 작업중</h2>
+  <p class="hint">직원이 지금 손대고 있는 것.</p>
+  <div class="rows" id="s-working"></div></section>
+
+<section><h2>⚪ 미작업 <span class="pill">사업별</span></h2>
+  <p class="hint">할 일로 등록만 되고 아직 시작 안 한 것.</p>
+  <div id="s-todo"></div></section>
+
+<section><h2>⏳ 대표님이 눌러야 넘어가는 것 <span class="pill">열린 PR</span></h2>
+  <p class="hint">직원은 끝냈고, 머지/폐기 결정만 남은 것.</p>
+  <div class="rows" id="s-prs"></div></section>
+
+<section><h2>✅ 최근 완료</h2><div class="rows" id="s-done"></div></section>
+
+<section><h2>⚙️ 시스템이 스스로 한 일 <span class="pill">사람 개입 0</span></h2>
+  <p class="hint">자동 실행 결과 — 여기가 곧 "대표님 없어도 도는 부분"입니다.</p>
+  <div class="rows" id="s-runs"></div></section>
+
+<footer id="foot"></footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+var REFRESH_MS = 5*60*1000;              // 화면 갱신 5분
+var STALE_HOURS = 6;                     // 집계가 6시간 넘으면 경고
+var SRC = './status.json';               // 같은 출처 — 인증·레이트리밋·크레딧 모두 없음
+var BIZ = {'라이프헬퍼':'🏠','경매헬퍼':'⚖️','창업이지':'🔑','하우스헬퍼':'🛒','아카데미':'📚','넥스트헬퍼':'🧭','본부':'🏛️'};
+var next = REFRESH_MS;
+
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(m){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];});}
+function ago(iso){
+  if(!iso) return '';
+  var m = Math.floor((Date.now()-new Date(iso).getTime())/60000);
+  if(isNaN(m)) return '';
+  if(m<1) return '방금';
+  if(m<60) return m+'분 전';
+  var h=Math.floor(m/60); if(h<24) return h+'시간 전';
+  return Math.floor(h/24)+'일 전';
+}
+function days(iso){
+  var d = Math.floor((Date.now()-new Date(iso).getTime())/86400000);
+  return isNaN(d)?0:d;
+}
+function row(o){
+  var tag = o.href ? 'a' : 'div';
+  var attr = o.href ? ' href="'+esc(o.href)+'" target="_blank" rel="noopener"' : '';
+  return '<'+tag+' class="row"'+attr+' style="--ac:'+o.ac+'">'
+    + '<div class="num">'+esc(o.num)+'</div>'
+    + '<div class="body"><div class="t">'+esc(o.title)+'</div>'
+    + '<div class="m">'+o.meta+'</div></div></'+tag+'>';
+}
+function fill(el, html, emptyMsg){
+  el.innerHTML = html || '<div class="empty">'+esc(emptyMsg)+'</div>';
+}
+
+function render(d){
+  var c = d.counts||{};
+  $('c-blocked').textContent = c.blocked==null?'–':c.blocked;
+  $('c-working').textContent = c.working==null?'–':c.working;
+  $('c-todo').textContent    = c.todo==null?'–':c.todo;
+  $('c-prs').textContent     = c.prsOpen==null?'–':c.prsOpen;
+  $('c-done').textContent    = c.doneRecent==null?'–':c.doneRecent;
+
+  var stale = (Date.now()-new Date(d.updatedAt).getTime()) > STALE_HOURS*3600*1000;
+  $('dot').className = 'dot'+(stale?' stale':'');
+  $('fresh').textContent = '마지막 집계 '+ago(d.updatedAt)+(stale?' — 집계가 멈췄을 수 있습니다':'');
+
+  var tasks = d.tasks||[];
+  var pick = function(s){return tasks.filter(function(t){return t.state===s;});};
+
+  fill($('s-blocked'), pick('blocked').map(function(t){
+    return row({num:'#'+t.number, title:t.title, href:t.url, ac:'var(--block)',
+      meta:'<span class="chip b">막힘</span><span class="chip">'+(BIZ[t.biz]||'')+' '+esc(t.biz)+'</span><span>'+days(t.createdAt)+'일째</span>'});
+  }).join(''), '막힌 일 없음 👍');
+
+  fill($('s-working'), pick('working').map(function(t){
+    return row({num:'#'+t.number, title:t.title, href:t.url, ac:'var(--work)',
+      meta:'<span class="chip w">작업중</span><span class="chip">'+(BIZ[t.biz]||'')+' '+esc(t.biz)+'</span><span>'+ago(t.updatedAt)+' 갱신</span>'});
+  }).join(''), '지금 진행 중인 작업 없음');
+
+  var todo = pick('todo'), byBiz = {};
+  todo.forEach(function(t){ (byBiz[t.biz]=byBiz[t.biz]||[]).push(t); });
+  var keys = Object.keys(byBiz).sort(function(a,b){return byBiz[b].length-byBiz[a].length;});
+  fill($('s-todo'), keys.map(function(k){
+    return '<div class="grp">'+(BIZ[k]||'')+' '+esc(k)+' · '+byBiz[k].length+'건</div><div class="rows">'
+      + byBiz[k].map(function(t){
+          return row({num:'#'+t.number, title:t.title, href:t.url, ac:'var(--todo)',
+            meta:'<span>등록 '+days(t.createdAt)+'일째</span>'+(t.assignee?'<span class="chip">'+esc(t.assignee)+'</span>':'')});
+        }).join('') + '</div>';
+  }).join(''), '등록된 할 일이 없습니다 — 이슈로 작업 카드를 만들면 여기 나옵니다');
+
+  fill($('s-prs'), (d.prs||[]).sort(function(a,b){
+    return new Date(a.createdAt)-new Date(b.createdAt);
+  }).map(function(p){
+    var old = days(p.createdAt);
+    return row({num:'#'+p.number, title:p.title, href:p.url, ac: old>14?'var(--block)':'var(--pr)',
+      meta:'<span class="chip '+(old>14?'b':'p')+'">'+old+'일 대기</span>'
+         + '<span>'+p.files+'개 파일 · '+p.size+'줄</span>'
+         + (p.isDraft?'<span class="chip">초안</span>':'')});
+  }).join(''), '열린 PR 없음');
+
+  fill($('s-done'), (d.done||[]).slice(0,10).map(function(t){
+    return row({num:'#'+t.number, title:t.title, href:t.url, ac:'var(--done)', meta:'<span>'+ago(t.closedAt)+' 완료</span>'});
+  }).join(''), '최근 완료 없음');
+
+  fill($('s-runs'), (d.runs||[]).slice(0,8).map(function(r){
+    var ok = r.conclusion==='success';
+    return row({num: ok?'✅':(r.conclusion?'❌':'⏳'), title:r.name, href:r.url,
+      ac: ok?'var(--work)':'var(--block)',
+      meta:'<span>'+esc(r.conclusion||r.status)+'</span><span>'+ago(r.at)+'</span>'});
+  }).join(''), '자동 실행 기록 없음');
+
+  $('foot').innerHTML = '데이터: <code>'+esc(d.source||'')+'</code> · 저장소 <code>'+esc(d.repo||'')+'</code><br>'
+    + '작업 카드 = GitHub 이슈. 라벨 <code>상태:작업중</code> / <code>상태:막힘</code> / <code>사업:○○</code> 로 여기 분류됩니다.<br>'
+    + '이 화면은 5분마다 스스로 다시 읽습니다 — AI를 호출하지 않으므로 켜두어도 크레딧이 나가지 않습니다.';
+}
+
+function showAlert(html){ $('alert').innerHTML = '<div class="warn">'+html+'</div>'; }
+
+function load(){
+  fetch(SRC+'?t='+Date.now(),{cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(d){ $('alert').innerHTML=''; render(d); })
+    .catch(function(e){
+      showAlert('<b>집계 파일을 못 읽었습니다</b> ('+esc(e.message)+')<br>'
+        + '이 화면은 <code>status.json</code> 과 <b>같은 주소</b>에 올라가 있어야 동작합니다. '
+        + 'Netlify 에 <code>status-board</code> 브랜치를 배포하면 해결됩니다. '
+        + '파일을 그냥 더블클릭해서 여신 경우에도 이 메시지가 뜹니다.');
+    });
+  next = REFRESH_MS;
+}
+
+setInterval(function(){
+  next -= 1000;
+  if(next <= 0){ load(); return; }
+  var m = Math.floor(next/60000), s = Math.floor((next%60000)/1000);
+  $('cd').textContent = m+':'+(s<10?'0':'')+s;
+}, 1000);
+
+load();
+})();
+</script>
+</body></html>

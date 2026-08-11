@@ -106,15 +106,17 @@
 
 <footer>
   <p>내부 전용 · 데이터: <code>apps/workspace/work-log.json</code> (직원이 작업 시작·완료 시 기록) · 30초마다 자동 갱신<br>
-  기록 규칙 <code>.claude/skills/work-log/SKILL.md</code> · 사업팀별 라이브러리는 <a href="index.html">워크스페이스</a></p>
+  기록 규칙 <code>.claude/skills/work-log/SKILL.md</code> · 사업팀별 라이브러리는 <a href="index.html">워크스페이스</a> · 전체 현황(작업중·미작업·막힘)은 <a href="board.html"><b>작업 현황판</b></a></p>
 </footer>
 
 </div>
 <script>
 (function(){
 'use strict';
+var LOCAL='./work-log.json';   // 1순위: 같은 출처(Netlify) — 인증·레이트리밋 없음
 var RAW='https://raw.githubusercontent.com/hosthelper/hosthelper/claude/ai-team-20-employees/apps/workspace/work-log.json';
 var API='https://api.github.com/repos/hosthelper/hosthelper/contents/apps/workspace/work-log.json?ref=claude/ai-team-20-employees';
+// ⚠️ 저장소가 비공개이면 RAW·API 는 브라우저에서 404 → LOCAL(배포본)만 동작합니다.
 var STALE_MIN=30;   // heartbeat 이만큼 멈추면 '응답 없음'
 
 var TEAMS={
@@ -228,8 +230,12 @@ function setB(on,txt){var b=document.getElementById('badge');b.className='badge'
 
 function load(){
   setB(false,'불러오는 중…');
-  fetch(RAW+'?t='+Date.now(),{cache:'no-store'})
-    .then(function(r){if(!r.ok)throw new Error('raw');return r.json();})
+  fetch(LOCAL+'?t='+Date.now(),{cache:'no-store'})
+    .then(function(r){if(!r.ok)throw new Error('local');return r.json();})
+    .catch(function(){   // 로컬 실패 시 raw 폴백 (공개 저장소일 때만 동작)
+      return fetch(RAW+'?t='+Date.now(),{cache:'no-store'})
+        .then(function(r){if(!r.ok)throw new Error('raw');return r.json();});
+    })
     .catch(function(){   // raw 실패 시 API 폴백
       return fetch(API,{headers:{'Accept':'application/vnd.github.raw'},cache:'no-store'})
         .then(function(r){if(!r.ok)throw new Error('api');return r.json();});
@@ -242,7 +248,7 @@ function load(){
     })
     .catch(function(){
       setB(false,'연결 실패 — 새로고침');
-      document.getElementById('main').innerHTML='<div class="empty">작업 로그를 불러오지 못했습니다. 저장소가 공개 상태이고 브랜치 경로가 맞는지 확인해주세요.</div>';
+      document.getElementById('main').innerHTML='<div class="empty">작업 로그를 불러오지 못했습니다. 이 화면은 work-log.json 과 같은 주소에 배포돼 있어야 동작합니다(Netlify). 파일을 직접 더블클릭해 열면 이 메시지가 뜹니다.</div>';
     });
 }
 
