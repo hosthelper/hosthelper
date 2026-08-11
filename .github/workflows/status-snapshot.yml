@@ -1,0 +1,147 @@
+name: 작업 현황 집계 (status snapshot)
+
+# 목적: 대표님 보드에 뿌릴 status.json 을 GitHub Actions 가 무료로 만들어 준다.
+#      LLM(Claude) 을 호출하지 않으므로 AI 크레딧 소모 0.
+# 데이터: 이슈(작업카드) · 열린 PR · 최근 커밋 · 워크플로 실행 결과
+# 결과:  status-board 브랜치의 apps/workspace/status.json → Netlify 가 서빙
+#
+# 라벨 규칙
+#   상태:작업중 / 상태:막힘 / (없거나 상태:미작업) = 미작업
+#   사업:라이프헬퍼 · 사업:경매헬퍼 · 사업:하우스헬퍼 · 사업:아카데미 · 사업:넥스트헬퍼 · 사업:본부
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, closed, reopened, ready_for_review, converted_to_draft, synchronize]
+  issues:
+    types: [opened, closed, reopened, labeled, unlabeled, assigned, edited]
+  schedule:
+    - cron: '7 */3 * * *'   # 3시간마다 (Netlify 무료 빌드 분 보호)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+  issues: read
+  actions: read
+
+concurrency:
+  group: status-snapshot
+  cancel-in-progress: true
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: 데이터 수집 (GitHub API — LLM 미사용)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          R: ${{ github.repository }}
+        run: |
+          set -uo pipefail
+          mkdir -p /tmp/snap
+
+          gh pr list --state open --limit 50 \
+            --json number,title,createdAt,updatedAt,isDraft,mergeable,additions,deletions,changedFiles,url \
+            > /tmp/snap/prs.json || echo '[]' > /tmp/snap/prs.json
+
+          gh issue list --state open --limit 100 \
+            --json number,title,createdAt,updatedAt,labels,assignees,url \
+            > /tmp/snap/issues.json || echo '[]' > /tmp/snap/issues.json
+
+          gh issue list --state closed --limit 30 \
+            --json number,title,closedAt,labels,url \
+            > /tmp/snap/done.json || echo '[]' > /tmp/snap/done.json
+
+          gh api "repos/$R/commits?per_page=20" \
+            --jq '[.[] | {sha: .sha[0:7], msg: (.commit.message | split("\n")[0]), at: .commit.author.date, who: .commit.author.name}]' \
+            > /tmp/snap/commits.json || echo '[]' > /tmp/snap/commits.json
+
+          gh api "repos/$R/actions/runs?per_page=15" \
+            --jq '[.workflow_runs[] | {name: .name, status: .status, conclusion: .conclusion, at: .updated_at, url: .html_url}]' \
+            > /tmp/snap/runs.json || echo '[]' > /tmp/snap/runs.json
+
+          for f in prs issues done commits runs; do
+            jq -e . "/tmp/snap/$f.json" > /dev/null 2>&1 || echo '[]' > "/tmp/snap/$f.json"
+          done
+
+      - name: status.json 조립
+        env:
+          R: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          jq -n \
+            --arg now "$NOW" \
+            --arg repo "$R" \
+            --slurpfile prs     /tmp/snap/prs.json \
+            --slurpfile issues  /tmp/snap/issues.json \
+            --slurpfile done    /tmp/snap/done.json \
+            --slurpfile commits /tmp/snap/commits.json \
+            --slurpfile runs    /tmp/snap/runs.json '
+            def labels_of: [.labels[]?.name];
+            def state_of:
+              (labels_of) as $l
+              | if   ($l | index("상태:막힘"))   then "blocked"
+                elif ($l | index("상태:작업중")) then "working"
+                else "todo" end;
+            def biz_of:
+              (labels_of | map(select(startswith("사업:"))) | .[0] // "사업:본부")
+              | sub("^사업:"; "");
+            ($issues[0] // []) as $iss
+            | ($prs[0] // []) as $pr
+            | {
+                updatedAt: $now,
+                repo: $repo,
+                source: "github-actions · LLM 미사용 · 크레딧 0",
+                counts: {
+                  working:    ($iss | map(select(state_of == "working")) | length),
+                  todo:       ($iss | map(select(state_of == "todo"))    | length),
+                  blocked:    ($iss | map(select(state_of == "blocked")) | length),
+                  prsOpen:    ($pr | length),
+                  doneRecent: (($done[0] // []) | length)
+                },
+                tasks: ($iss | map({
+                  number, title, url,
+                  state: state_of,
+                  biz: biz_of,
+                  labels: labels_of,
+                  assignee: (.assignees[0]?.login // null),
+                  createdAt, updatedAt
+                })),
+                done: (($done[0] // []) | map({number, title, url, closedAt})),
+                prs: ($pr | map({
+                  number, title, url, isDraft, mergeable,
+                  createdAt, updatedAt,
+                  size: (.additions + .deletions),
+                  files: .changedFiles
+                })),
+                commits: ($commits[0] // []),
+                runs: ($runs[0] // [])
+              }' > /tmp/snap/status.json
+
+          jq -e '.updatedAt' /tmp/snap/status.json > /dev/null
+          echo "집계 완료:"; jq -c '.counts' /tmp/snap/status.json
+
+      - name: status-board 브랜치에 반영
+        run: |
+          set -euo pipefail
+          mkdir -p apps/workspace
+          cp /tmp/snap/status.json apps/workspace/status.json
+
+          git config user.name  "hosthelper-bot"
+          git config user.email "hosthelper01@gmail.com"
+          git checkout -B status-board
+          git add -f apps/workspace/status.json
+          if git diff --cached --quiet; then
+            echo "변경 없음 — 커밋 생략"; exit 0
+          fi
+          git commit -m "chore(status): 작업 현황 집계 [skip ci]"
+          git push -f origin status-board

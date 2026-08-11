@@ -1,0 +1,96 @@
+{
+  "updatedAt": "2026-08-11T12:39:28Z",
+  "note": "에이전시 작업 로그 — 직원이 작업 시작·완료 시 기록. 기록 규칙: .claude/skills/work-log/SKILL.md",
+  "entries": [
+    {
+      "id": "wl-0009",
+      "agent": "role-pjm",
+      "agency": "hq",
+      "task": "실시간 작업 로그 구조 + 직원별 라이브 보드 구축",
+      "status": "done",
+      "startedAt": "2026-08-11T12:14:36Z",
+      "output": "apps/workspace/live.html + work-log 스킬",
+      "endedAt": "2026-08-11T12:39:28Z"
+    },
+    {
+      "id": "wl-0008",
+      "agent": "role-pm",
+      "agency": "hq",
+      "task": "제로투원 직군 6종 채용 설계 (PM·MD·Designer·Operator·Marketer·PjM)",
+      "status": "done",
+      "startedAt": "2026-08-11T11:21:36Z",
+      "endedAt": "2026-08-11T11:48:36Z",
+      "output": "docs/ZERO_TO_ONE.md"
+    },
+    {
+      "id": "wl-0007",
+      "agent": "team-orchestrator",
+      "agency": "hq",
+      "task": "사업체별 에이전시 모델 설계 — 리드 5명 + 자기개선 코치",
+      "status": "done",
+      "startedAt": "2026-08-11T09:26:36Z",
+      "endedAt": "2026-08-11T09:56:36Z",
+      "output": "docs/AGENCY_MODEL.md"
+    },
+    {
+      "id": "wl-0006",
+      "agent": "dev-code-builder",
+      "agency": "changup",
+      "task": "설문 리드 유실 방지 3중 안전장치 구현 (로컬백업·자동재전송·문자대체)",
+      "status": "waiting",
+      "startedAt": "2026-08-11T08:16:36Z",
+      "endedAt": "2026-08-11T08:41:36Z",
+      "output": "PR #66"
+    },
+    {
+      "id": "wl-0005",
+      "agent": "dev-qa",
+      "agency": "changup",
+      "task": "리드 유실 방지 브라우저 실패 재현 검증 (17개 항목)",
+      "status": "done",
+      "startedAt": "2026-08-11T08:36:36Z",
+      "endedAt": "2026-08-11T08:44:36Z",
+      "output": "17/17 통과"
+    },
+    {
+      "id": "wl-0004",
+      "agent": "blog-seo",
+      "agency": "changup",
+      "task": "기사별 정적 SEO 페이지 17편 + sitemap 재생성",
+      "status": "waiting",
+      "startedAt": "2026-08-11T07:36:36Z",
+      "endedAt": "2026-08-11T07:51:36Z",
+      "output": "PR #65"
+    },
+    {
+      "id": "wl-0003",
+      "agent": "privacy-guard",
+      "agency": "hq",
+      "task": "리드 로컬 보관 개인정보 검수 — TTL 3일·성공시 즉시 삭제 확정",
+      "status": "done",
+      "startedAt": "2026-08-11T08:26:36Z",
+      "endedAt": "2026-08-11T08:32:36Z",
+      "output": null
+    },
+    {
+      "id": "wl-0002",
+      "agent": "role-operator",
+      "agency": "changup",
+      "task": "양면 유입 퍼널 구조 설계 (수요·공급 이원 + 중앙 매칭)",
+      "status": "done",
+      "startedAt": "2026-08-11T05:36:36Z",
+      "endedAt": "2026-08-11T06:01:36Z",
+      "output": "docs/CHANGUP_FUNNEL.md"
+    },
+    {
+      "id": "wl-0001",
+      "agent": "weekly-report",
+      "agency": "hq",
+      "task": "전체 작업 현황 가상테스트 7항목 — 발행 9일 중단·검색유입 0 발견",
+      "status": "done",
+      "startedAt": "2026-08-11T04:16:36Z",
+      "endedAt": "2026-08-11T04:36:36Z",
+      "output": null
+    }
+  ]
+}

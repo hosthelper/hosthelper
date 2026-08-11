@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지금 누가 일하는가 — 헬퍼유니버스 라이브</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%23151A1F'/%3E%3Ccircle%20cx='32'%20cy='32'%20r='11'%20fill='%232FBF7E'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#EEF0F2; --panel:#FFFFFF; --panel-2:#F5F6F8; --ink:#151A1F; --muted:#5B6570; --line:#DDE1E6;
+    --run:#1E7A54; --run-soft:#E2F1EA; --done:#4A6E8A; --done-soft:#E7EEF4;
+    --wait:#8A5A1F; --wait-soft:#F6EBDC; --block:#96412F; --block-soft:#F7E4DF;
+    --changup:#3E6E96; --life:#B5622F; --house:#4F7040; --academy:#93692A; --next:#425F79; --hq:#5C5A57;
+    --fs:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
+    --fm:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#14181C; --panel:#1B2126; --panel-2:#232A31; --ink:#E8EDF1; --muted:#98A3AE; --line:#2C343C;
+    --run:#4ED69A; --run-soft:#12291F; --done:#7C9DBC; --done-soft:#18242E;
+    --wait:#D5A25A; --wait-soft:#2A2216; --block:#DE8571; --block-soft:#2E1B16;
+    --changup:#7FAAD0; --life:#DE9560; --house:#8FB273; --academy:#CFA85C; --next:#7C9DBC; --hq:#9B9791;}}
+  :root[data-theme="dark"]{
+    --bg:#14181C; --panel:#1B2126; --panel-2:#232A31; --ink:#E8EDF1; --muted:#98A3AE; --line:#2C343C;
+    --run:#4ED69A; --run-soft:#12291F; --done:#7C9DBC; --done-soft:#18242E;
+    --wait:#D5A25A; --wait-soft:#2A2216; --block:#DE8571; --block-soft:#2E1B16;
+    --changup:#7FAAD0; --life:#DE9560; --house:#8FB273; --academy:#CFA85C; --next:#7C9DBC; --hq:#9B9791;}
+  *{box-sizing:border-box} body{margin:0}
+  body{background:var(--bg); color:var(--ink); font-family:var(--fs); font-size:15px; line-height:1.6;
+       -webkit-font-smoothing:antialiased; word-break:keep-all; padding:0 18px 70px}
+  .wrap{max-width:960px; margin:0 auto}
+  a{color:inherit} a:focus-visible,button:focus-visible{outline:2px solid var(--run); outline-offset:2px}
+
+  header{padding:30px 0 16px; border-bottom:1px solid var(--line);
+         display:flex; justify-content:space-between; align-items:flex-end; gap:14px; flex-wrap:wrap}
+  header h1{font-size:clamp(1.3rem,3.4vw,1.8rem); margin:0 0 2px; font-weight:800; letter-spacing:-.01em}
+  header .sub{color:var(--muted); font-size:.85rem; margin:0}
+  .badge{display:flex; align-items:center; gap:7px; font-size:.76rem; font-weight:800; padding:6px 12px;
+         border-radius:999px; background:var(--wait-soft); color:var(--wait); white-space:nowrap}
+  .badge.on{background:var(--run-soft); color:var(--run)}
+  .pip{width:8px; height:8px; border-radius:50%; background:currentColor}
+  .badge.on .pip{animation:bp 1.8s ease-in-out infinite}
+  @keyframes bp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+  .btn{border:1px solid var(--line); background:var(--panel); color:var(--ink); border-radius:999px;
+       padding:6px 13px; font-size:.76rem; font-weight:700; cursor:pointer; font-family:inherit}
+  .btn:hover{background:var(--panel-2)}
+
+  .tabs{display:flex; gap:6px; overflow-x:auto; padding:14px 0 4px; scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex-shrink:0; border:1px solid var(--line); background:var(--panel); color:var(--muted);
+       border-radius:999px; padding:6px 13px; font-size:.8rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap}
+  .tab.on{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+
+  h2{font-size:.95rem; margin:24px 0 3px; font-weight:800; display:flex; align-items:center; gap:8px}
+  h2 .c{font-family:var(--fm); font-size:.72rem; color:var(--muted); font-weight:700}
+  .hint{color:var(--muted); font-size:.78rem; margin:0 0 11px}
+
+  .list{display:flex; flex-direction:column; gap:8px}
+  .card{background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--ac,var(--hq));
+        border-radius:12px; padding:13px 15px}
+  .card.run{box-shadow:0 0 0 1px var(--run-soft), 0 3px 14px rgba(30,122,84,.10)}
+  .top{display:flex; align-items:center; gap:9px; flex-wrap:wrap}
+  .who{font-family:var(--fm); font-size:.82rem; font-weight:800; color:var(--ac,var(--hq))}
+  .st{font-size:.66rem; font-weight:800; padding:2px 9px; border-radius:999px; white-space:nowrap; display:inline-flex; align-items:center; gap:5px}
+  .st.run{background:var(--run-soft); color:var(--run)}
+  .st.done{background:var(--done-soft); color:var(--done)}
+  .st.wait{background:var(--wait-soft); color:var(--wait)}
+  .st.block{background:var(--block-soft); color:var(--block)}
+  .st.stale{background:var(--block-soft); color:var(--block)}
+  .st.run .pip{animation:bp 1.8s ease-in-out infinite}
+  .team{font-size:.68rem; font-weight:700; color:var(--muted); background:var(--panel-2); padding:2px 8px; border-radius:999px}
+  .task{font-size:.93rem; font-weight:600; margin-top:6px; line-height:1.5}
+  .meta{color:var(--muted); font-size:.75rem; margin-top:5px; display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .el{font-family:var(--fm); font-weight:800; color:var(--run); font-variant-numeric:tabular-nums}
+  .out{font-family:var(--fm); font-size:.72rem; background:var(--panel-2); padding:1px 7px; border-radius:5px}
+
+  .stats{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px}
+  .sc{background:var(--panel); border:1px solid var(--line); border-radius:11px; padding:11px 13px}
+  .sc .n{font-family:var(--fm); font-size:.8rem; font-weight:800}
+  .sc .b{height:5px; background:var(--panel-2); border-radius:3px; margin-top:7px; overflow:hidden}
+  .sc .f{height:100%; background:var(--ac,var(--hq)); border-radius:3px}
+  .sc .v{font-size:.72rem; color:var(--muted); margin-top:4px}
+
+  .empty{color:var(--muted); font-size:.84rem; padding:16px; text-align:center;
+         background:var(--panel); border:1px dashed var(--line); border-radius:12px}
+  footer{color:var(--muted); font-size:.74rem; margin-top:26px; padding-top:14px; border-top:1px solid var(--line); line-height:1.8}
+  code{font-family:var(--fm); font-size:.72rem; background:var(--panel-2); padding:1px 5px; border-radius:4px}
+  @media (prefers-reduced-motion:reduce){.pip{animation:none!important}}
+</style>
+</head>
+<body><div class="wrap">
+
+<header>
+  <div>
+    <h1>지금 누가 일하는가</h1>
+    <p class="sub">헬퍼유니버스 AI 직원 49명 · 작업 로그 실시간</p>
+  </div>
+  <div style="display:flex; gap:8px; align-items:center">
+    <span class="badge" id="badge"><span class="pip"></span><span id="btxt">불러오는 중…</span></span>
+    <button class="btn" id="rf" type="button">새로고침</button>
+  </div>
+</header>
+
+<div class="tabs" id="tabs"></div>
+<div id="main"></div>
+
+<footer>
+  <p>내부 전용 · 데이터: <code>apps/workspace/work-log.json</code> (직원이 작업 시작·완료 시 기록) · 30초마다 자동 갱신<br>
+  기록 규칙 <code>.claude/skills/work-log/SKILL.md</code> · 사업팀별 라이브러리는 <a href="index.html">워크스페이스</a> · 전체 현황(작업중·미작업·막힘)은 <a href="board.html"><b>작업 현황판</b></a></p>
+</footer>
+
+</div>
+<script>
+(function(){
+'use strict';
+var LOCAL='./work-log.json';   // 1순위: 같은 출처(Netlify) — 인증·레이트리밋 없음
+var RAW='https://raw.githubusercontent.com/hosthelper/hosthelper/claude/ai-team-20-employees/apps/workspace/work-log.json';
+var API='https://api.github.com/repos/hosthelper/hosthelper/contents/apps/workspace/work-log.json?ref=claude/ai-team-20-employees';
+// ⚠️ 저장소가 비공개이면 RAW·API 는 브라우저에서 404 → LOCAL(배포본)만 동작합니다.
+var STALE_MIN=30;   // heartbeat 이만큼 멈추면 '응답 없음'
+
+var TEAMS={
+  changup:{nm:'창업이지·공실헬퍼',ic:'🔑',c:'var(--changup)'},
+  life:{nm:'라이프헬퍼',ic:'🏠',c:'var(--life)'},
+  house:{nm:'하우스헬퍼',ic:'🛒',c:'var(--house)'},
+  academy:{nm:'아카데미',ic:'📚',c:'var(--academy)'},
+  next:{nm:'넥스트헬퍼',ic:'🧭',c:'var(--next)'},
+  hq:{nm:'본부',ic:'🏛️',c:'var(--hq)'}
+};
+var cur='all', DATA=[], tick=null;
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function T(k){return TEAMS[k]||TEAMS.hq;}
+function mins(a,b){return Math.max(0,Math.round((new Date(b)-new Date(a))/60000));}
+function dur(m){return m<60?m+'분':Math.floor(m/60)+'시간 '+(m%60)+'분';}
+function ago(iso){var m=mins(iso,new Date());return m<1?'방금':m<60?m+'분 전':m<1440?Math.floor(m/60)+'시간 전':Math.floor(m/1440)+'일 전';}
+function hhmm(iso){var d=new Date(iso);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function isStale(e){return e.status==='running' && mins(e.heartbeat||e.startedAt,new Date())>STALE_MIN;}
+function inTeam(e){return cur==='all'||e.agency===cur;}
+
+function renderTabs(){
+  var c={}; DATA.forEach(function(e){c[e.agency]=(c[e.agency]||0)+1;});
+  var h='<button class="tab'+(cur==='all'?' on':'')+'" data-k="all">전체 '+DATA.length+'</button>';
+  Object.keys(TEAMS).forEach(function(k){
+    if(!c[k])return;
+    h+='<button class="tab'+(cur===k?' on':'')+'" data-k="'+k+'">'+TEAMS[k].ic+' '+esc(TEAMS[k].nm)+' '+c[k]+'</button>';
+  });
+  document.getElementById('tabs').innerHTML=h;
+}
+
+function card(e){
+  var t=T(e.agency), stale=isStale(e);
+  var st = e.status==='running' ? (stale
+        ? '<span class="st stale">⚠ 응답 없음</span>'
+        : '<span class="st run"><span class="pip"></span>진행중</span>')
+    : e.status==='waiting' ? '<span class="st wait">결정 대기</span>'
+    : e.status==='blocked' ? '<span class="st block">막힘</span>'
+    : '<span class="st done">완료</span>';
+  var meta='';
+  if(e.status==='running'){
+    meta='<span class="el" data-since="'+esc(e.startedAt)+'">'+dur(mins(e.startedAt,new Date()))+'째</span>'
+       +'<span>'+hhmm(e.startedAt)+' 시작</span>'
+       +(stale?'<span>heartbeat '+ago(e.heartbeat||e.startedAt)+'</span>':'');
+  }else{
+    meta='<span>'+dur(mins(e.startedAt,e.endedAt||e.startedAt))+' 소요</span><span>'+ago(e.endedAt||e.startedAt)+'</span>';
+  }
+  if(e.output) meta+='<span class="out">'+esc(e.output)+'</span>';
+  if(e.note) meta+='<span>'+esc(e.note)+'</span>';
+  return '<div class="card'+(e.status==='running'&&!stale?' run':'')+'" style="--ac:'+t.c+'">'
+    +'<div class="top"><span class="who">'+esc(e.agent)+'</span>'+st
+    +'<span class="team">'+t.ic+' '+esc(t.nm)+'</span></div>'
+    +'<div class="task">'+esc(e.task)+'</div>'
+    +'<div class="meta">'+meta+'</div></div>';
+}
+
+function render(){
+  var list=DATA.filter(inTeam);
+  var run=list.filter(function(e){return e.status==='running';});
+  var wait=list.filter(function(e){return e.status==='waiting'||e.status==='blocked';});
+  var done=list.filter(function(e){return e.status==='done';});
+
+  // 직원별 집계
+  var by={}; list.forEach(function(e){by[e.agent]=(by[e.agent]||0)+1;});
+  var top=Object.keys(by).map(function(k){return {a:k,n:by[k]};}).sort(function(x,y){return y.n-x.n;}).slice(0,8);
+  var mx=top.length?top[0].n:1;
+  var agentTeam={}; list.forEach(function(e){agentTeam[e.agent]=e.agency;});
+
+  var h='';
+  h+='<h2>🟢 지금 진행중 <span class="c">'+run.length+'</span></h2>'
+   + '<p class="hint">경과 시간이 1초마다 올라갑니다. 30분 넘게 소식 없으면 «응답 없음»으로 바뀝니다.</p>'
+   + (run.length?'<div class="list">'+run.map(card).join('')+'</div>'
+       :'<div class="empty">지금 진행중인 작업이 없습니다.</div>');
+
+  h+='<h2>🟠 결정 대기 · 막힘 <span class="c">'+wait.length+'</span></h2>'
+   + '<p class="hint">직원은 끝냈고, 대표님이 눌러야 진행되는 것들입니다.</p>'
+   + (wait.length?'<div class="list">'+wait.map(card).join('')+'</div>'
+       :'<div class="empty">대기 중인 작업이 없습니다.</div>');
+
+  h+='<h2>✅ 완료 <span class="c">'+done.length+'</span></h2>'
+   + (done.length?'<div class="list">'+done.map(card).join('')+'</div>'
+       :'<div class="empty">완료 기록이 없습니다.</div>');
+
+  if(top.length){
+    h+='<h2>👥 직원별 작업량 <span class="c">상위 '+top.length+'</span></h2>'
+     + '<div class="stats">'+top.map(function(x){
+        var t=T(agentTeam[x.a]);
+        return '<div class="sc" style="--ac:'+t.c+'"><div class="n">'+esc(x.a)+'</div>'
+          +'<div class="b"><div class="f" style="width:'+Math.round(x.n/mx*100)+'%"></div></div>'
+          +'<div class="v">'+x.n+'건</div></div>';
+      }).join('')+'</div>';
+  }
+  document.getElementById('main').innerHTML=h;
+  startTick();
+}
+
+/* 진행중 경과시간 1초 카운트업 */
+function startTick(){
+  if(tick)clearInterval(tick);
+  var els=document.querySelectorAll('.el[data-since]');
+  if(!els.length)return;
+  tick=setInterval(function(){
+    document.querySelectorAll('.el[data-since]').forEach(function(el){
+      el.textContent=dur(mins(el.dataset.since,new Date()))+'째';
+    });
+  },1000);
+}
+
+function setB(on,txt){var b=document.getElementById('badge');b.className='badge'+(on?' on':'');document.getElementById('btxt').textContent=txt;}
+
+function load(){
+  setB(false,'불러오는 중…');
+  fetch(LOCAL+'?t='+Date.now(),{cache:'no-store'})
+    .then(function(r){if(!r.ok)throw new Error('local');return r.json();})
+    .catch(function(){   // 로컬 실패 시 raw 폴백 (공개 저장소일 때만 동작)
+      return fetch(RAW+'?t='+Date.now(),{cache:'no-store'})
+        .then(function(r){if(!r.ok)throw new Error('raw');return r.json();});
+    })
+    .catch(function(){   // raw 실패 시 API 폴백
+      return fetch(API,{headers:{'Accept':'application/vnd.github.raw'},cache:'no-store'})
+        .then(function(r){if(!r.ok)throw new Error('api');return r.json();});
+    })
+    .then(function(d){
+      DATA=(d.entries||[]).slice();
+      renderTabs(); render();
+      var n=DATA.filter(function(e){return e.status==='running'&&!isStale(e);}).length;
+      setB(true,(n?'🟢 '+n+'명 작업중':'대기중')+' · '+hhmm(new Date()));
+    })
+    .catch(function(){
+      setB(false,'연결 실패 — 새로고침');
+      document.getElementById('main').innerHTML='<div class="empty">작업 로그를 불러오지 못했습니다. 이 화면은 work-log.json 과 같은 주소에 배포돼 있어야 동작합니다(Netlify). 파일을 직접 더블클릭해 열면 이 메시지가 뜹니다.</div>';
+    });
+}
+
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  cur=b.dataset.k; renderTabs(); render(); window.scrollTo({top:0});
+});
+document.getElementById('rf').addEventListener('click',load);
+load(); setInterval(load,30000);
+})();
+</script>
+</body>
+</html>
