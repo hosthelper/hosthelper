@@ -48,6 +48,14 @@
 3. **주간 리듬**: 각 리드가 KPI를 weekly-report에 인계 → 통합 현황판.
 4. **사람 최종 확인** 원칙은 에이전시 단위에서도 동일(금전·법률·대외발송·계약).
 
+## 🎯 직군 체계 (제로투원)
+
+각 에이전시는 6개 직군을 **차출**해 일한다 — 제공자(**PM·MD·Designer**) / 전달자(**Operator·Marketer·PjM**).
+사업체 × 직군 배치 매트릭스와 작업 체인은 **`docs/ZERO_TO_ONE.md`** 참고.
+
+**시스템 3축**(대표 없이도 돌아가게 만드는 것): ① 타임테이블 ② 역할 분담 ③ 트래킹 — `role-pjm`이 관리하며,
+특히 "**사람이 안 눌러서 멈춘 흐름**"을 정기 점검한다.
+
 ## 🔁 자기개선 루프 (Hermes 이식 · skill-evolve)
 
 모든 에이전시는 작업 종료 시:
@@ -60,4 +68,4 @@
 - 외부 에이전트 연결(타사 서비스)은 privacy-guard 게이트 통과 후에만.
 
 ## 관련 문서
-명부 `AI_TEAM.md` · 운영 `COMPANY_OS.md`(PR #64) · 퍼널 `CHANGUP_FUNNEL.md` · 개발 `DEV_WORKFLOW.md` · 학습 `TEAM_MEMORY.md`
+명부 `AI_TEAM.md` · 직군 `ZERO_TO_ONE.md` · 운영 `COMPANY_OS.md`(PR #64) · 퍼널 `CHANGUP_FUNNEL.md` · 개발 `DEV_WORKFLOW.md` · 학습 `TEAM_MEMORY.md`
