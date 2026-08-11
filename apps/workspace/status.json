@@ -1,0 +1,478 @@
+{
+  "updatedAt": "2026-08-11T18:08:25Z",
+  "repo": "hosthelper/hosthelper",
+  "source": "github-actions · LLM 미사용 · 크레딧 0",
+  "counts": {
+    "working": 1,
+    "todo": 7,
+    "blocked": 2,
+    "prsOpen": 9,
+    "doneRecent": 0
+  },
+  "tasks": [
+    {
+      "number": 76,
+      "title": "작업 현황 자동 집계 시스템 — 크레딧 0으로 5분마다 갱신",
+      "url": "https://github.com/hosthelper/hosthelper/issues/76",
+      "state": "working",
+      "biz": "본부",
+      "labels": [
+        "사업:본부",
+        "상태:작업중"
+      ],
+      "assignee": null,
+      "createdAt": "2026-08-11T16:19:18Z",
+      "updatedAt": "2026-08-11T16:19:18Z"
+    },
+    {
+      "number": 75,
+      "title": "소모임 220명 → 첫 중개사·투자자 전환 (유일한 실제 청중)",
+      "url": "https://github.com/hosthelper/hosthelper/issues/75",
+      "state": "todo",
+      "biz": "경매헬퍼",
+      "labels": [
+        "사업:경매헬퍼"
+      ],
+      "assignee": null,
+      "createdAt": "2026-08-11T16:19:02Z",
+      "updatedAt": "2026-08-11T16:19:02Z"
+    },
+    {
+      "number": 74,
+      "title": "창업이지 폐쇄 정리 — 무엇을 버리고 무엇을 경매헬퍼로 옮길지",
+      "url": "https://github.com/hosthelper/hosthelper/issues/74",
+      "state": "todo",
+      "biz": "창업이지",
+      "labels": [
+        "사업:창업이지"
+      ],
+      "assignee": null,
+      "createdAt": "2026-08-11T16:18:50Z",
+      "updatedAt": "2026-08-11T16:18:50Z"
+    },
+    {
+      "number": 73,
+      "title": "중개사 모집 랜딩 + \"이 물건 숙박 수익 얼마\" 계산 미끼",
+      "url": "https://github.com/hosthelper/hosthelper/issues/73",
+      "state": "todo",
+      "biz": "경매헬퍼",
+      "labels": [
+        "사업:경매헬퍼"
+      ],
+      "assignee": null,
+      "createdAt": "2026-08-11T16:18:35Z",
+      "updatedAt": "2026-08-11T16:18:35Z"
+    },
+    {
+      "number": 72,
+      "title": "경매헬퍼 포지셔닝 확정 — \"새 사업\"이 아니라 라이프헬퍼 호실 공급 엔진",
+      "url": "https://github.com/hosthelper/hosthelper/issues/72",
+      "state": "todo",
+      "biz": "경매헬퍼",
+      "labels": [
+        "사업:경매헬퍼"
+      ],
+      "assignee": null,
+      "createdAt": "2026-08-11T16:18:18Z",
+      "updatedAt": "2026-08-11T16:18:18Z"
+    },
+    {
+      "number": 71,
+      "title": "K-컬처 체험 상품화 — 한림예고 19명 사례를 반복 가능한 패키지로",
+      "url": "https://github.com/hosthelper/hosthelper/issues/71",
+      "state": "todo",
+      "biz": "라이프헬퍼",
+      "labels": [
+        "사업:라이프헬퍼"
+      ],
+      "assignee": null,
+      "createdAt": "2026-08-11T16:18:03Z",
+      "updatedAt": "2026-08-11T16:18:03Z"
+    },
+    {
+      "number": 70,
+      "title": "대표 부재 시에도 도는 운영 매뉴얼 — 단일 인물 리스크 해소",
+      "url": "https://github.com/hosthelper/hosthelper/issues/70",
+      "state": "todo",
+      "biz": "라이프헬퍼",
+      "labels": [
+        "사업:라이프헬퍼"
+      ],
+      "assignee": null,
+      "createdAt": "2026-08-11T16:17:48Z",
+      "updatedAt": "2026-08-11T16:17:48Z"
+    },
+    {
+      "number": 69,
+      "title": "라이프헬퍼 호실별 손익(P&L) 확정 — 2200만원의 정체 파악",
+      "url": "https://github.com/hosthelper/hosthelper/issues/69",
+      "state": "todo",
+      "biz": "라이프헬퍼",
+      "labels": [
+        "사업:라이프헬퍼"
+      ],
+      "assignee": null,
+      "createdAt": "2026-08-11T16:17:36Z",
+      "updatedAt": "2026-08-11T16:17:36Z"
+    },
+    {
+      "number": 68,
+      "title": "[막힘] PR 9건 결정 대기 — 최장 51일, 머지 이력 0건",
+      "url": "https://github.com/hosthelper/hosthelper/issues/68",
+      "state": "blocked",
+      "biz": "본부",
+      "labels": [
+        "상태:막힘",
+        "사업:본부"
+      ],
+      "assignee": null,
+      "createdAt": "2026-08-11T16:17:24Z",
+      "updatedAt": "2026-08-11T16:17:24Z"
+    },
+    {
+      "number": 67,
+      "title": "[막힘] 워크스페이스 Netlify 배포 — 보드가 안 보이는 근본 원인",
+      "url": "https://github.com/hosthelper/hosthelper/issues/67",
+      "state": "blocked",
+      "biz": "본부",
+      "labels": [
+        "상태:막힘",
+        "사업:본부"
+      ],
+      "assignee": null,
+      "createdAt": "2026-08-11T16:17:09Z",
+      "updatedAt": "2026-08-11T16:17:09Z"
+    }
+  ],
+  "done": [],
+  "prs": [
+    {
+      "number": 66,
+      "title": "fix(changup-site): 설문 리드 유실 방지 — 3중 안전장치",
+      "url": "https://github.com/hosthelper/hosthelper/pull/66",
+      "isDraft": true,
+      "mergeable": "MERGEABLE",
+      "createdAt": "2026-08-11T11:47:41Z",
+      "updatedAt": "2026-08-11T11:48:12Z",
+      "size": 89,
+      "files": 1
+    },
+    {
+      "number": 65,
+      "title": "feat(changup-site): 기사별 정적 SEO 페이지 + 전체 sitemap — 검색 유입 복구",
+      "url": "https://github.com/hosthelper/hosthelper/pull/65",
+      "isDraft": true,
+      "mergeable": "MERGEABLE",
+      "createdAt": "2026-08-08T11:28:03Z",
+      "updatedAt": "2026-08-08T11:32:57Z",
+      "size": 1006,
+      "files": 20
+    },
+    {
+      "number": 64,
+      "title": "feat(company-os): AI 회사 OS — 운영 체계 · 프롬프트팩 · AI 직원 7명 · 브랜드 메모리",
+      "url": "https://github.com/hosthelper/hosthelper/pull/64",
+      "isDraft": true,
+      "mergeable": "MERGEABLE",
+      "createdAt": "2026-08-07T02:34:02Z",
+      "updatedAt": "2026-08-09T03:10:01Z",
+      "size": 1841,
+      "files": 28
+    },
+    {
+      "number": 63,
+      "title": "content(docs): 한복 K-문화 체험 기획 + 링크 전환 플레이북",
+      "url": "https://github.com/hosthelper/hosthelper/pull/63",
+      "isDraft": true,
+      "mergeable": "MERGEABLE",
+      "createdAt": "2026-08-02T17:18:31Z",
+      "updatedAt": "2026-08-04T01:12:24Z",
+      "size": 199,
+      "files": 3
+    },
+    {
+      "number": 35,
+      "title": "fix(changup-content): 매일 자동 발행 복구 — 모델 고정 + 스케줄 신뢰도",
+      "url": "https://github.com/hosthelper/hosthelper/pull/35",
+      "isDraft": true,
+      "mergeable": "CONFLICTING",
+      "createdAt": "2026-07-23T00:49:56Z",
+      "updatedAt": "2026-07-23T00:50:12Z",
+      "size": 5,
+      "files": 1
+    },
+    {
+      "number": 24,
+      "title": "feat(ai-team): AI 직원 조직 + 크레딧 0 작업 현황 자동 집계 시스템",
+      "url": "https://github.com/hosthelper/hosthelper/pull/24",
+      "isDraft": true,
+      "mergeable": "MERGEABLE",
+      "createdAt": "2026-07-22T03:25:47Z",
+      "updatedAt": "2026-08-11T18:08:20Z",
+      "size": 3137,
+      "files": 64
+    },
+    {
+      "number": 23,
+      "title": "infra(brev): NVIDIA AI Workbench 워크샵 노드 부트스트랩 스크립트 추가",
+      "url": "https://github.com/hosthelper/hosthelper/pull/23",
+      "isDraft": true,
+      "mergeable": "MERGEABLE",
+      "createdAt": "2026-07-22T03:07:54Z",
+      "updatedAt": "2026-07-22T03:08:07Z",
+      "size": 305,
+      "files": 2
+    },
+    {
+      "number": 8,
+      "title": "거래 루프 완결: 스케줄 등록·오퍼 수락·작업 승인·정산 생성 + 사업 문서",
+      "url": "https://github.com/hosthelper/hosthelper/pull/8",
+      "isDraft": true,
+      "mergeable": "CONFLICTING",
+      "createdAt": "2026-07-02T04:02:42Z",
+      "updatedAt": "2026-07-02T05:47:10Z",
+      "size": 1668,
+      "files": 35
+    },
+    {
+      "number": 7,
+      "title": "feat(video): 영상 링크 요약·분석 기능",
+      "url": "https://github.com/hosthelper/hosthelper/pull/7",
+      "isDraft": true,
+      "mergeable": "CONFLICTING",
+      "createdAt": "2026-06-21T20:45:18Z",
+      "updatedAt": "2026-06-22T05:48:03Z",
+      "size": 2144,
+      "files": 37
+    }
+  ],
+  "commits": [
+    {
+      "at": "2026-07-30T10:17:12Z",
+      "msg": "content(changup-site): 채널 운영 복붙 훅 뱅크 추가 — 실행 마찰 감소 (#62)",
+      "sha": "4679701",
+      "who": "hosthelper"
+    },
+    {
+      "at": "2026-07-30T09:16:52Z",
+      "msg": "content(changup-site): 홈에 양도인 매물 등록 CTA 추가 — 공급 진입점 (#61)",
+      "sha": "d0fc89b",
+      "who": "hosthelper"
+    },
+    {
+      "at": "2026-07-30T08:15:14Z",
+      "msg": "content(changup-site): 정책자금 기사 훅 오퍼 브릿지 + 보드 회의 로그 (#52)",
+      "sha": "4634dcf",
+      "who": "hosthelper"
+    },
+    {
+      "at": "2026-07-30T07:36:25Z",
+      "msg": "content(changup-site): 대표 FMF 스토리 온사이트 강화 — 스토리릴과 일관 (#60)",
+      "sha": "a964733",
+      "who": "hosthelper"
+    },
+    {
+      "at": "2026-07-30T06:16:39Z",
+      "msg": "compliance(changup-site): 자기지칭 '중개' 워딩 제거 — 중개법 방어 일관성 (#59)",
+      "sha": "abf4944",
+      "who": "hosthelper"
+    },
+    {
+      "at": "2026-07-30T05:17:15Z",
+      "msg": "content(changup-site): 채널 확장 키트 최신자산 일반화 + 자동게시 게이트 명시 (#58)",
+      "sha": "ec6e777",
+      "who": "hosthelper"
+    },
+    {
+      "at": "2026-07-30T04:16:25Z",
+      "msg": "content(changup-site): 3종 안심 패키지 오퍼 개선 — 결과중심 네이밍 + 위험 역전 (#57)",
+      "sha": "0851562",
+      "who": "hosthelper"
+    },
+    {
+      "at": "2026-07-30T03:19:06Z",
+      "msg": "fix(changup-site): 설문 유입 귀속 100% — /s/ 태깅 누락 수정 + 포맷 표준화 (#56)",
+      "sha": "80e96b1",
+      "who": "hosthelper"
+    },
+    {
+      "at": "2026-07-30T02:15:38Z",
+      "msg": "content(changup-site): 채널 운영 — 양도인 아웃바운드 매일 상향 + 유입 태깅 (#55)",
+      "sha": "b92212f",
+      "who": "hosthelper"
+    },
+    {
+      "at": "2026-07-30T01:20:52Z",
+      "msg": "content(changup-site): 양도인 아웃바운드 — 무료 권리금 진단 미끼 + 유입 태깅 (#54)",
+      "sha": "2fbc358",
+      "who": "hosthelper"
+    },
+    {
+      "at": "2026-07-30T01:17:32Z",
+      "msg": "reel(changup-site): 데일리 릴스 자동 합성 — jeongchaek-geojeol [skip ci]",
+      "sha": "c2beac9",
+      "who": "reel-bot"
+    },
+    {
+      "at": "2026-07-30T01:15:59Z",
+      "msg": "reel(changup-site): 정책자금 거절 사유 편 데일리 릴스 자산 (#53)",
+      "sha": "aabfe1c",
+      "who": "hosthelper"
+    },
+    {
+      "at": "2026-07-29T23:44:06Z",
+      "msg": "content(changup-site): 오늘 기사 — 정책자금 거절 사유 4가지 (#51)",
+      "sha": "43e7bde",
+      "who": "hosthelper"
+    },
+    {
+      "at": "2026-07-29T00:55:54Z",
+      "msg": "reel(changup-site): 데일리 릴스 자동 합성 — onsang [skip ci]",
+      "sha": "8699d95",
+      "who": "reel-bot"
+    },
+    {
+      "at": "2026-07-29T00:54:10Z",
+      "msg": "reel(changup-site): 온라인 상권조사 릴스 합성 트리거",
+      "sha": "a1a704c",
+      "who": "Claude"
+    },
+    {
+      "at": "2026-07-29T00:53:55Z",
+      "msg": "reel(changup-site): 온라인 상권조사 편 데일리 릴스 자산 (#50)",
+      "sha": "3b365cc",
+      "who": "hosthelper"
+    },
+    {
+      "at": "2026-07-28T23:43:16Z",
+      "msg": "content(changup-site): 오늘 기사 — 온라인 상권조사 순서 (#49)",
+      "sha": "14310d5",
+      "who": "hosthelper"
+    },
+    {
+      "at": "2026-07-28T00:57:30Z",
+      "msg": "reel(changup-site): 데일리 릴스 자동 합성 — operation [skip ci]",
+      "sha": "c85881f",
+      "who": "reel-bot"
+    },
+    {
+      "at": "2026-07-28T00:55:22Z",
+      "msg": "reel(changup-site): 운영방식 릴스 합성 트리거",
+      "sha": "505cc7a",
+      "who": "Claude"
+    },
+    {
+      "at": "2026-07-28T00:55:09Z",
+      "msg": "reel(changup-site): 운영방식 편 데일리 릴스 자산 (#48)",
+      "sha": "87e24e2",
+      "who": "hosthelper"
+    }
+  ],
+  "runs": [
+    {
+      "at": "2026-08-11T18:08:18Z",
+      "conclusion": null,
+      "name": "CI",
+      "status": "in_progress",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31521149133"
+    },
+    {
+      "at": "2026-08-11T18:08:17Z",
+      "conclusion": null,
+      "name": "작업 현황 집계 (status snapshot)",
+      "status": "in_progress",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31521148903"
+    },
+    {
+      "at": "2026-08-11T18:08:14Z",
+      "conclusion": null,
+      "name": "CI",
+      "status": "in_progress",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31521145272"
+    },
+    {
+      "at": "2026-08-11T16:21:01Z",
+      "conclusion": "success",
+      "name": "작업 현황 집계 (status snapshot)",
+      "status": "completed",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31511882039"
+    },
+    {
+      "at": "2026-08-11T16:22:48Z",
+      "conclusion": "success",
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31511881819"
+    },
+    {
+      "at": "2026-08-11T16:22:33Z",
+      "conclusion": "success",
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31511877574"
+    },
+    {
+      "at": "2026-08-11T12:41:33Z",
+      "conclusion": "success",
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31492287944"
+    },
+    {
+      "at": "2026-08-11T12:41:47Z",
+      "conclusion": "success",
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31492284123"
+    },
+    {
+      "at": "2026-08-11T12:10:39Z",
+      "conclusion": "success",
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31489836212"
+    },
+    {
+      "at": "2026-08-11T12:10:42Z",
+      "conclusion": "success",
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31489831770"
+    },
+    {
+      "at": "2026-08-11T11:49:53Z",
+      "conclusion": "success",
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31488220005"
+    },
+    {
+      "at": "2026-08-11T11:49:14Z",
+      "conclusion": "success",
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31488194729"
+    },
+    {
+      "at": "2026-08-11T11:45:43Z",
+      "conclusion": "success",
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31487918002"
+    },
+    {
+      "at": "2026-08-11T11:45:39Z",
+      "conclusion": "success",
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31487914225"
+    },
+    {
+      "at": "2026-08-11T11:22:42Z",
+      "conclusion": "success",
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/hosthelper/hosthelper/actions/runs/31486214624"
+    }
+  ]
+}
