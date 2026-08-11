@@ -185,7 +185,8 @@ function render(d){
     var old = days(p.createdAt);
     return row({num:'#'+p.number, title:p.title, href:p.url, ac: old>14?'var(--block)':'var(--pr)',
       meta:'<span class="chip '+(old>14?'b':'p')+'">'+old+'일 대기</span>'
-         + '<span>'+p.files+'개 파일 · '+p.size+'줄</span>'
+         + (p.files!=null && p.size!=null ? '<span>'+p.files+'개 파일 · '+p.size+'줄</span>'
+            : p.files!=null ? '<span>'+p.files+'개 파일</span>' : '')
          + (p.isDraft?'<span class="chip">초안</span>':'')});
   }).join(''), '열린 PR 없음');
 
