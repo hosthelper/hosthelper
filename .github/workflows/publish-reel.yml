@@ -1,7 +1,16 @@
 name: 창업정보 릴스 자동 게시 (인스타·유튜브)
 
-# reel_<prefix>.mp4 가 main에 올라오면(=합성 완료) 인스타 릴스 + 유튜브 쇼츠에 자동 게시.
+# 데일리 릴스 빌드가 끝나면(=합성 완료) 인스타 릴스 + 스레드 + 유튜브 쇼츠에 자동 게시.
+#
+# [중요] 트리거가 push 가 아니라 workflow_run 인 이유:
+#   build-reel-daily 는 GITHUB_TOKEN 으로 main 에 푸시한다. GitHub Actions 는
+#   GITHUB_TOKEN 으로 만든 커밋에 대해 push 워크플로를 트리거하지 않는다
+#   (workflow_dispatch·repository_dispatch 만 예외). 커밋 메시지의 [skip ci] 를
+#   지워도 마찬가지다. workflow_run 은 이 제약을 받지 않으므로 새 시크릿 없이 동작한다.
+#
 # 토큰(Secrets)이 없으면 각 채널을 조용히 건너뜁니다 — 세팅 전에도 CI가 실패하지 않음.
+# 주의: 워크플로가 초록색이어도 게시되지 않았을 수 있습니다. 판정은 Notify Telegram 메시지의
+#       채널별 상태(skip/ok/error)로 하세요.
 # 필요한 Secrets:
 #   META_ACCESS_TOKEN, IG_USER_ID                (인스타 릴스)
 #   THREADS_ACCESS_TOKEN, THREADS_USER_ID         (스레드 @changupmoim)
@@ -10,9 +19,10 @@ name: 창업정보 릴스 자동 게시 (인스타·유튜브)
 # 자세한 발급법: apps/changup-site/reel/daily/PUBLISH_SETUP.md
 
 on:
-  push:
+  workflow_run:
+    workflows: ["창업정보 데일리 릴스 빌드"]
+    types: [completed]
     branches: [main]
-    paths: ['apps/changup-site/reel/reel_*.mp4']
   workflow_dispatch:
 
 permissions:
@@ -25,10 +35,14 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'hosthelper/hosthelper' }}
+    if: >-
+      ${{ github.repository == 'hosthelper/hosthelper' &&
+          (github.event_name == 'workflow_dispatch' ||
+           github.event.workflow_run.conclusion == 'success') }}
     steps:
       - uses: actions/checkout@v4
-        with: { ref: main }
+        # fetch-depth 2 이상이어야 아래 "이번 커밋에 릴스 변경이 있었는지" 판정이 가능하다.
+        with: { ref: main, fetch-depth: 2 }
 
       - name: Install tools
         run: sudo apt-get update -qq && sudo apt-get install -y -qq jq curl
@@ -39,6 +53,18 @@ jobs:
           set -euo pipefail
           M=apps/changup-site/reel/daily/manifest.json
           PREFIX=$(jq -r '.prefix' "$M")
+
+          # 중복 게시 방지 — 빌드가 "no changes" 로 끝나도 workflow_run 은 발화한다.
+          # 수동 실행이 아니면, 이번 HEAD 커밋이 해당 릴스를 건드렸을 때만 게시한다.
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            LAST=$(git log -1 --format=%H -- "apps/changup-site/reel/reel_${PREFIX}.mp4")
+            if [ "$LAST" != "$(git rev-parse HEAD)" ]; then
+              echo "이번 커밋에 reel_${PREFIX}.mp4 변경 없음 — 게시 건너뜀"
+              echo "skip=1" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
           TITLE=$(jq -r '.title // "창업정보 모임"' "$M")
           CAPTION=$(jq -r '.caption // empty' "$M")
           if [ -z "$CAPTION" ]; then
@@ -51,6 +77,7 @@ jobs:
 
       - name: Publish Instagram Reel
         id: ig
+        if: ${{ steps.meta.outputs.skip != '1' }}
         env:
           META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
@@ -86,6 +113,7 @@ jobs:
 
       - name: Publish Threads
         id: th
+        if: ${{ steps.meta.outputs.skip != '1' }}
         env:
           THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
           THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
@@ -117,6 +145,7 @@ jobs:
 
       - name: Publish YouTube Short
         id: yt
+        if: ${{ steps.meta.outputs.skip != '1' }}
         env:
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
@@ -145,7 +174,7 @@ jobs:
           if [ -n "$VID" ]; then echo "YT 업로드 완료(비공개) id=$VID"; echo "status=ok" >> "$GITHUB_OUTPUT"; else echo "YT 업로드 실패: $RESP"; echo "status=error" >> "$GITHUB_OUTPUT"; fi
 
       - name: Notify Telegram
-        if: ${{ always() }}
+        if: ${{ always() && steps.meta.outputs.skip != '1' }}
         env:
           TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
