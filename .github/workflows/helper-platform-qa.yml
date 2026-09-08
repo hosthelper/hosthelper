@@ -1,0 +1,21 @@
+name: Helper Platform QA
+on:
+  pull_request:
+    paths:
+      - 'previews/**'
+      - '.github/workflows/helper-platform-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'previews/**'
+      - '.github/workflows/helper-platform-qa.yml'
+jobs:
+  platform-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate Helper platform suite
+        run: node previews/qa-platform-core.mjs

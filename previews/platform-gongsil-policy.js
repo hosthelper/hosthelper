@@ -1,0 +1,4 @@
+(()=>{
+function apply(){if(!window.HU||window.HU.cfg.service!=='gongsil')return;document.querySelectorAll('[data-hu-signup]').forEach(b=>b.style.display='none');const modal=document.querySelector('.huModalBack');if(!modal)return;modal.querySelector('[data-hu-auth-tab="signup"]')?.setAttribute('hidden','');const login=modal.querySelector('[data-hu-auth-form="login"]');if(login){login.querySelectorAll('label').forEach(l=>l.style.display='none');login.querySelector('button[type="submit"]')?.setAttribute('hidden','');const kakao=login.querySelector('[data-hu-kakao]');if(kakao)kakao.textContent='카카오로 인증하고 계속';}const h=modal.querySelector('h2');if(h)h.textContent='공실헬퍼 카카오 인증';const p=modal.querySelector('p');if(p)p.textContent='공실헬퍼는 허위매물·사기 방지와 검증된 당사자 간 연결을 위해 거래 기능에 카카오 인증을 별도로 적용합니다. Helper ID가 있어도 카카오 검증 전에는 문의·매물등록 기능이 열리지 않습니다.'}
+if(window.HU)apply();document.addEventListener('hu:ready',apply);document.addEventListener('hu:auth',()=>setTimeout(apply,0));
+})();
