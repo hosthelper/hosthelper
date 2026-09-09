@@ -18,4 +18,6 @@ jobs:
         with:
           node-version: '20'
       - name: Validate Helper platform suite
-        run: node previews/qa-platform-core.mjs
+        run: |
+          node previews/qa-platform-core.mjs
+          node previews/qa-reference-suite-v3.mjs
