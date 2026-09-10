@@ -214,7 +214,8 @@ model Booking {
   cleaningEndAt   DateTime
   status          BookingStatus  @default(DRAFT)
   notes           String?
-  quotedPrice     Int
+  // Snapshot 가격 (확정 시점)
+  quotedPrice     Int // 원
   platformFee     Int
   cleanerPayout   Int
   job             CleaningJob?
@@ -227,13 +228,13 @@ model Booking {
 }
 
 enum JobStatus {
-  REQUESTED
-  MATCHED
-  IN_PROGRESS
-  SUBMITTED
-  APPROVED
-  SETTLED
-  DISPUTED
+  REQUESTED   // booking 생성, 매칭 대기
+  MATCHED     // 청소사 확정
+  IN_PROGRESS // 청소사 도착·시작
+  SUBMITTED   // 청소사 완료 제출
+  APPROVED    // 호스트 승인 → 정산 대기
+  SETTLED     // 정산 완료
+  DISPUTED    // 분쟁
   CANCELLED
 }
 
@@ -267,17 +268,18 @@ model CleaningJob {
 // =========================================
 
 model MatchCandidate {
-  id             String      @id @default(cuid())
-  jobId          String
-  job            CleaningJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  cleanerId      String
-  score          Decimal     @db.Decimal(6, 4)
-  distanceKm     Decimal     @db.Decimal(6, 3)
-  ratingScore    Decimal     @db.Decimal(6, 4)
-  completedScore Decimal     @db.Decimal(6, 4)
-  rebookingScore Decimal     @db.Decimal(6, 4)
-  declinePenalty Decimal     @db.Decimal(6, 4)
-  computedAt     DateTime    @default(now())
+  id        String      @id @default(cuid())
+  jobId     String
+  job       CleaningJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  cleanerId String
+  score     Decimal     @db.Decimal(6, 4)
+  // Score breakdown (audit)
+  distanceKm    Decimal @db.Decimal(6, 3)
+  ratingScore   Decimal @db.Decimal(6, 4)
+  completedScore Decimal @db.Decimal(6, 4)
+  rebookingScore Decimal @db.Decimal(6, 4)
+  declinePenalty Decimal @db.Decimal(6, 4)
+  computedAt    DateTime @default(now())
 
   @@unique([jobId, cleanerId])
   @@index([jobId, score])
@@ -291,15 +293,15 @@ enum OfferRoundStatus {
 }
 
 model OfferRound {
-  id          String           @id @default(cuid())
-  jobId       String
-  job         CleaningJob      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  roundIdx    Int
-  cleanerId   String
-  status      OfferRoundStatus @default(PENDING)
-  expiresAt   DateTime
+  id        String           @id @default(cuid())
+  jobId     String
+  job       CleaningJob      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  roundIdx  Int // 1, 2, 3
+  cleanerId String
+  status    OfferRoundStatus @default(PENDING)
+  expiresAt DateTime
   respondedAt DateTime?
-  createdAt   DateTime         @default(now())
+  createdAt DateTime         @default(now())
 
   @@index([jobId, roundIdx])
   @@index([cleanerId, status])
@@ -310,54 +312,54 @@ model OfferRound {
 // =========================================
 
 model ChecklistRun {
-  id          String            @id @default(cuid())
-  jobId       String
-  job         CleaningJob       @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  templateId  String
-  startedAt   DateTime?
+  id        String       @id @default(cuid())
+  jobId     String
+  job       CleaningJob  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  templateId String
+  startedAt DateTime?
   completedAt DateTime?
-  results     ChecklistResult[]
+  results   ChecklistResult[]
 }
 
 model ChecklistResult {
-  id        String       @id @default(cuid())
-  runId     String
-  run       ChecklistRun @relation(fields: [runId], references: [id], onDelete: Cascade)
-  itemId    String
-  checked   Boolean      @default(false)
-  note      String?
-  photoIds  String[]     @default([])
-  checkedAt DateTime?
+  id          String        @id @default(cuid())
+  runId       String
+  run         ChecklistRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  itemId      String
+  checked     Boolean       @default(false)
+  note        String?
+  photoIds    String[]      @default([])
+  checkedAt   DateTime?
 
   @@unique([runId, itemId])
 }
 
 model Photo {
-  id         String      @id @default(cuid())
-  jobId      String
-  job        CleaningJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  s3Key      String
-  area       String?
-  kind       String
-  width      Int?
-  height     Int?
-  takenAt    DateTime?
+  id        String      @id @default(cuid())
+  jobId     String
+  job       CleaningJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  s3Key     String
+  area      String? // 거실, 침실1 등
+  kind      String // before, after, issue
+  width     Int?
+  height    Int?
+  takenAt   DateTime?
   uploadedAt DateTime    @default(now())
 
   @@index([jobId, kind])
 }
 
 model Review {
-  id        String      @id @default(cuid())
-  jobId     String
-  job       CleaningJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  authorId  String
-  author    User        @relation("ReviewAuthor", fields: [authorId], references: [id])
-  targetId  String
-  target    User        @relation("ReviewTarget", fields: [targetId], references: [id])
-  rating    Int
-  comment   String?
-  createdAt DateTime    @default(now())
+  id          String      @id @default(cuid())
+  jobId       String
+  job         CleaningJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  authorId    String // User.id (host or cleaner)
+  author      User        @relation("ReviewAuthor", fields: [authorId], references: [id])
+  targetId    String // User.id (cleaner or host)
+  target      User        @relation("ReviewTarget", fields: [targetId], references: [id])
+  rating      Int // 1-5
+  comment     String?
+  createdAt   DateTime    @default(now())
 
   @@unique([jobId, authorId])
   @@index([targetId])
@@ -368,18 +370,18 @@ model Review {
 // =========================================
 
 model PricingRule {
-  id               String   @id @default(cuid())
-  name             String
-  district         String?
-  baseFee          Int
-  perPyeong        Int
-  bedroomAdd       Int
-  nightSurcharge   Decimal  @default(1.0) @db.Decimal(4, 2)
-  holidaySurcharge Decimal  @default(1.0) @db.Decimal(4, 2)
-  dynamicCoef      Decimal  @default(1.0) @db.Decimal(4, 2)
-  active           Boolean  @default(true)
-  effectiveFrom    DateTime @default(now())
-  effectiveTo      DateTime?
+  id              String   @id @default(cuid())
+  name            String
+  district        String? // null = 전체
+  baseFee         Int // 원 (기본)
+  perPyeong       Int // 원/평
+  bedroomAdd      Int // 원/방
+  nightSurcharge  Decimal  @default(1.0) @db.Decimal(4, 2) // 야간 22-06시 배수
+  holidaySurcharge Decimal @default(1.0) @db.Decimal(4, 2)
+  dynamicCoef     Decimal  @default(1.0) @db.Decimal(4, 2)
+  active          Boolean  @default(true)
+  effectiveFrom   DateTime @default(now())
+  effectiveTo     DateTime?
 
   @@index([district, active])
 }
@@ -395,56 +397,60 @@ enum PaymentStatus {
 }
 
 model Payment {
-  id             String        @id @default(cuid())
-  bookingId      String        @unique
-  booking        Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  pgProvider     String        @default("toss")
-  pgPaymentKey   String?       @unique
-  orderId        String        @unique
-  amount         Int
-  status         PaymentStatus @default(READY)
-  method         String?
-  approvedAt     DateTime?
-  cancelledAt    DateTime?
-  failureCode    String?
-  failureMessage String?
-  rawResponse    Json?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id              String        @id @default(cuid())
+  bookingId       String        @unique
+  booking         Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  pgProvider      String        @default("toss")
+  pgPaymentKey    String?       @unique
+  orderId         String        @unique
+  amount          Int
+  status          PaymentStatus @default(READY)
+  method          String? // CARD, TRANSFER ...
+  approvedAt      DateTime?
+  cancelledAt     DateTime?
+  failureCode     String?
+  failureMessage  String?
+  rawResponse     Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@index([status])
 }
 
 enum PayoutStatus {
-  SCHEDULED
-  HOLDING
-  RELEASED
+  SCHEDULED // T+2 예약
+  HOLDING   // 분쟁 윈도우
+  RELEASED  // 송금 시도
   PAID
   FAILED
   HOLD_ON_DISPUTE
 }
 
 model Payout {
-  id             String         @id @default(cuid())
-  cleanerId      String
-  cleaner        CleanerProfile @relation(fields: [cleanerId], references: [id])
-  jobId          String         @unique
-  gross          Int
-  platformFee    Int
-  withholdingTax Int
-  net            Int
-  status         PayoutStatus   @default(SCHEDULED)
-  scheduledFor   DateTime
-  releasedAt     DateTime?
-  paidAt         DateTime?
-  bankCode       String?
-  bankAccount    String?
-  failureReason  String?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id              String         @id @default(cuid())
+  cleanerId       String
+  cleaner         CleanerProfile @relation(fields: [cleanerId], references: [id])
+  jobId           String         @unique
+  gross           Int // 결제액
+  platformFee     Int
+  withholdingTax  Int // 3.3% 원천세
+  net             Int // 실지급액
+  status          PayoutStatus   @default(SCHEDULED)
+  scheduledFor    DateTime
+  releasedAt      DateTime?
+  paidAt          DateTime?
+  bankCode        String?
+  bankAccount     String? // 암호화 저장 (별도 컬럼 또는 KMS)
+  failureReason   String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   @@index([status, scheduledFor])
 }
+
+// =========================================
+// 매칭 가중치 (런타임 조정)
+// =========================================
 
 model MatchingWeights {
   id              String   @id @default("default")
@@ -453,7 +459,7 @@ model MatchingWeights {
   wCompleted      Decimal  @default(0.15) @db.Decimal(4, 3)
   wRebooking      Decimal  @default(0.15) @db.Decimal(4, 3)
   wDeclinePenalty Decimal  @default(0.10) @db.Decimal(4, 3)
-  newCleanerBoost Decimal  @default(0.10) @db.Decimal(4, 3)
+  newCleanerBoost Decimal  @default(0.10) @db.Decimal(4, 3) // 신규 30일
   maxDistanceKm   Int      @default(10)
   topN            Int      @default(5)
   offerTtlMinutes Int      @default(15)
@@ -461,6 +467,12 @@ model MatchingWeights {
   updatedAt       DateTime @updatedAt
 }
 
+// =========================================
+// AI Native — Queryable Organization
+// =========================================
+
+// 운영 의사결정 감사 로그. AI 또는 사람이 내린 모든 정책·분쟁 결정이
+// 여기 남고 SQL로 쿼리 가능해야 한다. (인포그래픽 §Queryable Organization)
 enum DecisionKind {
   DISPUTE_TRIAGE
   PRICING_OVERRIDE
@@ -479,24 +491,24 @@ enum DecisionMaker {
 }
 
 enum DecisionStatus {
-  PROPOSED
-  APPROVED
-  OVERRIDDEN
-  EXECUTED
+  PROPOSED       // AI/시스템 제안 단계
+  APPROVED       // 사람이 승인
+  OVERRIDDEN     // 사람이 다르게 결정
+  EXECUTED       // 실제 액션까지 완료
   ROLLED_BACK
 }
 
 model Decision {
   id          String         @id @default(cuid())
   kind        DecisionKind
-  subjectType String
-  subjectId   String
+  subjectType String         // e.g. "CleaningJob", "Booking", "User"
+  subjectId   String         // 대상 엔티티 ID
   proposedBy  DecisionMaker
   decidedBy   DecisionMaker?
   status      DecisionStatus @default(PROPOSED)
   summary     String         @db.Text
-  payload     Json
-  confidence  Decimal?       @db.Decimal(4, 3)
+  payload     Json           // 전체 컨텍스트·증거·권고안
+  confidence  Decimal?       @db.Decimal(4, 3) // AI인 경우
   llmCallId   String?        @unique
   llmCall     LLMCall?       @relation(fields: [llmCallId], references: [id])
   createdAt   DateTime       @default(now())
@@ -507,15 +519,17 @@ model Decision {
   @@index([subjectType, subjectId])
 }
 
+// LLM 호출 회계 (Token Economy)
+// 인포그래픽 §Token Economy: 인건비→토큰비용 가시화.
 model LLMCall {
   id                       String    @id @default(cuid())
-  purpose                  String
+  purpose                  String    // "dispute_triage", "pricing_recommendation" ...
   model                    String
   inputTokens              Int
   outputTokens             Int
   cacheCreationInputTokens Int       @default(0)
   cacheReadInputTokens     Int       @default(0)
-  costUsdMicro             Int
+  costUsdMicro             Int       // USD * 1,000,000 (정밀도 유지)
   latencyMs                Int
   success                  Boolean   @default(true)
   errorMessage             String?
@@ -527,11 +541,17 @@ model LLMCall {
   @@index([model, createdAt])
 }
 
+// =========================================
+// Changup (창업이지) — 점포 양도 매물·예비창업자 리드 매칭
+// hosthelper 모델과 FK 없음 (분리 매각 가능, CLAUDE.md §6)
+// 참조: docs/adr/ADR-0003-changup-store-match.md
+// =========================================
+
 enum OperationType {
-  DIRECT
-  FULL_AUTO
-  CONSIGNMENT
-  FRANCHISE_HQ
+  DIRECT       // 직영
+  FULL_AUTO    // 풀오토
+  CONSIGNMENT  // 위탁
+  FRANCHISE_HQ // 본사
 }
 
 enum StoreListingStatus {
@@ -553,16 +573,17 @@ enum ContactChannel {
   KAKAO
 }
 
+// 양도 대상 점포 매물
 model StoreListing {
   id            String             @id @default(cuid())
   title         String
   description   String?            @db.Text
-  industry      String
-  region        String
+  industry      String // 업종 (자유 입력, 예: "카페")
+  region        String // 지역 (구 단위, Property.district 관례)
   operationType OperationType
-  deposit       Int
-  monthlyRent   Int
-  premium       Int
+  deposit       Int // 보증금 (원)
+  monthlyRent   Int // 월세 (원)
+  premium       Int // 권리금 (원)
   status        StoreListingStatus @default(ACTIVE)
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
@@ -570,21 +591,22 @@ model StoreListing {
   @@index([status, region])
 }
 
+// 예비창업자(매수자) 설문 리드
 model BuyerLead {
   id             String          @id @default(cuid())
   name           String
   phone          String
   contactChannel ContactChannel  @default(PHONE)
-  operationTypes OperationType[] @default([])
-  industries     String[]        @default([])
-  regions        String[]        @default([])
-  depositMax     Int?
-  rentMax        Int?
-  premiumMax     Int?
+  operationTypes OperationType[] @default([]) // 희망 운영 방식 (복수)
+  industries     String[]        @default([]) // 희망 업종 (복수)
+  regions        String[]        @default([]) // 희망 지역 (복수)
+  depositMax     Int? // 보증금 상한 (원, null = 무제한)
+  rentMax        Int? // 월세 상한 (원)
+  premiumMax     Int? // 권리금 상한 (원)
   notes          String?         @db.Text
   status         LeadStatus      @default(NEW)
-  phoneAt        DateTime?
-  visitAt        DateTime?
+  phoneAt        DateTime? // 전화상담 예약 일시
+  visitAt        DateTime? // 회사 방문(매물 브리핑) 예약 일시
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
