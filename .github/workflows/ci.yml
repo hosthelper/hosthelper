@@ -63,6 +63,9 @@ jobs:
       - name: Apply migrations
         run: pnpm --filter @hosthelper/db exec prisma migrate deploy
 
+      - name: Verify PMS Core W2 invariants
+        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f packages/db/prisma/tests/pms_core_w2_invariants.sql
+
       # smoke의 pricing/quote는 기본 PricingRule이 필요 (seed는 upsert라 멱등)
       - name: Seed
         run: pnpm --filter @hosthelper/db seed
