@@ -37,7 +37,7 @@ DO $$
 BEGIN
   BEGIN
     INSERT INTO "PmsReservationNight" (id, "reservationId", "stayDate", "roomTypeId", "occupiesInventory", "createdAt", "updatedAt")
-    VALUES ('pms-w2-night-mismatch', 'pms-w2-res-1', DATE '2026-10-01', 'pms-w2-room-b', true, now(), now());
+    VALUES ('pms-w2-night-mismatch', 'pms-w2-res-1', DATE '2026-10-02', 'pms-w2-room-b', true, now(), now());
     RAISE EXCEPTION 'expected reservation-night room type FK violation';
   EXCEPTION WHEN foreign_key_violation THEN NULL;
   END;
