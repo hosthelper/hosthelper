@@ -1,0 +1,200 @@
+// Canonical Prisma contract for PMS Core W2.
+// These models mirror migration 20260910141500_pms_core_w2 and are intended to be
+// merged into packages/db/prisma/schema.prisma once the preceding PMS Core V1 PR lands.
+// Keeping this as a separate reviewed contract avoids rewriting the large existing schema
+// before its dependency is merged.
+
+enum PmsReservationStatus {
+  DRAFT
+  HELD
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+  NO_SHOW
+}
+
+enum PmsReservationSource {
+  DIRECT
+  BOOKING_ENGINE
+  AIRBNB
+  BOOKING_COM
+  AGODA
+  EXPEDIA
+  NAVER
+  MANUAL
+  OTHER
+}
+
+enum PmsRoomUnitStatus {
+  ACTIVE
+  OUT_OF_ORDER
+  INACTIVE
+}
+
+enum PmsInventoryStopSellReason {
+  NONE
+  MANUAL
+  MAINTENANCE
+  SOLD_OUT
+  CHANNEL_SYNC
+}
+
+enum PmsReservationEventType {
+  CREATED
+  HELD
+  CONFIRMED
+  MODIFIED
+  CANCELLED
+  CHECKED_IN
+  CHECKED_OUT
+  NO_SHOW
+  INVENTORY_ALLOCATED
+  INVENTORY_RELEASED
+  CHANNEL_SYNCED
+}
+
+model PmsPropertyConfig {
+  id            String   @id @default(cuid())
+  propertyId    String   @unique
+  timezone      String   @default("Asia/Seoul")
+  currency      String   @default("KRW")
+  checkInTime   String   @default("15:00")
+  checkOutTime  String   @default("11:00")
+  active        Boolean  @default(true)
+  roomTypes     PmsRoomType[]
+  reservations  PmsReservation[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PmsRoomType {
+  id                  String                @id @default(cuid())
+  pmsPropertyConfigId String
+  pmsPropertyConfig   PmsPropertyConfig     @relation(fields: [pmsPropertyConfigId], references: [id], onDelete: Cascade)
+  code                String
+  name                String
+  baseOccupancy       Int
+  maxOccupancy        Int
+  defaultInventory    Int
+  active              Boolean               @default(true)
+  roomUnits           PmsRoomUnit[]
+  reservations        PmsReservation[]
+  reservationNights   PmsReservationNight[]
+  inventoryDays       PmsInventoryDay[]
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+
+  @@unique([pmsPropertyConfigId, code])
+  @@index([pmsPropertyConfigId, active])
+}
+
+model PmsRoomUnit {
+  id                String                @id @default(cuid())
+  roomTypeId        String
+  roomType          PmsRoomType           @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+  code              String
+  name              String?
+  floor             String?
+  status            PmsRoomUnitStatus     @default(ACTIVE)
+  reservationNights PmsReservationNight[]
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  @@unique([roomTypeId, code])
+  @@index([roomTypeId, status])
+}
+
+model PmsGuest {
+  id           String           @id @default(cuid())
+  name         String
+  email        String?
+  phone        String?
+  nationality  String?
+  notes        String?          @db.Text
+  reservations PmsReservation[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([phone])
+  @@index([email])
+}
+
+model PmsReservation {
+  id                  String                 @id @default(cuid())
+  pmsPropertyConfigId String
+  pmsPropertyConfig   PmsPropertyConfig      @relation(fields: [pmsPropertyConfigId], references: [id])
+  roomTypeId          String
+  roomType            PmsRoomType            @relation(fields: [roomTypeId], references: [id])
+  primaryGuestId      String?
+  primaryGuest        PmsGuest?              @relation(fields: [primaryGuestId], references: [id])
+  source              PmsReservationSource   @default(MANUAL)
+  externalReservationId String?
+  status              PmsReservationStatus   @default(DRAFT)
+  checkInDate         DateTime               @db.Date
+  checkOutDate        DateTime               @db.Date
+  adults              Int                    @default(1)
+  children            Int                    @default(0)
+  totalAmount         Int?
+  currency            String                 @default("KRW")
+  notes               String?                @db.Text
+  version             Int                    @default(1)
+  nights              PmsReservationNight[]
+  events              PmsReservationEvent[]
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+
+  @@index([pmsPropertyConfigId, checkInDate, checkOutDate])
+  @@index([roomTypeId, status])
+}
+
+model PmsReservationNight {
+  id                String          @id @default(cuid())
+  reservationId     String
+  reservation       PmsReservation  @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  stayDate          DateTime        @db.Date
+  roomTypeId        String
+  roomType          PmsRoomType     @relation(fields: [roomTypeId], references: [id])
+  roomUnitId        String?
+  roomUnit          PmsRoomUnit?    @relation(fields: [roomUnitId], references: [id])
+  occupiesInventory Boolean         @default(true)
+  nightlyRate       Int?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([reservationId, stayDate])
+  @@index([roomTypeId, stayDate])
+}
+
+model PmsInventoryDay {
+  id             String                     @id @default(cuid())
+  roomTypeId     String
+  roomType       PmsRoomType                @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+  inventoryDate  DateTime                   @db.Date
+  totalUnits     Int
+  heldUnits      Int                        @default(0)
+  soldUnits      Int                        @default(0)
+  stopSell       Boolean                    @default(false)
+  stopSellReason PmsInventoryStopSellReason @default(NONE)
+  version        Int                        @default(1)
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
+
+  @@unique([roomTypeId, inventoryDate])
+  @@index([inventoryDate, stopSell])
+}
+
+model PmsReservationEvent {
+  id             String                  @id @default(cuid())
+  reservationId  String
+  reservation    PmsReservation          @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  eventType      PmsReservationEventType
+  actorType      String                  @default("SYSTEM")
+  actorId        String?
+  source         String?
+  idempotencyKey String?
+  payload        Json                    @default("{}")
+  createdAt      DateTime                @default(now())
+
+  @@index([reservationId, createdAt])
+}
