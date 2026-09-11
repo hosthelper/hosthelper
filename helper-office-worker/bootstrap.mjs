@@ -1,6 +1,6 @@
 import { deployHelperOfficeProduction } from './production-deploy.mjs';
 import { inspectVercelProtection } from './vercel-inspect.mjs';
-import { setProductionPublicPreviewProtected } from './vercel-protection.mjs';
+import { disableVercelSsoProtection } from './vercel-protection.mjs';
 
 await import('./server.mjs');
 
@@ -13,7 +13,7 @@ void inspectVercelProtection()
   });
 
 if (process.env.RUN_VERCEL_PROTECTION_FIX_ON_START === 'true') {
-  void setProductionPublicPreviewProtected()
+  void disableVercelSsoProtection()
     .then((result) => {
       console.log('HELPER_OFFICE_VERCEL_PROTECTION_FIX_OK', JSON.stringify(result));
     })
