@@ -1,19 +1,16 @@
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { spawn } from 'node:child_process';
-
 const BASE = process.env.HELPER_OFFICE_PRODUCTION_SNAPSHOT || 'https://helper-office-4vmzn0t90-lifehelper.vercel.app';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || '';
 const VERCEL_TOKEN = process.env.VERCEL_TOKEN || '';
 const PROJECT_ID = process.env.VERCEL_PROJECT_ID || 'prj_NqiuOriBTEEiMG4NnPZyFaqJN9eD';
 const ORG_ID = process.env.VERCEL_ORG_ID || 'team_bTTQ4keENdDaBRIcpINqZFVU';
-const SCOPE = process.env.VERCEL_SCOPE || 'lifehelper';
 const RELEASE_REPO = 'hosthelper/lifehelper';
 const RELEASE_REF = process.env.HELPER_OFFICE_RELEASE_REF || 'helper-office/control-plane-v1';
 
 async function text(url, headers = {}) {
-  const response = await fetch(url, { headers: { 'user-agent': 'helper-office-production-deployer', ...headers }, redirect: 'follow' });
+  const response = await fetch(url, {
+    headers: { 'user-agent': 'helper-office-production-deployer', ...headers },
+    redirect: 'follow',
+  });
   if (!response.ok) throw new Error(`FETCH_${response.status}:${url}`);
   return response.text();
 }
@@ -35,53 +32,99 @@ async function githubFile(path) {
 }
 
 function injectScripts(index) {
-  let html = index;
   const tags = [];
-  if (!/enhancements\.js/i.test(html)) tags.push('<script src="/enhancements.js"></script>');
-  if (!/runtime-status-v3\.js/i.test(html)) tags.push('<script src="/runtime-status-v3.js"></script>');
-  if (!tags.length) return html;
+  if (!/enhancements\.js/i.test(index)) tags.push('<script src="/enhancements.js"></script>');
+  if (!/runtime-status-v3\.js/i.test(index)) tags.push('<script src="/runtime-status-v3.js"></script>');
+  if (!tags.length) return index;
   const block = `\n    ${tags.join('\n    ')}\n`;
-  return /<\/body>/i.test(html) ? html.replace(/<\/body>/i, `${block}</body>`) : `${html}${block}`;
+  return /<\/body>/i.test(index) ? index.replace(/<\/body>/i, `${block}</body>`) : `${index}${block}`;
 }
 
-function run(cmd, args, cwd) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(cmd, args, { cwd, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
-    let stdout = '';
-    let stderr = '';
-    child.stdout.on('data', d => { stdout += String(d); process.stdout.write(d); });
-    child.stderr.on('data', d => { stderr += String(d); process.stderr.write(d); });
-    child.on('error', reject);
-    child.on('close', code => code === 0 ? resolve({ stdout, stderr }) : reject(new Error(`VERCEL_CLI_EXIT_${code}:${stderr.slice(-800)}`)));
+async function vercel(path, init = {}) {
+  if (!VERCEL_TOKEN || VERCEL_TOKEN.length < 20) throw new Error('VERCEL_TOKEN_NOT_CONFIGURED');
+  const joiner = path.includes('?') ? '&' : '?';
+  const url = `https://api.vercel.com${path}${joiner}teamId=${encodeURIComponent(ORG_ID)}`;
+  const response = await fetch(url, {
+    ...init,
+    headers: {
+      authorization: `Bearer ${VERCEL_TOKEN}`,
+      'content-type': 'application/json',
+      ...(init.headers || {}),
+    },
   });
+  const raw = await response.text();
+  let body = null;
+  try { body = raw ? JSON.parse(raw) : {}; } catch { body = { raw }; }
+  if (!response.ok) {
+    const message = body?.error?.message || body?.message || raw.slice(0, 500) || 'unknown_error';
+    throw new Error(`VERCEL_${response.status}:${message}`);
+  }
+  return body;
+}
+
+async function waitUntilReady(deploymentId) {
+  const deadline = Date.now() + 120000;
+  while (Date.now() < deadline) {
+    const state = await vercel(`/v13/deployments/${encodeURIComponent(deploymentId)}`);
+    const readyState = String(state.readyState || state.state || '').toUpperCase();
+    if (readyState === 'READY') return state;
+    if (['ERROR', 'CANCELED'].includes(readyState)) {
+      throw new Error(`VERCEL_DEPLOY_${readyState}:${state.errorMessage || state.errorCode || 'unknown'}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+  }
+  throw new Error('VERCEL_DEPLOY_TIMEOUT');
 }
 
 export async function deployHelperOfficeProduction() {
   if (process.env.ALLOW_PRODUCTION_DEPLOY !== 'true') throw new Error('PRODUCTION_DEPLOY_NOT_APPROVED');
   if (!VERCEL_TOKEN || VERCEL_TOKEN.length < 20) throw new Error('VERCEL_TOKEN_NOT_CONFIGURED');
 
-  const dir = await mkdtemp(join(tmpdir(), 'helper-office-prod-'));
-  try {
-    const [index, app, styles, enhancements, runtimeStatus] = await Promise.all([
-      text(`${BASE}/index.html`),
-      text(`${BASE}/app.js`),
-      text(`${BASE}/styles.css`),
-      githubFile('helper-office-hq/enhancements.js'),
-      githubFile('helper-office-hq/runtime-status-v3.js'),
-    ]);
+  const [index, app, styles, enhancements, runtimeStatus] = await Promise.all([
+    text(`${BASE}/index.html`),
+    text(`${BASE}/app.js`),
+    text(`${BASE}/styles.css`),
+    githubFile('helper-office-hq/enhancements.js'),
+    githubFile('helper-office-hq/runtime-status-v3.js'),
+  ]);
 
-    await writeFile(join(dir, 'index.html'), injectScripts(index), 'utf8');
-    await writeFile(join(dir, 'app.js'), app, 'utf8');
-    await writeFile(join(dir, 'styles.css'), styles, 'utf8');
-    await writeFile(join(dir, 'enhancements.js'), enhancements, 'utf8');
-    await writeFile(join(dir, 'runtime-status-v3.js'), runtimeStatus, 'utf8');
-    await mkdir(join(dir, '.vercel'), { recursive: true });
-    await writeFile(join(dir, '.vercel', 'project.json'), JSON.stringify({ projectId: PROJECT_ID, orgId: ORG_ID }), 'utf8');
+  const files = [
+    { file: 'index.html', data: injectScripts(index) },
+    { file: 'app.js', data: app },
+    { file: 'styles.css', data: styles },
+    { file: 'enhancements.js', data: enhancements },
+    { file: 'runtime-status-v3.js', data: runtimeStatus },
+  ];
 
-    const result = await run('npx', ['vercel', 'deploy', '--prod', '--yes', '--token', VERCEL_TOKEN, '--scope', SCOPE], dir);
-    const urls = result.stdout.split(/\s+/).filter(x => /^https:\/\//.test(x));
-    return { ok: true, project_id: PROJECT_ID, scope: SCOPE, release_ref: RELEASE_REF, deployment_url: urls.at(-1) || null };
-  } finally {
-    await rm(dir, { recursive: true, force: true }).catch(() => {});
-  }
+  const created = await vercel('/v13/deployments?forceNew=1&skipAutoDetectionConfirmation=1', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: 'helper-office-hq',
+      project: PROJECT_ID,
+      target: 'production',
+      files,
+      projectSettings: {
+        framework: null,
+      },
+      meta: {
+        helperOfficeReleaseRef: RELEASE_REF,
+        helperOfficeRuntimeOverlay: 'v3',
+        source: 'render-worker',
+      },
+    }),
+  });
+
+  const deploymentId = String(created.id || '');
+  if (!deploymentId) throw new Error('VERCEL_DEPLOYMENT_ID_MISSING');
+  const ready = await waitUntilReady(deploymentId);
+  const deploymentUrl = ready.url ? `https://${ready.url}` : created.url ? `https://${created.url}` : null;
+
+  return {
+    ok: true,
+    project_id: PROJECT_ID,
+    release_ref: RELEASE_REF,
+    deployment_id: deploymentId,
+    deployment_url: deploymentUrl,
+    ready_state: ready.readyState || ready.state || null,
+  };
 }
