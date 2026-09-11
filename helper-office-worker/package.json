@@ -1,10 +1,13 @@
 {
   "name": "helper-office-render-worker",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "node server.mjs"
+  },
+  "dependencies": {
+    "vercel": "^48.1.6"
   },
   "engines": {
     "node": ">=20"
