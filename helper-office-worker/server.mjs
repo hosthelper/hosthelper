@@ -4,6 +4,7 @@ const PORT = Number(process.env.PORT || 3000);
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || '';
 const GATEWAY_URL = process.env.HELPER_OFFICE_CODE_GATEWAY || 'https://buzcnfnimzlsjvbeefjb.supabase.co/functions/v1/helper-office-code-gateway';
 const ALLOWED_GITHUB_OWNER = process.env.ALLOWED_GITHUB_OWNER || 'hosthelper';
+const PRODUCTION_SNAPSHOT_BASE = 'https://helper-office-4vmzn0t90-lifehelper.vercel.app';
 const activeJobs = new Set();
 
 function json(res, status, body) {
@@ -56,6 +57,22 @@ async function github(repo, path, init = {}) {
     throw error;
   }
   return body;
+}
+
+async function fetchProductionSnapshot() {
+  const names = ['index.html', 'app.js', 'styles.css'];
+  const files = [];
+  for (const name of names) {
+    const response = await fetch(`${PRODUCTION_SNAPSHOT_BASE}/${name}`, {
+      headers: { 'user-agent': 'helper-office-render-worker/source-snapshot' },
+      redirect: 'follow',
+    });
+    if (!response.ok) throw new Error(`SNAPSHOT_${name}_${response.status}`);
+    const content = await response.text();
+    if (!content || content.length < 20) throw new Error(`SNAPSHOT_${name}_EMPTY`);
+    files.push({ name, content, bytes: Buffer.byteLength(content, 'utf8') });
+  }
+  return { base: PRODUCTION_SNAPSHOT_BASE, files };
 }
 
 function encodePath(path) {
@@ -211,6 +228,14 @@ const server = http.createServer(async (req, res) => {
       production_deploy: false,
       mode: 'event-driven',
     });
+  }
+  if (req.method === 'GET' && url.pathname === '/snapshot-production') {
+    try {
+      const snapshot = await fetchProductionSnapshot();
+      return json(res, 200, { ok: true, snapshot });
+    } catch (error) {
+      return json(res, 502, { ok: false, error: String(error.message || error) });
+    }
   }
   if (req.method === 'POST' && url.pathname === '/execute') {
     try {
