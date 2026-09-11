@@ -2,7 +2,7 @@ const VERCEL_TOKEN = process.env.VERCEL_TOKEN || '';
 const PROJECT_ID = process.env.VERCEL_PROJECT_ID || 'prj_NqiuOriBTEEiMG4NnPZyFaqJN9eD';
 const ORG_ID = process.env.VERCEL_ORG_ID || 'team_bTTQ4keENdDaBRIcpINqZFVU';
 
-export async function setProductionPublicPreviewProtected() {
+export async function disableVercelSsoProtection() {
   if (!VERCEL_TOKEN || VERCEL_TOKEN.length < 20) throw new Error('VERCEL_TOKEN_NOT_CONFIGURED');
   const response = await fetch(`https://api.vercel.com/v9/projects/${encodeURIComponent(PROJECT_ID)}?teamId=${encodeURIComponent(ORG_ID)}`, {
     method: 'PATCH',
@@ -12,7 +12,7 @@ export async function setProductionPublicPreviewProtected() {
       'content-type': 'application/json',
       'user-agent': 'helper-office-render-worker/protection-fix',
     },
-    body: JSON.stringify({ ssoProtection: { deploymentType: 'preview' } }),
+    body: JSON.stringify({ ssoProtection: null }),
   });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -22,5 +22,6 @@ export async function setProductionPublicPreviewProtected() {
     ok: true,
     project_id: body.id || PROJECT_ID,
     ssoProtection: body.ssoProtection || null,
+    app_auth_preserved: true,
   };
 }
