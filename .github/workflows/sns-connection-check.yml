@@ -1,0 +1,75 @@
+name: Helper SNS Connection Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ops/sns/connection-check-trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check configured publishing credentials
+        env:
+          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
+          TIKTOK_OPEN_ID: ${{ secrets.TIKTOK_OPEN_ID }}
+        run: |
+          set -euo pipefail
+          present(){ if [ -n "${!1:-}" ]; then echo "$1=PRESENT"; else echo "$1=MISSING"; fi; }
+          echo '=== DIRECT PUBLISH CREDENTIALS ==='
+          present META_ACCESS_TOKEN
+          present IG_USER_ID
+          present THREADS_ACCESS_TOKEN
+          present THREADS_USER_ID
+          present YT_CLIENT_ID
+          present YT_CLIENT_SECRET
+          present YT_REFRESH_TOKEN
+          present TIKTOK_ACCESS_TOKEN
+          present TIKTOK_OPEN_ID
+          echo '=== BUFFER ==='
+          present BUFFER_API_KEY
+
+      - name: Check Buffer connected channels
+        if: ${{ secrets.BUFFER_API_KEY != '' }}
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+        run: |
+          set -euo pipefail
+          Q='query { account { organizations { id name } } }'
+          RESP=$(curl -sS https://api.buffer.com \
+            -H 'Content-Type: application/json' \
+            -H "Authorization: Bearer $BUFFER_API_KEY" \
+            --data-binary "$(jq -nc --arg q "$Q" '{query:$q}')")
+          if echo "$RESP" | jq -e '.errors' >/dev/null 2>&1; then
+            echo "BUFFER_ACCOUNT_QUERY=ERROR"
+            echo "$RESP" | jq -c '{errors:[.errors[]|{message}]}'
+            exit 0
+          fi
+          ORG=$(echo "$RESP" | jq -r '.data.account.organizations[0].id // empty')
+          if [ -z "$ORG" ]; then echo 'BUFFER_ORGANIZATION=NONE'; exit 0; fi
+          echo "BUFFER_ORGANIZATION=PRESENT"
+          Q2="query { channels(input: { organizationId: \"$ORG\" }) { id name service } }"
+          RESP2=$(curl -sS https://api.buffer.com \
+            -H 'Content-Type: application/json' \
+            -H "Authorization: Bearer $BUFFER_API_KEY" \
+            --data-binary "$(jq -nc --arg q "$Q2" '{query:$q}')")
+          if echo "$RESP2" | jq -e '.errors' >/dev/null 2>&1; then
+            echo "BUFFER_CHANNEL_QUERY=ERROR"
+            echo "$RESP2" | jq -c '{errors:[.errors[]|{message}]}'
+            exit 0
+          fi
+          echo 'BUFFER_CHANNELS:'
+          echo "$RESP2" | jq -r '.data.channels[]? | "\(.service)|\(.name)|\(.id)"'
