@@ -43,11 +43,14 @@ jobs:
           present BUFFER_API_KEY
 
       - name: Check Buffer connected channels
-        if: ${{ secrets.BUFFER_API_KEY != '' }}
         env:
           BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
         run: |
           set -euo pipefail
+          if [ -z "${BUFFER_API_KEY:-}" ]; then
+            echo 'BUFFER_CHANNEL_CHECK=SKIPPED_MISSING_KEY'
+            exit 0
+          fi
           Q='query { account { organizations { id name } } }'
           RESP=$(curl -sS https://api.buffer.com \
             -H 'Content-Type: application/json' \
