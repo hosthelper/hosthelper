@@ -1,4 +1,4 @@
-import { deployHelperOfficeProduction } from './production-deploy.mjs';
+import { deployHelperOfficeProduction } from './production-deploy-v2.mjs';
 import { inspectVercelProtection } from './vercel-inspect.mjs';
 import { disableVercelSsoProtection } from './vercel-protection.mjs';
 
