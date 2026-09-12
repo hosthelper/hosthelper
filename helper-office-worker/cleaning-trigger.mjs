@@ -1,6 +1,9 @@
 const CLEANING_ALERT_ENDPOINT =
   process.env.CLEANING_ALERT_ENDPOINT ||
   'https://auction-community-pearl.vercel.app/api/cron/cleaning-alerts';
+const KAKAO_SEND_ENDPOINT =
+  process.env.KAKAO_SEND_ENDPOINT ||
+  'https://auction-community-pearl.vercel.app/api/kakao/send';
 
 const ROOMS = ['A605', 'A601', 'A705', 'A311', 'A506', 'A805'];
 
@@ -12,6 +15,22 @@ function getFeeds() {
   const missing = feeds.filter((feed) => !feed.icalUrl).map((feed) => feed.id);
   if (missing.length) throw new Error(`CLEANING_ICAL_MISSING:${missing.join(',')}`);
   return feeds;
+}
+
+export async function probeKakaoSend() {
+  const response = await fetch(KAKAO_SEND_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'user-agent': 'vercel-cron/1.0',
+    },
+    body: JSON.stringify({}),
+    signal: AbortSignal.timeout(20_000),
+  });
+  const text = await response.text();
+  let body = null;
+  try { body = text ? JSON.parse(text) : null; } catch { body = { raw: text.slice(0, 1000) }; }
+  return { status: response.status, ok: response.ok, body };
 }
 
 export async function triggerSeochoCleaning(options = {}) {
