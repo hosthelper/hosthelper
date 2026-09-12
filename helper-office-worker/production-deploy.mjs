@@ -5,7 +5,7 @@ const PROJECT_ID = process.env.VERCEL_PROJECT_ID || 'prj_NqiuOriBTEEiMG4NnPZyFaq
 const ORG_ID = process.env.VERCEL_ORG_ID || 'team_bTTQ4keENdDaBRIcpINqZFVU';
 const RELEASE_REPO = 'hosthelper/lifehelper';
 const RELEASE_REF = process.env.HELPER_OFFICE_RELEASE_REF || 'helper-office/control-plane-v1';
-const ASSET_VERSION = process.env.HELPER_OFFICE_ASSET_VERSION || '20260912-p0-5';
+const ASSET_VERSION = process.env.HELPER_OFFICE_ASSET_VERSION || '20260912-p1-1';
 const OFFICIAL_URL = process.env.HELPER_OFFICE_OFFICIAL_URL || 'https://helper-office-hq-lifehelper.vercel.app';
 const SUPABASE_CDN = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 
@@ -30,7 +30,7 @@ function versionAsset(index, file) {
 function prepareIndex(index) {
   let out=index;
   for (const file of ['styles.css','app.js','enhancements.js','runtime-status-v3.js']) out=versionAsset(out,file);
-  const localScripts=['session-recovery-v1.js','p0-hardening-v1.js'];
+  const localScripts=['session-recovery-v1.js','p0-hardening-v1.js','decision-rights-v1.js'];
   for(const file of localScripts){
     if(!new RegExp(file.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(out)){
       const tag=`<script src="./${file}?v=${ASSET_VERSION}"></script>`;
@@ -65,27 +65,29 @@ async function waitUntilReady(deploymentId) {
 async function verifyOfficialProduction() {
   const nonce=`${ASSET_VERSION}-${Date.now()}`;
   const index=await text(`${OFFICIAL_URL}/?verify=${encodeURIComponent(nonce)}`,{'cache-control':'no-cache'});
-  const markers=[`app.js?v=${ASSET_VERSION}`,`enhancements.js?v=${ASSET_VERSION}`,`runtime-status-v3.js?v=${ASSET_VERSION}`,`session-recovery-v1.js?v=${ASSET_VERSION}`,`p0-hardening-v1.js?v=${ASSET_VERSION}`,SUPABASE_CDN];
+  const markers=[`app.js?v=${ASSET_VERSION}`,`enhancements.js?v=${ASSET_VERSION}`,`runtime-status-v3.js?v=${ASSET_VERSION}`,`session-recovery-v1.js?v=${ASSET_VERSION}`,`p0-hardening-v1.js?v=${ASSET_VERSION}`,`decision-rights-v1.js?v=${ASSET_VERSION}`,SUPABASE_CDN];
   const missing=markers.filter(marker=>!index.includes(marker));if(missing.length)throw new Error(`PRODUCTION_BUNDLE_MARKER_MISSING:${missing.join(',')}`);
-  const[runtime,recovery,p0]=await Promise.all([
+  const[runtime,recovery,p0,rights]=await Promise.all([
     text(`${OFFICIAL_URL}/runtime-status-v3.js?v=${encodeURIComponent(ASSET_VERSION)}&verify=${Date.now()}`,{'cache-control':'no-cache'}),
     text(`${OFFICIAL_URL}/session-recovery-v1.js?v=${encodeURIComponent(ASSET_VERSION)}&verify=${Date.now()}`,{'cache-control':'no-cache'}),
     text(`${OFFICIAL_URL}/p0-hardening-v1.js?v=${encodeURIComponent(ASSET_VERSION)}&verify=${Date.now()}`,{'cache-control':'no-cache'}),
+    text(`${OFFICIAL_URL}/decision-rights-v1.js?v=${encodeURIComponent(ASSET_VERSION)}&verify=${Date.now()}`,{'cache-control':'no-cache'}),
   ]);
   if(!runtime.includes('runtime-status-v3-20260912'))throw new Error('PRODUCTION_RUNTIME_STATUS_VERSION_MISMATCH');
   if(!recovery.includes('session-recovery-v1-20260912'))throw new Error('PRODUCTION_SESSION_RECOVERY_VERSION_MISMATCH');
   if(!p0.includes('p0-hardening-v1-20260912-guardian'))throw new Error('PRODUCTION_P0_GUARDIAN_VERSION_MISMATCH');
   if(!p0.includes('ho_get_guardian_board'))throw new Error('PRODUCTION_P0_GUARDIAN_UI_MISSING');
-  return{official_url:OFFICIAL_URL,asset_version:ASSET_VERSION,index_markers_verified:markers.length,runtime_status_verified:true,session_recovery_verified:true,p0_hardening_verified:true,realtime_sdk_injected:true,secure_realtime_signal_channel:true,guardian_ui_verified:true};
+  if(!rights.includes('decision-rights-v1-20260912')||!rights.includes('ho_get_decision_rights_board'))throw new Error('PRODUCTION_DECISION_RIGHTS_UI_MISSING');
+  return{official_url:OFFICIAL_URL,asset_version:ASSET_VERSION,index_markers_verified:markers.length,runtime_status_verified:true,session_recovery_verified:true,p0_hardening_verified:true,realtime_sdk_injected:true,secure_realtime_signal_channel:true,guardian_ui_verified:true,decision_rights_ui_verified:true};
 }
 export async function deployHelperOfficeProduction() {
   if(process.env.ALLOW_PRODUCTION_DEPLOY!=='true')throw new Error('PRODUCTION_DEPLOY_NOT_APPROVED');
   if(!VERCEL_TOKEN||VERCEL_TOKEN.length<20)throw new Error('VERCEL_TOKEN_NOT_CONFIGURED');
-  const[index,app,styles,enhancements,runtimeStatus,sessionRecovery,p0Hardening]=await Promise.all([
-    githubFile('helper-office-hq/index.html'),githubFile('helper-office-hq/app.js'),githubFile('helper-office-hq/styles.css'),githubFile('helper-office-hq/enhancements.js'),githubFile('helper-office-hq/runtime-status-v3.js'),githubFile('helper-office-hq/session-recovery-v1.js'),githubFile('helper-office-hq/p0-hardening-v1.js')
+  const[index,app,styles,enhancements,runtimeStatus,sessionRecovery,p0Hardening,decisionRights]=await Promise.all([
+    githubFile('helper-office-hq/index.html'),githubFile('helper-office-hq/app.js'),githubFile('helper-office-hq/styles.css'),githubFile('helper-office-hq/enhancements.js'),githubFile('helper-office-hq/runtime-status-v3.js'),githubFile('helper-office-hq/session-recovery-v1.js'),githubFile('helper-office-hq/p0-hardening-v1.js'),githubFile('helper-office-hq/decision-rights-v1.js')
   ]);
-  const files=[{file:'index.html',data:prepareIndex(index)},{file:'app.js',data:app},{file:'styles.css',data:styles},{file:'enhancements.js',data:enhancements},{file:'runtime-status-v3.js',data:runtimeStatus},{file:'session-recovery-v1.js',data:sessionRecovery},{file:'p0-hardening-v1.js',data:p0Hardening}];
-  const created=await vercel('/v13/deployments?forceNew=1&skipAutoDetectionConfirmation=1',{method:'POST',body:JSON.stringify({name:'helper-office-hq',project:PROJECT_ID,target:'production',files,projectSettings:{framework:null},meta:{helperOfficeReleaseRef:RELEASE_REF,helperOfficeRuntimeOverlay:'p0-v7',helperOfficeAssetVersion:ASSET_VERSION,source:'render-worker'}})});
+  const files=[{file:'index.html',data:prepareIndex(index)},{file:'app.js',data:app},{file:'styles.css',data:styles},{file:'enhancements.js',data:enhancements},{file:'runtime-status-v3.js',data:runtimeStatus},{file:'session-recovery-v1.js',data:sessionRecovery},{file:'p0-hardening-v1.js',data:p0Hardening},{file:'decision-rights-v1.js',data:decisionRights}];
+  const created=await vercel('/v13/deployments?forceNew=1&skipAutoDetectionConfirmation=1',{method:'POST',body:JSON.stringify({name:'helper-office-hq',project:PROJECT_ID,target:'production',files,projectSettings:{framework:null},meta:{helperOfficeReleaseRef:RELEASE_REF,helperOfficeRuntimeOverlay:'p1-v1',helperOfficeAssetVersion:ASSET_VERSION,source:'render-worker'}})});
   const deploymentId=String(created.id||'');if(!deploymentId)throw new Error('VERCEL_DEPLOYMENT_ID_MISSING');
   const ready=await waitUntilReady(deploymentId);const deploymentUrl=ready.url?`https://${ready.url}`:created.url?`https://${created.url}`:null;const productionVerification=await verifyOfficialProduction();
   return{ok:true,project_id:PROJECT_ID,release_ref:RELEASE_REF,asset_version:ASSET_VERSION,deployment_id:deploymentId,deployment_url:deploymentUrl,ready_state:ready.readyState||ready.state||null,production_verification:productionVerification};
