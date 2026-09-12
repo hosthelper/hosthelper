@@ -14,15 +14,18 @@ function getFeeds() {
   return feeds;
 }
 
-export async function triggerSeochoCleaning() {
+export async function triggerSeochoCleaning(options = {}) {
   const feeds = getFeeds();
+  const sendMonthSummary =
+    options.sendMonthSummary === true || process.env.SEND_MONTH_SUMMARY_ONCE === 'true';
+
   const response = await fetch(CLEANING_ALERT_ENDPOINT, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
       'user-agent': 'helper-office-render-worker/seocho-cleaning',
     },
-    body: JSON.stringify({ feeds }),
+    body: JSON.stringify({ feeds, sendMonthSummary }),
     signal: AbortSignal.timeout(50_000),
   });
 
