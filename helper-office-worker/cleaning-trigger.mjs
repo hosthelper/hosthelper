@@ -3,7 +3,8 @@ const KAKAO_SEND_ENDPOINT =
   'https://auction-community-pearl.vercel.app/api/kakao/send';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || '';
 const STATE_REPO = process.env.CLEANING_STATE_REPO || 'hosthelper/hosthelper';
-const STATE_ISSUE = Number(process.env.CLEANING_STATE_ISSUE || 91);
+const STATE_BRANCH = process.env.CLEANING_STATE_BRANCH || 'runtime/seocho-cleaning-state-v2';
+const STATE_PATH = 'helper-office-worker/runtime/seocho-cleaning-state.json';
 
 const ROOMS = ['A605', 'A601', 'A705', 'A311', 'A506', 'A805'];
 
@@ -92,23 +93,23 @@ function formatKoreanDate(date) {
   return `${Number(month)}월 ${Number(day)}일`;
 }
 
-async function githubIssue(method = 'GET', body) {
+async function githubState(method = 'GET', body) {
   if (!GITHUB_TOKEN) throw new Error('GITHUB_TOKEN_NOT_CONFIGURED');
-  const response = await fetch(
-    `https://api.github.com/repos/${STATE_REPO}/issues/${STATE_ISSUE}`,
-    {
-      method,
-      headers: {
-        authorization: `Bearer ${GITHUB_TOKEN}`,
-        accept: 'application/vnd.github+json',
-        'content-type': 'application/json',
-        'x-github-api-version': '2022-11-28',
-        'user-agent': 'helper-office-render-worker/seocho-cleaning-state',
-      },
-      body: body ? JSON.stringify(body) : undefined,
-      signal: AbortSignal.timeout(20_000),
+  const url = new URL(`https://api.github.com/repos/${STATE_REPO}/contents/${STATE_PATH}`);
+  if (method === 'GET') url.searchParams.set('ref', STATE_BRANCH);
+
+  const response = await fetch(url, {
+    method,
+    headers: {
+      authorization: `Bearer ${GITHUB_TOKEN}`,
+      accept: 'application/vnd.github+json',
+      'content-type': 'application/json',
+      'x-github-api-version': '2022-11-28',
+      'user-agent': 'helper-office-render-worker/seocho-cleaning-state',
     },
-  );
+    body: body ? JSON.stringify(body) : undefined,
+    signal: AbortSignal.timeout(20_000),
+  });
   const text = await response.text();
   let parsed = null;
   try { parsed = text ? JSON.parse(text) : null; } catch { parsed = { raw: text.slice(0, 1000) }; }
@@ -117,28 +118,36 @@ async function githubIssue(method = 'GET', body) {
 }
 
 async function loadState() {
-  const issue = await githubIssue('GET');
+  const file = await githubState('GET');
   try {
-    const state = JSON.parse(String(issue?.body || '{}'));
+    const decoded = Buffer.from(String(file?.content || '').replace(/\s/g, ''), 'base64').toString('utf8');
+    const state = JSON.parse(decoded || '{}');
     return {
       version: Number(state.version || 2),
       initialized: state.initialized === true,
       updatedAt: state.updatedAt || null,
       bookings: state.bookings && typeof state.bookings === 'object' ? state.bookings : {},
+      sha: String(file?.sha || ''),
     };
   } catch {
-    return { version: 2, initialized: false, updatedAt: null, bookings: {} };
+    return { version: 2, initialized: false, updatedAt: null, bookings: {}, sha: String(file?.sha || '') };
   }
 }
 
-async function saveState(bookings) {
+async function saveState(bookings, sha) {
+  if (!sha) throw new Error('CLEANING_STATE_SHA_MISSING');
   const state = {
     version: 2,
     initialized: true,
     updatedAt: new Date().toISOString(),
     bookings,
   };
-  await githubIssue('PATCH', { body: JSON.stringify(state) });
+  await githubState('PUT', {
+    message: 'chore(runtime): update Seocho cleaning state',
+    content: Buffer.from(JSON.stringify(state, null, 2), 'utf8').toString('base64'),
+    sha,
+    branch: STATE_BRANCH,
+  });
   return state;
 }
 
@@ -241,7 +250,7 @@ export async function triggerSeochoCleaning() {
         failures: snapshot.failures,
       };
     }
-    await saveState(snapshot.current);
+    await saveState(snapshot.current, previous.sha);
     return {
       ok: true,
       initialized: true,
@@ -275,7 +284,7 @@ export async function triggerSeochoCleaning() {
     sent.push({ type: event.type, roomName: event.booking.roomName, checkoutDate: event.booking.checkoutDate, result });
   }
 
-  await saveState(snapshot.current);
+  await saveState(snapshot.current, previous.sha);
   return {
     ok: true,
     initialized: true,
