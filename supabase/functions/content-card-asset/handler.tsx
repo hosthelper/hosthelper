@@ -2,8 +2,15 @@ import React from 'https://esm.sh/react@18.2.0'
 import { ImageResponse } from 'https://deno.land/x/og_edge@0.0.4/mod.ts'
 
 type Slide = { eyebrow:string; title:string; body:string; bullets:string[]; dark?:boolean; accent?:boolean }
-
 const packs: Record<string, Record<number, Slide>> = {
+  'CNT-HOST-72H-01': {
+    1:{eyebrow:'HOSTHELPER · PRICE',title:'예약이 안 들어온다고\n가격부터 내리지\n마세요.',body:'문제가 가격인지 먼저 확인해야 합니다.',bullets:['노출','사진·상세','리뷰'],dark:true},
+    2:{eyebrow:'CHECK 01',title:'가격이 아니라\n노출 문제일 수\n있습니다.',body:'검색에서 충분히 보이지 않으면 가격을 내려도 효과를 확인하기 어렵습니다.',bullets:['가용일','검색조건','지역 수요']},
+    3:{eyebrow:'CHECK 02',title:'사람들이 보고도\n예약하지 않는다면?',body:'상세페이지 전환을 먼저 봅니다.',bullets:['사진','설명','리뷰','예약조건']},
+    4:{eyebrow:'PRICE INSIGHT',title:'가격은 원인일 수도\n증상일 수도\n있습니다.',body:'무조건 할인하면 원인을 가린 채 수익률만 낮아질 수 있습니다.',bullets:['원인 구분','우선순위','작은 실험'],dark:true},
+    5:{eyebrow:'5-POINT DIAGNOSIS',title:'그래서 먼저\n5가지를 봅니다.',body:'가격·사진·리뷰·예약전환·운영 중 가장 큰 병목 1개를 찾습니다.',bullets:['현재 상태','병목 1개','다음 액션']},
+    6:{eyebrow:'HOSTHELPER FREE DIAGNOSIS',title:'숙소 링크 +\n“진단”',body:'DM으로 보내주세요.',bullets:['무료 5대 항목 진단','과장된 성과 약속 없음','실제 운영 기준'],accent:true},
+  },
   'CNT-HOST-72H-02': {
     1:{eyebrow:'HOSTHELPER · EMPATHY',title:'숙소 운영하면서\n이런 생각\n해본 적 있으세요?',body:'예약·문의·리뷰 하나에 하루 기분이 달라지는 운영자에게.',bullets:['예약이 없으면 “내 숙소가 별론가?”','문의가 몰리면 “계속 내가 답해야 하나?”','리뷰가 떨어지면 “뭘 잘못했지?”'],dark:true},
     2:{eyebrow:'01  예약이 조용할 때',title:'“가격을 더\n내려야 하나?”',body:'예약이 없다고 원인이 항상 가격인 것은 아닙니다.',bullets:['노출','사진·상세','리뷰','예약조건','지역 수요']},
@@ -12,6 +19,14 @@ const packs: Record<string, Record<number, Slide>> = {
     5:{eyebrow:'HELPER CONTENT INSIGHT',title:'운영자가 부족해서가\n아닐 수 있습니다.',body:'문제는 ‘기준 없이 혼자 다 판단하는 운영’일 수 있습니다.',bullets:['데이터로 확인','가장 큰 병목 1개 선택','다음 행동 1~3개 실행'],dark:true},
     6:{eyebrow:'HOSTHELPER FREE DIAGNOSIS',title:'숙소 링크 +\n“진단”',body:'가격·사진·리뷰·예약전환·운영을 함께 봅니다.',bullets:['현재 상태','가장 큰 병목','다음 최우선 액션'],accent:true},
   },
+  'CNT-HOST-72H-03': {
+    1:{eyebrow:'HOSTHELPER · DIAGNOSIS',title:'저라면 이 숙소는\n가격을 내리지\n않습니다.',body:'가격이 아니라 다른 병목이 먼저 보인다면요.',bullets:['사진','리뷰','예약조건'],dark:true},
+    2:{eyebrow:'WHY',title:'가격을 내려도\n해결되지 않는\n문제가 있습니다.',body:'클릭 후 확신이 없거나 운영 신뢰가 약하면 할인만으로는 부족합니다.',bullets:['사진 약함','설명 불명확','리뷰 신뢰 부족']},
+    3:{eyebrow:'CONVERSION',title:'조회는 있는데\n예약이 없다면?',body:'노출보다 상세페이지 전환을 먼저 의심합니다.',bullets:['대표사진','총가격 가치','최소숙박','취소조건']},
+    4:{eyebrow:'MARGIN',title:'원인 없이 내린\n가격은 마진부터\n줄입니다.',body:'가격 조정은 병목을 확인한 뒤 작은 실험으로 해야 합니다.',bullets:['진단','가설','측정'],dark:true},
+    5:{eyebrow:'NEXT ACTION',title:'가장 큰 문제\n1개부터 고칩니다.',body:'전부 바꾸지 않고 예약에 가장 큰 영향을 주는 순서부터 봅니다.',bullets:['현재 상태','우선순위','실행']},
+    6:{eyebrow:'HOSTHELPER FREE DIAGNOSIS',title:'숙소 링크 +\n“진단”',body:'가격을 내려야 할지부터 함께 확인합니다.',bullets:['가격','전환','운영'],accent:true},
+  },
   'CNT-HOST-72H-04': {
     1:{eyebrow:'72H CUSTOMER ACQUISITION',title:'숙소 운영\n5대 항목\n무료진단',body:'운영 중인데 어디부터 고쳐야 할지 모르겠다면, 한 번에 다 보지 않습니다.',bullets:['가격','사진·상세','리뷰','예약전환','운영'],dark:true},
     2:{eyebrow:'01  가격',title:'예약이 없다고\n가격부터 내리면\n안 됩니다.',body:'먼저 원인을 구분합니다.',bullets:['노출이 부족한가?','상세페이지 전환이 약한가?','특정 날짜 수요가 약한가?']},
@@ -19,6 +34,14 @@ const packs: Record<string, Record<number, Slide>> = {
     4:{eyebrow:'03  리뷰',title:'리뷰는\n“평점”이 아니라\n운영 데이터입니다.',body:'반복되는 불만은 운영 병목을 알려줍니다.',bullets:['청결 문제 반복','체크인 안내 불명확','사진과 실제의 차이','응답 속도·친절도','소음·시설 불편'],dark:true},
     5:{eyebrow:'04 예약전환  +  05 운영',title:'예약이 안 되는 이유와\n운영이 힘든 이유는\n다를 수 있습니다.',body:'가장 큰 병목 1개부터 고칩니다.',bullets:['예약전환: 가격·최소숙박·취소조건·사진/리뷰','운영: 체크인·청소·CS·반복업무']},
     6:{eyebrow:'HOSTHELPER FREE DIAGNOSIS',title:'숙소 링크 +\n“진단”',body:'DM으로 보내주세요.',bullets:['5대 항목 현재 상태','가장 큰 병목 1개','다음 최우선 액션 1~3개'],accent:true},
+  },
+  'CNT-HOST-72H-05': {
+    1:{eyebrow:'HOSTHELPER · EMPATHY',title:'숙소 운영자가\n가장 외로운\n순간',body:'예약이 없을 때보다 무엇을 해야 할지 모를 때일 수 있습니다.',bullets:['가격?','사진?','광고?'],dark:true},
+    2:{eyebrow:'EVERY DAY',title:'매일 혼자\n결정합니다.',body:'가격, 고객응대, 청소, 리뷰, 시설 문제까지 운영자는 계속 판단해야 합니다.',bullets:['가격','CS','청소','리뷰']},
+    3:{eyebrow:'NO STANDARD',title:'기준이 없으면\n작은 문제도\n커집니다.',body:'오늘의 판단과 내일의 판단이 달라지고 반복업무가 쌓입니다.',bullets:['체크인','문의','청소','정산']},
+    4:{eyebrow:'SYSTEM',title:'필요한 건\n더 열심히가 아니라\n운영 기준입니다.',body:'반복되는 일을 SOP와 데이터로 바꾸면 판단 피로를 줄일 수 있습니다.',bullets:['SOP','자동화','Evidence'],dark:true},
+    5:{eyebrow:'DIAGNOSIS',title:'어디가 가장\n힘든지부터\n찾습니다.',body:'가격·사진·리뷰·예약전환·운영 중 가장 큰 병목부터 봅니다.',bullets:['문제 1개','다음 행동 1개','측정']},
+    6:{eyebrow:'HOSTHELPER FREE DIAGNOSIS',title:'혼자 고민하지 말고\n“진단”',body:'숙소 링크를 보내주세요.',bullets:['현재 상태','가장 큰 병목','다음 액션'],accent:true},
   },
   'CNT-HOST-72H-06': {
     1:{eyebrow:'72H FIELD EXPERIMENT',title:'숙소 10곳\n운영진단\n실험',body:'과장된 성공담 대신 실제 숙소의 병목을 찾아보겠습니다.',bullets:['실제 운영 중인 숙소','숙소 링크 필요','무료 5대 항목 진단'],dark:true},
@@ -29,31 +52,9 @@ const packs: Record<string, Record<number, Slide>> = {
     6:{eyebrow:'HOSTHELPER FREE DIAGNOSIS',title:'숙소 링크 +\n“진단”',body:'DM으로 보내주세요.',bullets:['5대 항목 현재 상태','가장 큰 병목 1개','다음 최우선 액션 1~3개'],accent:true},
   },
 }
-
 const wrapLines = (text:string) => text.split('\n').map((line, i, arr) => <React.Fragment key={i}>{line}{i < arr.length-1 ? <br/> : null}</React.Fragment>)
-
 export default function handler(req: Request) {
-  const url = new URL(req.url)
-  const content = url.searchParams.get('content') || 'CNT-HOST-72H-04'
-  const slide = Math.max(1, Math.min(6, Number(url.searchParams.get('slide') || '1')))
-  const pack = packs[content]
-  if (!pack) return new Response('not found', { status: 404 })
-  const s = pack[slide]
-  const bg = s.accent ? '#2ab5a4' : (s.dark ? '#101c34' : '#f8f6f0')
-  const fg = s.dark || s.accent ? '#ffffff' : '#171c26'
-  const sub = s.dark ? '#dce2ec' : (s.accent ? '#0f2740' : '#606a78')
-  const cardBg = s.dark ? '#1b2c4a' : '#ffffff'
-  const accent = s.accent ? '#101c34' : '#2ab5a4'
-  return new ImageResponse(
-    <div style={{width:'100%',height:'100%',display:'flex',flexDirection:'column',background:bg,color:fg,padding:'78px 72px',fontFamily:'sans-serif'}}>
-      <div style={{display:'flex',alignItems:'center',fontSize:30,fontWeight:700,color:s.dark?'#2ab5a4':accent,letterSpacing:'0.02em'}}>{s.eyebrow}</div>
-      <div style={{display:'flex',fontSize:slide===1?86:(slide===6?92:70),fontWeight:800,lineHeight:1.16,marginTop:'50px',whiteSpace:'pre-wrap'}}>{wrapLines(s.title)}</div>
-      <div style={{display:'flex',fontSize:33,lineHeight:1.5,color:sub,marginTop:'30px'}}>{s.body}</div>
-      <div style={{display:'flex',flexDirection:'column',gap:'16px',marginTop:'42px'}}>
-        {s.bullets.map((b,i)=><div key={i} style={{display:'flex',alignItems:'center',background:cardBg,borderRadius:22,padding:'20px 26px',color:s.dark?'#ffffff':'#171c26',fontSize:29,fontWeight:600}}><div style={{display:'flex',minWidth:34,width:34,height:34,borderRadius:17,background:accent,color:'#ffffff',alignItems:'center',justifyContent:'center',fontSize:20,marginRight:20}}>{i+1}</div>{b}</div>)}
-      </div>
-      <div style={{display:'flex',marginTop:'auto',justifyContent:'space-between',fontSize:22,color:s.dark?'#909bad':(s.accent?'#15594f':'#8c94a0'),fontWeight:700}}><span>HOSTHELPER · HELPER CONTENT</span><span>{slide}/6</span></div>
-    </div>,
-    { width:1080, height:1350, headers:{'Cache-Control':'public, max-age=31536000, no-transform, immutable','Content-Type':'image/png'} }
-  )
+  const url = new URL(req.url); const content = url.searchParams.get('content') || 'CNT-HOST-72H-04'; const slide = Math.max(1, Math.min(6, Number(url.searchParams.get('slide') || '1'))); const reel = url.searchParams.get('layout') === 'reel'; const pack = packs[content]; if (!pack) return new Response('not found', { status: 404 }); const s = pack[slide]
+  const bg=s.accent?'#2ab5a4':(s.dark?'#101c34':'#f8f6f0'), fg=s.dark||s.accent?'#ffffff':'#171c26', sub=s.dark?'#dce2ec':(s.accent?'#0f2740':'#606a78'), cardBg=s.dark?'#1b2c4a':'#ffffff', accent=s.accent?'#101c34':'#2ab5a4'; const w=1080,h=reel?1920:1350
+  return new ImageResponse(<div style={{width:'100%',height:'100%',display:'flex',flexDirection:'column',background:bg,color:fg,padding:reel?'130px 76px 105px':'78px 72px',fontFamily:'sans-serif'}}><div style={{display:'flex',alignItems:'center',fontSize:reel?32:30,fontWeight:700,color:s.dark?'#2ab5a4':accent,letterSpacing:'0.02em'}}>{s.eyebrow}</div><div style={{display:'flex',fontSize:reel?(slide===1?102:88):(slide===1?86:(slide===6?92:70)),fontWeight:800,lineHeight:1.16,marginTop:reel?'110px':'50px',whiteSpace:'pre-wrap'}}>{wrapLines(s.title)}</div><div style={{display:'flex',fontSize:reel?38:33,lineHeight:1.5,color:sub,marginTop:reel?'52px':'30px'}}>{s.body}</div><div style={{display:'flex',flexDirection:'column',gap:reel?'24px':'16px',marginTop:reel?'76px':'42px'}}>{s.bullets.map((b,i)=><div key={i} style={{display:'flex',alignItems:'center',background:cardBg,borderRadius:22,padding:reel?'28px 30px':'20px 26px',color:s.dark?'#ffffff':'#171c26',fontSize:reel?34:29,fontWeight:600}}><div style={{display:'flex',minWidth:reel?40:34,width:reel?40:34,height:reel?40:34,borderRadius:reel?20:17,background:accent,color:'#ffffff',alignItems:'center',justifyContent:'center',fontSize:reel?22:20,marginRight:22}}>{i+1}</div>{b}</div>)}</div><div style={{display:'flex',marginTop:'auto',justifyContent:'space-between',fontSize:24,color:s.dark?'#909bad':(s.accent?'#15594f':'#8c94a0'),fontWeight:700}}><span>HOSTHELPER · HELPER CONTENT</span><span>{slide}/6</span></div></div>, {width:w,height:h,headers:{'Cache-Control':'public, max-age=31536000, no-transform, immutable','Content-Type':'image/png'}})
 }
