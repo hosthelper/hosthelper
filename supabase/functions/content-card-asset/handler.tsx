@@ -25,8 +25,8 @@ const packs: Record<string, Record<number, Slide>> = {
     2:{eyebrow:'WHY',title:'왜 이 실험을\n하나요?',body:'운영자는 매출이 답답해도 어디부터 바꿔야 할지 모르는 경우가 많습니다.',bullets:['가격부터 내릴까?','사진부터 바꿀까?','광고부터 할까?']},
     3:{eyebrow:'WHAT WE CHECK',title:'5가지만\n봅니다.',body:'많이 말하는 것보다 가장 큰 병목을 찾는 게 먼저입니다.',bullets:['가격','사진·상세페이지','리뷰','예약전환','운영 프로세스']},
     4:{eyebrow:'OUTPUT',title:'결과는\n“점수 자랑”이\n아닙니다.',body:'진단 결과를 실제 다음 행동으로 바꿉니다.',bullets:['현재 상태','가장 큰 병목 1개','우선 실행 액션 1~3개'],dark:true},
-    5:{eyebrow:'WHO',title:'이런 호스트를\n찾습니다.',body:'현재 숙소를 실제로 운영하면서 개선 우선순위가 필요한 분.',bullets:['예약이 답답한 숙소','운영 피로가 큰 숙소','가격·사진·리뷰 중 무엇부터 볼지 모르는 숙소']},
-    6:{eyebrow:'FREE DIAGNOSIS · 10 STAYS',title:'숙소 링크 +\n“진단”',body:'72시간 실험 목표는 숙소 10곳입니다. 성과를 보장하지 않고 실제 운영 기준으로 봅니다.',bullets:['DM “진단”','숙소 링크 전달','진단 → 다음 액션'],accent:true},
+    5:{eyebrow:'WHO',title:'이런 호스트를\n찾습니다.',body:'현재 숙소를 실제로 운영하면서 개선 우선순위가 필요한 분.',bullets:['예약이 답답한 숙소','운영 피로가 큰 숙소','무엇부터 볼지 모르는 숙소']},
+    6:{eyebrow:'FREE DIAGNOSIS · 10 STAYS',title:'숙소 링크 +\n“진단”',body:'숙소 10곳 무료진단. 성과를 보장하지 않습니다.',bullets:['DM “진단”','숙소 링크','진단 → 다음 액션'],accent:true},
   },
 }
 
