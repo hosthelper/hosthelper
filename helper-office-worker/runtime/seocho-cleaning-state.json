@@ -1,6 +1,97 @@
 {
   "version": 2,
-  "initialized": false,
-  "updatedAt": null,
-  "bookings": {}
+  "initialized": true,
+  "updatedAt": "2026-09-12T16:49:26.968Z",
+  "bookings": {
+    "A605:1418fb94e984-b6d97de2cd975996e1a7beb4f8042b98@airbnb.com": {
+      "key": "A605:1418fb94e984-b6d97de2cd975996e1a7beb4f8042b98@airbnb.com",
+      "roomName": "A605",
+      "uid": "1418fb94e984-b6d97de2cd975996e1a7beb4f8042b98@airbnb.com",
+      "checkoutDate": "2026-09-14"
+    },
+    "A605:1418fb94e984-8661be7dd43a084e348c3cb0c6f1bb75@airbnb.com": {
+      "key": "A605:1418fb94e984-8661be7dd43a084e348c3cb0c6f1bb75@airbnb.com",
+      "roomName": "A605",
+      "uid": "1418fb94e984-8661be7dd43a084e348c3cb0c6f1bb75@airbnb.com",
+      "checkoutDate": "2026-10-12"
+    },
+    "A705:1418fb94e984-83817d60bf1f85e61b3548b88a6d4db6@airbnb.com": {
+      "key": "A705:1418fb94e984-83817d60bf1f85e61b3548b88a6d4db6@airbnb.com",
+      "roomName": "A705",
+      "uid": "1418fb94e984-83817d60bf1f85e61b3548b88a6d4db6@airbnb.com",
+      "checkoutDate": "2026-09-26"
+    },
+    "A705:1418fb94e984-848eaca539a79ac21aff2d69a3d12176@airbnb.com": {
+      "key": "A705:1418fb94e984-848eaca539a79ac21aff2d69a3d12176@airbnb.com",
+      "roomName": "A705",
+      "uid": "1418fb94e984-848eaca539a79ac21aff2d69a3d12176@airbnb.com",
+      "checkoutDate": "2026-10-07"
+    },
+    "A705:1418fb94e984-212907cfafebaa67524a2f05a4d7a56e@airbnb.com": {
+      "key": "A705:1418fb94e984-212907cfafebaa67524a2f05a4d7a56e@airbnb.com",
+      "roomName": "A705",
+      "uid": "1418fb94e984-212907cfafebaa67524a2f05a4d7a56e@airbnb.com",
+      "checkoutDate": "2026-10-26"
+    },
+    "A311:1418fb94e984-84ec4123402c76adc4d0aaec84edf764@airbnb.com": {
+      "key": "A311:1418fb94e984-84ec4123402c76adc4d0aaec84edf764@airbnb.com",
+      "roomName": "A311",
+      "uid": "1418fb94e984-84ec4123402c76adc4d0aaec84edf764@airbnb.com",
+      "checkoutDate": "2026-10-03"
+    },
+    "A311:1418fb94e984-e54839d13afe49b59096888cf123f5fa@airbnb.com": {
+      "key": "A311:1418fb94e984-e54839d13afe49b59096888cf123f5fa@airbnb.com",
+      "roomName": "A311",
+      "uid": "1418fb94e984-e54839d13afe49b59096888cf123f5fa@airbnb.com",
+      "checkoutDate": "2026-10-09"
+    },
+    "A311:1418fb94e984-e9eab17ebe67f2894e8382a697add13c@airbnb.com": {
+      "key": "A311:1418fb94e984-e9eab17ebe67f2894e8382a697add13c@airbnb.com",
+      "roomName": "A311",
+      "uid": "1418fb94e984-e9eab17ebe67f2894e8382a697add13c@airbnb.com",
+      "checkoutDate": "2026-10-23"
+    },
+    "A311:1418fb94e984-ab4a4d3a90969b6230e603e178268813@airbnb.com": {
+      "key": "A311:1418fb94e984-ab4a4d3a90969b6230e603e178268813@airbnb.com",
+      "roomName": "A311",
+      "uid": "1418fb94e984-ab4a4d3a90969b6230e603e178268813@airbnb.com",
+      "checkoutDate": "2026-10-25"
+    },
+    "A506:1418fb94e984-2a7da7890803dfdb07b5d3fb2f2a348a@airbnb.com": {
+      "key": "A506:1418fb94e984-2a7da7890803dfdb07b5d3fb2f2a348a@airbnb.com",
+      "roomName": "A506",
+      "uid": "1418fb94e984-2a7da7890803dfdb07b5d3fb2f2a348a@airbnb.com",
+      "checkoutDate": "2026-09-16"
+    },
+    "A506:1418fb94e984-8246003f7fdeea8fec85206ba0056ba4@airbnb.com": {
+      "key": "A506:1418fb94e984-8246003f7fdeea8fec85206ba0056ba4@airbnb.com",
+      "roomName": "A506",
+      "uid": "1418fb94e984-8246003f7fdeea8fec85206ba0056ba4@airbnb.com",
+      "checkoutDate": "2026-10-05"
+    },
+    "A506:1418fb94e984-cfe75478fc497356741ed0560db4c932@airbnb.com": {
+      "key": "A506:1418fb94e984-cfe75478fc497356741ed0560db4c932@airbnb.com",
+      "roomName": "A506",
+      "uid": "1418fb94e984-cfe75478fc497356741ed0560db4c932@airbnb.com",
+      "checkoutDate": "2026-12-26"
+    },
+    "A805:1418fb94e984-e9ff99c0646d45b50374691d75764471@airbnb.com": {
+      "key": "A805:1418fb94e984-e9ff99c0646d45b50374691d75764471@airbnb.com",
+      "roomName": "A805",
+      "uid": "1418fb94e984-e9ff99c0646d45b50374691d75764471@airbnb.com",
+      "checkoutDate": "2026-09-15"
+    },
+    "A805:1418fb94e984-7692fb80126766bf3e094ad76a03817a@airbnb.com": {
+      "key": "A805:1418fb94e984-7692fb80126766bf3e094ad76a03817a@airbnb.com",
+      "roomName": "A805",
+      "uid": "1418fb94e984-7692fb80126766bf3e094ad76a03817a@airbnb.com",
+      "checkoutDate": "2026-10-06"
+    },
+    "A805:1418fb94e984-01f7480d8fe477442c570741d3ce5c38@airbnb.com": {
+      "key": "A805:1418fb94e984-01f7480d8fe477442c570741d3ce5c38@airbnb.com",
+      "roomName": "A805",
+      "uid": "1418fb94e984-01f7480d8fe477442c570741d3ce5c38@airbnb.com",
+      "checkoutDate": "2026-10-18"
+    }
+  }
 }
