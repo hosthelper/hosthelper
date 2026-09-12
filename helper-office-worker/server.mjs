@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { triggerSeochoCleaning } from './cleaning-trigger.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || '';
@@ -6,6 +7,8 @@ const GATEWAY_URL = process.env.HELPER_OFFICE_CODE_GATEWAY || 'https://buzcnfnim
 const ALLOWED_GITHUB_OWNER = process.env.ALLOWED_GITHUB_OWNER || 'hosthelper';
 const PRODUCTION_SNAPSHOT_BASE = 'https://helper-office-4vmzn0t90-lifehelper.vercel.app';
 const activeJobs = new Set();
+let cleaningRun = null;
+let lastCleaningStartedAt = 0;
 
 function json(res, status, body) {
   res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
@@ -218,6 +221,21 @@ async function executeJob(jobToken) {
   }
 }
 
+async function runCleaningOnce() {
+  const now = Date.now();
+  if (cleaningRun) return cleaningRun;
+  if (now - lastCleaningStartedAt < 5 * 60 * 1000) {
+    return { ok: true, skipped: true, reason: 'recently_started' };
+  }
+  lastCleaningStartedAt = now;
+  cleaningRun = triggerSeochoCleaning();
+  try {
+    return await cleaningRun;
+  } finally {
+    cleaningRun = null;
+  }
+}
+
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   if (req.method === 'GET' && url.pathname === '/health') {
@@ -228,6 +246,18 @@ const server = http.createServer(async (req, res) => {
       production_deploy: false,
       mode: 'event-driven',
     });
+  }
+  if (req.method === 'GET' && url.pathname === '/internal/seocho-cleaning-trigger') {
+    try {
+      const result = await runCleaningOnce();
+      return json(res, 200, { ok: true, result });
+    } catch (error) {
+      return json(res, Number(error.status) || 502, {
+        ok: false,
+        error: String(error.message || error),
+        downstream: error.downstream || undefined,
+      });
+    }
   }
   if (req.method === 'GET' && url.pathname === '/snapshot-production') {
     try {
