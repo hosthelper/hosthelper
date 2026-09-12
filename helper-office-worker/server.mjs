@@ -1,5 +1,5 @@
 import http from 'node:http';
-import { triggerSeochoCleaning } from './cleaning-trigger.mjs';
+import { probeKakaoSend, triggerSeochoCleaning } from './cleaning-trigger.mjs';
 
 const PORT = Number(process.env.PORT || 3000);
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || '';
@@ -246,6 +246,14 @@ const server = http.createServer(async (req, res) => {
       production_deploy: false,
       mode: 'event-driven',
     });
+  }
+  if (req.method === 'GET' && url.pathname === '/internal/kakao-send-probe') {
+    try {
+      const result = await probeKakaoSend();
+      return json(res, 200, { ok: true, probe: result });
+    } catch (error) {
+      return json(res, 502, { ok: false, error: String(error.message || error) });
+    }
   }
   if (req.method === 'GET' && url.pathname === '/internal/seocho-cleaning-trigger') {
     try {
