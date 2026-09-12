@@ -1,3 +1,6 @@
+import { Script } from 'node:vm';
+import { createHash } from 'node:crypto';
+
 const BASE = process.env.HELPER_OFFICE_PRODUCTION_SNAPSHOT || 'https://helper-office-4vmzn0t90-lifehelper.vercel.app';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || '';
 const VERCEL_TOKEN = process.env.VERCEL_TOKEN || '';
@@ -5,7 +8,7 @@ const PROJECT_ID = process.env.VERCEL_PROJECT_ID || 'prj_NqiuOriBTEEiMG4NnPZyFaq
 const ORG_ID = process.env.VERCEL_ORG_ID || 'team_bTTQ4keENdDaBRIcpINqZFVU';
 const RELEASE_REPO = 'hosthelper/lifehelper';
 const RELEASE_REF = process.env.HELPER_OFFICE_RELEASE_REF || 'helper-office/control-plane-v1';
-const ASSET_VERSION = process.env.HELPER_OFFICE_ASSET_VERSION || '20260912-p2-0';
+const ASSET_VERSION = process.env.HELPER_OFFICE_ASSET_VERSION || '20260912-p2-1';
 const OFFICIAL_URL = process.env.HELPER_OFFICE_OFFICIAL_URL || 'https://helper-office-hq-lifehelper.vercel.app';
 const SUPABASE_CDN = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 
@@ -14,9 +17,9 @@ async function text(url, headers = {}) {
   if (!response.ok) throw new Error(`FETCH_${response.status}:${url}`);
   return response.text();
 }
-async function githubFile(path) {
+async function githubFile(path, sourceCommit) {
   if (!GITHUB_TOKEN) throw new Error('GITHUB_TOKEN_NOT_CONFIGURED');
-  const url = `https://api.github.com/repos/${RELEASE_REPO}/contents/${path}?ref=${encodeURIComponent(RELEASE_REF)}`;
+  const url = `https://api.github.com/repos/${RELEASE_REPO}/contents/${path}?ref=${encodeURIComponent(sourceCommit)}`;
   const response = await fetch(url, { headers: { authorization:`Bearer ${GITHUB_TOKEN}`, accept:'application/vnd.github+json', 'x-github-api-version':'2022-11-28', 'user-agent':'helper-office-production-deployer' } });
   if (!response.ok) throw new Error(`GITHUB_${response.status}:${path}`);
   const body = await response.json();
@@ -30,7 +33,7 @@ function versionAsset(index, file) {
 function prepareIndex(index) {
   let out=index;
   for (const file of ['styles.css','app.js','enhancements.js','runtime-status-v3.js']) out=versionAsset(out,file);
-  const localScripts=['session-recovery-v1.js','p0-hardening-v1.js','decision-rights-v1.js','customer360-v1.js'];
+  const localScripts=['session-recovery-v1.js','p0-hardening-v1.js','decision-rights-v1.js','customer360-v1.js','operations-v1.js'];
   for(const file of localScripts){
     if(!new RegExp(file.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(out)){
       const tag=`<script src="./${file}?v=${ASSET_VERSION}"></script>`;
@@ -43,6 +46,24 @@ function prepareIndex(index) {
     out=out.replace(p0Tag,`${tag}\n  ${p0Tag}`);
   }
   return out;
+}
+const digest = value => createHash('sha256').update(value).digest('hex');
+export function validateProductionBundle(files) {
+  const required = ['index.html','app.js','styles.css','enhancements.js','runtime-status-v3.js','session-recovery-v1.js','p0-hardening-v1.js','decision-rights-v1.js','customer360-v1.js','operations-v1.js'];
+  for (const name of required) {
+    const file = files.find(f => f.file === name);
+    if (!file || typeof file.data !== 'string' || !file.data.trim()) throw new Error(`BUNDLE_FILE_MISSING:${name}`);
+    if (name.endsWith('.js')) new Script(file.data, { filename: name });
+  }
+  return Object.fromEntries(files.map(f => [f.file, digest(f.data)]));
+}
+async function resolveSourceCommit() {
+  if (!GITHUB_TOKEN) throw new Error('GITHUB_TOKEN_NOT_CONFIGURED');
+  const response = await fetch(`https://api.github.com/repos/${RELEASE_REPO}/commits/${encodeURIComponent(RELEASE_REF)}`, { headers: { authorization: `Bearer ${GITHUB_TOKEN}`, accept: 'application/vnd.github+json', 'user-agent': 'helper-office-production-deployer' } });
+  if (!response.ok) throw new Error(`GITHUB_REF_${response.status}`);
+  const body = await response.json();
+  if (!/^[a-f0-9]{40}$/.test(body.sha || '')) throw new Error('INVALID_SOURCE_COMMIT');
+  return body.sha;
 }
 async function vercel(path, init = {}) {
   if (!VERCEL_TOKEN || VERCEL_TOKEN.length < 20) throw new Error('VERCEL_TOKEN_NOT_CONFIGURED');
@@ -62,7 +83,7 @@ async function waitUntilReady(deploymentId) {
   }
   throw new Error('VERCEL_DEPLOY_TIMEOUT');
 }
-async function verifyOfficialProduction() {
+async function verifyOfficialProduction(files) {
   const nonce=`${ASSET_VERSION}-${Date.now()}`;
   const index=await text(`${OFFICIAL_URL}/?verify=${encodeURIComponent(nonce)}`,{'cache-control':'no-cache'});
   const markers=[`app.js?v=${ASSET_VERSION}`,`enhancements.js?v=${ASSET_VERSION}`,`runtime-status-v3.js?v=${ASSET_VERSION}`,`session-recovery-v1.js?v=${ASSET_VERSION}`,`p0-hardening-v1.js?v=${ASSET_VERSION}`,`decision-rights-v1.js?v=${ASSET_VERSION}`,`customer360-v1.js?v=${ASSET_VERSION}`,SUPABASE_CDN];
@@ -80,17 +101,22 @@ async function verifyOfficialProduction() {
   if(!p0.includes('ho_get_guardian_board'))throw new Error('PRODUCTION_P0_GUARDIAN_UI_MISSING');
   if(!rights.includes('decision-rights-v1-20260912')||!rights.includes('ho_get_decision_rights_board'))throw new Error('PRODUCTION_DECISION_RIGHTS_UI_MISSING');
   if(!customer360.includes('customer360-v1-20260912')||!customer360.includes('ho_get_customer_360_board'))throw new Error('PRODUCTION_CUSTOMER360_UI_MISSING');
-  return{official_url:OFFICIAL_URL,asset_version:ASSET_VERSION,index_markers_verified:markers.length,runtime_status_verified:true,session_recovery_verified:true,p0_hardening_verified:true,realtime_sdk_injected:true,secure_realtime_signal_channel:true,guardian_ui_verified:true,decision_rights_ui_verified:true,customer360_ui_verified:true};
+  const expected=validateProductionBundle(files);
+  for(const file of files){const deployed=await text(`${OFFICIAL_URL}/${file.file}?verify=${encodeURIComponent(nonce)}`,{'cache-control':'no-cache'});if(digest(deployed)!==expected[file.file])throw new Error(`PRODUCTION_CONTENT_MISMATCH:${file.file}`);}
+  return{content_hashes:expected,syntax_verified:true,operations_ui_verified:true,official_url:OFFICIAL_URL,asset_version:ASSET_VERSION,index_markers_verified:markers.length,runtime_status_verified:true,session_recovery_verified:true,p0_hardening_verified:true,realtime_sdk_injected:true,secure_realtime_signal_channel:true,guardian_ui_verified:true,decision_rights_ui_verified:true,customer360_ui_verified:true};
 }
 export async function deployHelperOfficeProduction() {
   if(process.env.ALLOW_PRODUCTION_DEPLOY!=='true')throw new Error('PRODUCTION_DEPLOY_NOT_APPROVED');
   if(!VERCEL_TOKEN||VERCEL_TOKEN.length<20)throw new Error('VERCEL_TOKEN_NOT_CONFIGURED');
-  const[index,app,styles,enhancements,runtimeStatus,sessionRecovery,p0Hardening,decisionRights,customer360]=await Promise.all([
-    githubFile('helper-office-hq/index.html'),githubFile('helper-office-hq/app.js'),githubFile('helper-office-hq/styles.css'),githubFile('helper-office-hq/enhancements.js'),githubFile('helper-office-hq/runtime-status-v3.js'),githubFile('helper-office-hq/session-recovery-v1.js'),githubFile('helper-office-hq/p0-hardening-v1.js'),githubFile('helper-office-hq/decision-rights-v1.js'),githubFile('helper-office-hq/customer360-v1.js')
+  const sourceCommit=await resolveSourceCommit();
+  const[index,app,styles,enhancements,runtimeStatus,sessionRecovery,p0Hardening,decisionRights,customer360,operations]=await Promise.all([
+    githubFile('helper-office-hq/index.html',sourceCommit),githubFile('helper-office-hq/app.js',sourceCommit),githubFile('helper-office-hq/styles.css',sourceCommit),githubFile('helper-office-hq/enhancements.js',sourceCommit),githubFile('helper-office-hq/runtime-status-v3.js',sourceCommit),githubFile('helper-office-hq/session-recovery-v1.js',sourceCommit),githubFile('helper-office-hq/p0-hardening-v1.js',sourceCommit),githubFile('helper-office-hq/decision-rights-v1.js',sourceCommit),githubFile('helper-office-hq/customer360-v1.js',sourceCommit),githubFile('helper-office-hq/operations-v1.js',sourceCommit)
   ]);
-  const files=[{file:'index.html',data:prepareIndex(index)},{file:'app.js',data:app},{file:'styles.css',data:styles},{file:'enhancements.js',data:enhancements},{file:'runtime-status-v3.js',data:runtimeStatus},{file:'session-recovery-v1.js',data:sessionRecovery},{file:'p0-hardening-v1.js',data:p0Hardening},{file:'decision-rights-v1.js',data:decisionRights},{file:'customer360-v1.js',data:customer360}];
-  const created=await vercel('/v13/deployments?forceNew=1&skipAutoDetectionConfirmation=1',{method:'POST',body:JSON.stringify({name:'helper-office-hq',project:PROJECT_ID,target:'production',files,projectSettings:{framework:null},meta:{helperOfficeReleaseRef:RELEASE_REF,helperOfficeRuntimeOverlay:'p2-v0',helperOfficeAssetVersion:ASSET_VERSION,source:'render-worker'}})});
+  const files=[{file:'index.html',data:prepareIndex(index)},{file:'app.js',data:app},{file:'styles.css',data:styles},{file:'enhancements.js',data:enhancements},{file:'runtime-status-v3.js',data:runtimeStatus},{file:'session-recovery-v1.js',data:sessionRecovery},{file:'p0-hardening-v1.js',data:p0Hardening},{file:'decision-rights-v1.js',data:decisionRights},{file:'customer360-v1.js',data:customer360},{file:'operations-v1.js',data:operations}];
+  validateProductionBundle(files);
+  const created=await vercel('/v13/deployments?forceNew=1&skipAutoDetectionConfirmation=1',{method:'POST',body:JSON.stringify({name:'helper-office-hq',project:PROJECT_ID,target:'production',files,projectSettings:{framework:null},meta:{helperOfficeReleaseRef:RELEASE_REF,helperOfficeSourceCommit:sourceCommit,helperOfficeRuntimeOverlay:'p2-v1',helperOfficeAssetVersion:ASSET_VERSION,source:'render-worker'}})});
   const deploymentId=String(created.id||'');if(!deploymentId)throw new Error('VERCEL_DEPLOYMENT_ID_MISSING');
-  const ready=await waitUntilReady(deploymentId);const deploymentUrl=ready.url?`https://${ready.url}`:created.url?`https://${created.url}`:null;const productionVerification=await verifyOfficialProduction();
-  return{ok:true,project_id:PROJECT_ID,release_ref:RELEASE_REF,asset_version:ASSET_VERSION,deployment_id:deploymentId,deployment_url:deploymentUrl,ready_state:ready.readyState||ready.state||null,production_verification:productionVerification};
+  const ready=await waitUntilReady(deploymentId);const deploymentUrl=ready.url?`https://${ready.url}`:created.url?`https://${created.url}`:null;const productionVerification=await verifyOfficialProduction(files);
+  return{ok:true,source_commit:sourceCommit,project_id:PROJECT_ID,release_ref:RELEASE_REF,asset_version:ASSET_VERSION,deployment_id:deploymentId,deployment_url:deploymentUrl,ready_state:ready.readyState||ready.state||null,production_verification:productionVerification};
 }
+
