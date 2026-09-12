@@ -6,6 +6,7 @@ const ORG_ID = process.env.VERCEL_ORG_ID || 'team_bTTQ4keENdDaBRIcpINqZFVU';
 const RELEASE_REPO = 'hosthelper/lifehelper';
 const RELEASE_REF = process.env.HELPER_OFFICE_RELEASE_REF || 'helper-office/control-plane-v1';
 const ASSET_VERSION = process.env.HELPER_OFFICE_ASSET_VERSION || '20260912-p0-2';
+const OFFICIAL_URL = process.env.HELPER_OFFICE_OFFICIAL_URL || 'https://helper-office-hq-lifehelper.vercel.app';
 
 async function text(url, headers = {}) {
   const response = await fetch(url, {
@@ -88,12 +89,38 @@ async function waitUntilReady(deploymentId) {
   throw new Error('VERCEL_DEPLOY_TIMEOUT');
 }
 
+async function verifyOfficialProduction() {
+  const nonce = `${ASSET_VERSION}-${Date.now()}`;
+  const index = await text(`${OFFICIAL_URL}/?verify=${encodeURIComponent(nonce)}`, { 'cache-control': 'no-cache' });
+  const markers = [
+    `app.js?v=${ASSET_VERSION}`,
+    `enhancements.js?v=${ASSET_VERSION}`,
+    `runtime-status-v3.js?v=${ASSET_VERSION}`,
+    `session-recovery-v1.js?v=${ASSET_VERSION}`,
+  ];
+  const missing = markers.filter((marker) => !index.includes(marker));
+  if (missing.length) throw new Error(`PRODUCTION_BUNDLE_MARKER_MISSING:${missing.join(',')}`);
+
+  const [runtime, recovery] = await Promise.all([
+    text(`${OFFICIAL_URL}/runtime-status-v3.js?v=${encodeURIComponent(ASSET_VERSION)}&verify=${Date.now()}`, { 'cache-control': 'no-cache' }),
+    text(`${OFFICIAL_URL}/session-recovery-v1.js?v=${encodeURIComponent(ASSET_VERSION)}&verify=${Date.now()}`, { 'cache-control': 'no-cache' }),
+  ]);
+  if (!runtime.includes('runtime-status-v3-20260912')) throw new Error('PRODUCTION_RUNTIME_STATUS_VERSION_MISMATCH');
+  if (!recovery.includes('session-recovery-v1-20260912')) throw new Error('PRODUCTION_SESSION_RECOVERY_VERSION_MISMATCH');
+
+  return {
+    official_url: OFFICIAL_URL,
+    asset_version: ASSET_VERSION,
+    index_markers_verified: markers.length,
+    runtime_status_verified: true,
+    session_recovery_verified: true,
+  };
+}
+
 export async function deployHelperOfficeProduction() {
   if (process.env.ALLOW_PRODUCTION_DEPLOY !== 'true') throw new Error('PRODUCTION_DEPLOY_NOT_APPROVED');
   if (!VERCEL_TOKEN || VERCEL_TOKEN.length < 20) throw new Error('VERCEL_TOKEN_NOT_CONFIGURED');
 
-  // Source every static runtime file from the same reviewed release branch.
-  // The old Production snapshot is kept only as an emergency reference and is not mixed into a normal release.
   const [index, app, styles, enhancements, runtimeStatus, sessionRecovery] = await Promise.all([
     githubFile('helper-office-hq/index.html'),
     githubFile('helper-office-hq/app.js'),
@@ -133,6 +160,7 @@ export async function deployHelperOfficeProduction() {
   if (!deploymentId) throw new Error('VERCEL_DEPLOYMENT_ID_MISSING');
   const ready = await waitUntilReady(deploymentId);
   const deploymentUrl = ready.url ? `https://${ready.url}` : created.url ? `https://${created.url}` : null;
+  const productionVerification = await verifyOfficialProduction();
 
   return {
     ok: true,
@@ -142,5 +170,6 @@ export async function deployHelperOfficeProduction() {
     deployment_id: deploymentId,
     deployment_url: deploymentUrl,
     ready_state: ready.readyState || ready.state || null,
+    production_verification: productionVerification,
   };
 }
