@@ -5,6 +5,7 @@ const PROJECT_ID = process.env.VERCEL_PROJECT_ID || 'prj_NqiuOriBTEEiMG4NnPZyFaq
 const ORG_ID = process.env.VERCEL_ORG_ID || 'team_bTTQ4keENdDaBRIcpINqZFVU';
 const RELEASE_REPO = 'hosthelper/lifehelper';
 const RELEASE_REF = process.env.HELPER_OFFICE_RELEASE_REF || 'helper-office/control-plane-v1';
+const ASSET_VERSION = process.env.HELPER_OFFICE_ASSET_VERSION || '20260912-p0-2';
 
 async function text(url, headers = {}) {
   const response = await fetch(url, {
@@ -31,13 +32,24 @@ async function githubFile(path) {
   return Buffer.from(String(body.content || '').replace(/\s/g, ''), 'base64').toString('utf8');
 }
 
-function injectScripts(index) {
-  const tags = [];
-  if (!/enhancements\.js/i.test(index)) tags.push('<script src="/enhancements.js"></script>');
-  if (!/runtime-status-v3\.js/i.test(index)) tags.push('<script src="/runtime-status-v3.js"></script>');
-  if (!tags.length) return index;
-  const block = `\n    ${tags.join('\n    ')}\n`;
-  return /<\/body>/i.test(index) ? index.replace(/<\/body>/i, `${block}</body>`) : `${index}${block}`;
+function versionAsset(index, file) {
+  const escaped = file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const rx = new RegExp(`((?:\\./|/)?)${escaped}(?:\\?[^\\"']*)?`, 'gi');
+  return index.replace(rx, (_m, prefix) => `${prefix || './'}${file}?v=${ASSET_VERSION}`);
+}
+
+function prepareIndex(index) {
+  let out = index;
+  for (const file of ['styles.css', 'app.js', 'enhancements.js', 'runtime-status-v3.js']) {
+    out = versionAsset(out, file);
+  }
+  if (!/session-recovery-v1\.js/i.test(out)) {
+    const tag = `<script src="./session-recovery-v1.js?v=${ASSET_VERSION}"></script>`;
+    out = /<\/body>/i.test(out) ? out.replace(/<\/body>/i, `  ${tag}\n</body>`) : `${out}\n${tag}`;
+  } else {
+    out = versionAsset(out, 'session-recovery-v1.js');
+  }
+  return out;
 }
 
 async function vercel(path, init = {}) {
@@ -80,20 +92,24 @@ export async function deployHelperOfficeProduction() {
   if (process.env.ALLOW_PRODUCTION_DEPLOY !== 'true') throw new Error('PRODUCTION_DEPLOY_NOT_APPROVED');
   if (!VERCEL_TOKEN || VERCEL_TOKEN.length < 20) throw new Error('VERCEL_TOKEN_NOT_CONFIGURED');
 
-  const [index, app, styles, enhancements, runtimeStatus] = await Promise.all([
-    text(`${BASE}/index.html`),
-    text(`${BASE}/app.js`),
-    text(`${BASE}/styles.css`),
+  // Source every static runtime file from the same reviewed release branch.
+  // The old Production snapshot is kept only as an emergency reference and is not mixed into a normal release.
+  const [index, app, styles, enhancements, runtimeStatus, sessionRecovery] = await Promise.all([
+    githubFile('helper-office-hq/index.html'),
+    githubFile('helper-office-hq/app.js'),
+    githubFile('helper-office-hq/styles.css'),
     githubFile('helper-office-hq/enhancements.js'),
     githubFile('helper-office-hq/runtime-status-v3.js'),
+    githubFile('helper-office-hq/session-recovery-v1.js'),
   ]);
 
   const files = [
-    { file: 'index.html', data: injectScripts(index) },
+    { file: 'index.html', data: prepareIndex(index) },
     { file: 'app.js', data: app },
     { file: 'styles.css', data: styles },
     { file: 'enhancements.js', data: enhancements },
     { file: 'runtime-status-v3.js', data: runtimeStatus },
+    { file: 'session-recovery-v1.js', data: sessionRecovery },
   ];
 
   const created = await vercel('/v13/deployments?forceNew=1&skipAutoDetectionConfirmation=1', {
@@ -103,12 +119,11 @@ export async function deployHelperOfficeProduction() {
       project: PROJECT_ID,
       target: 'production',
       files,
-      projectSettings: {
-        framework: null,
-      },
+      projectSettings: { framework: null },
       meta: {
         helperOfficeReleaseRef: RELEASE_REF,
-        helperOfficeRuntimeOverlay: 'v3',
+        helperOfficeRuntimeOverlay: 'v4',
+        helperOfficeAssetVersion: ASSET_VERSION,
         source: 'render-worker',
       },
     }),
@@ -123,6 +138,7 @@ export async function deployHelperOfficeProduction() {
     ok: true,
     project_id: PROJECT_ID,
     release_ref: RELEASE_REF,
+    asset_version: ASSET_VERSION,
     deployment_id: deploymentId,
     deployment_url: deploymentUrl,
     ready_state: ready.readyState || ready.state || null,
