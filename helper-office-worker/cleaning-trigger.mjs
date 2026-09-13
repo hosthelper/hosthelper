@@ -13,7 +13,7 @@ const ROOM_FEEDS = [
   { id: 'A311', envKey: 'SEOCHO_GISELLE_ICAL_A311' },
   { id: 'A506', envKey: 'SEOCHO_GISELLE_ICAL_A506' },
   { id: 'A805', envKey: 'SEOCHO_GISELLE_ICAL_A805' },
-  { id: '천호 401호', envKey: 'CHEONHO_401_ICAL' },
+  { id: '401호 천호', envKey: 'CHEONHO_401_ICAL' },
 ];
 
 function getFeeds() {
@@ -102,7 +102,7 @@ function formatKoreanDate(date) {
 }
 
 function propertyName(roomName) {
-  return roomName === '천호 401호' ? '천호' : '서초 지젤';
+  return roomName === '401호 천호' ? '천호' : '서초 지젤';
 }
 
 async function githubState(method = 'GET', body) {
@@ -191,7 +191,6 @@ async function fetchCurrentBookings(feeds, previousBookings) {
     }
   }
 
-  // 조회 실패 객실은 이전 상태를 유지해 잘못된 취소 알림을 방지한다.
   for (const [key, booking] of Object.entries(previousBookings || {})) {
     if (!succeededRooms.has(booking.roomName)) current[key] = booking;
   }
@@ -291,7 +290,6 @@ export async function triggerSeochoCleaning() {
   for (const [key, current] of Object.entries(snapshot.current)) {
     const before = previous.bookings[key];
     if (!before) {
-      // 새 숙소를 처음 연결할 때 이미 존재하던 예약은 기준값으로만 저장한다.
       if (!newlyOnboardedRooms.has(current.roomName)) {
         events.push({ type: 'new', booking: current });
       }
@@ -306,7 +304,6 @@ export async function triggerSeochoCleaning() {
     if (!snapshot.current[key]) events.push({ type: 'cancelled', booking: before });
   }
 
-  // 해당 호실 한 건씩만 발송한다. 월별 전체표는 자동 발송하지 않는다.
   const sent = [];
   for (const event of events) {
     const result = await sendKakao(buildAlert(event.type, event.booking));
