@@ -43,9 +43,9 @@ if (process.env.RUN_CLEANING_SYNC_ON_START === 'true') {
     });
 }
 
+const ONE_TIME_NOTICE_TEXT = `<서초 지젤>\n\n9/14: A605 -\n9/15: A805 -\n9/16: A506 -\n\n9/25: A705 -\n\n<401 천호>\n9/15:\n9/18:\n9/27:\n\n<청량리>\n9월 청소 일정 없음`;
+
 async function sendOneTimeNotice() {
-  const text = String(process.env.ONE_TIME_NOTICE_TEXT || '').trim();
-  if (!text) throw new Error('ONE_TIME_NOTICE_TEXT_EMPTY');
   const endpoint = process.env.KAKAO_SEND_ENDPOINT || 'https://auction-community-pearl.vercel.app/api/kakao/send';
   const response = await fetch(endpoint, {
     method: 'POST',
@@ -53,7 +53,7 @@ async function sendOneTimeNotice() {
       'content-type': 'application/json',
       'user-agent': 'vercel-cron/1.0',
     },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ text: ONE_TIME_NOTICE_TEXT }),
     signal: AbortSignal.timeout(30000),
   });
   const raw = await response.text();
