@@ -6,12 +6,20 @@ const STATE_REPO = process.env.CLEANING_STATE_REPO || 'hosthelper/hosthelper';
 const STATE_BRANCH = process.env.CLEANING_STATE_BRANCH || 'runtime/seocho-cleaning-state-v2';
 const STATE_PATH = 'helper-office-worker/runtime/seocho-cleaning-state.json';
 
-const ROOMS = ['A605', 'A601', 'A705', 'A311', 'A506', 'A805'];
+const ROOM_FEEDS = [
+  { id: 'A605', envKey: 'SEOCHO_GISELLE_ICAL_A605' },
+  { id: 'A601', envKey: 'SEOCHO_GISELLE_ICAL_A601' },
+  { id: 'A705', envKey: 'SEOCHO_GISELLE_ICAL_A705' },
+  { id: 'A311', envKey: 'SEOCHO_GISELLE_ICAL_A311' },
+  { id: 'A506', envKey: 'SEOCHO_GISELLE_ICAL_A506' },
+  { id: 'A805', envKey: 'SEOCHO_GISELLE_ICAL_A805' },
+  { id: '천호 401호', envKey: 'CHEONHO_401_ICAL' },
+];
 
 function getFeeds() {
-  const feeds = ROOMS.map((id) => ({
+  const feeds = ROOM_FEEDS.map(({ id, envKey }) => ({
     id,
-    icalUrl: String(process.env[`SEOCHO_GISELLE_ICAL_${id}`] || '').trim(),
+    icalUrl: String(process.env[envKey] || '').trim(),
   }));
   const missing = feeds.filter((feed) => !feed.icalUrl).map((feed) => feed.id);
   if (missing.length) throw new Error(`CLEANING_ICAL_MISSING:${missing.join(',')}`);
@@ -93,6 +101,10 @@ function formatKoreanDate(date) {
   return `${Number(month)}월 ${Number(day)}일`;
 }
 
+function propertyName(roomName) {
+  return roomName === '천호 401호' ? '천호' : '서초 지젤';
+}
+
 async function githubState(method = 'GET', body) {
   if (!GITHUB_TOKEN) throw new Error('GITHUB_TOKEN_NOT_CONFIGURED');
   const url = new URL(`https://api.github.com/repos/${STATE_REPO}/contents/${STATE_PATH}`);
@@ -105,7 +117,7 @@ async function githubState(method = 'GET', body) {
       accept: 'application/vnd.github+json',
       'content-type': 'application/json',
       'x-github-api-version': '2022-11-28',
-      'user-agent': 'helper-office-render-worker/seocho-cleaning-state',
+      'user-agent': 'helper-office-render-worker/cleaning-state',
     },
     body: body ? JSON.stringify(body) : undefined,
     signal: AbortSignal.timeout(20_000),
@@ -122,28 +134,32 @@ async function loadState() {
   try {
     const decoded = Buffer.from(String(file?.content || '').replace(/\s/g, ''), 'base64').toString('utf8');
     const state = JSON.parse(decoded || '{}');
+    const bookings = state.bookings && typeof state.bookings === 'object' ? state.bookings : {};
+    const derivedKnownRooms = [...new Set(Object.values(bookings).map((booking) => booking.roomName).filter(Boolean))];
     return {
-      version: Number(state.version || 2),
+      version: Number(state.version || 3),
       initialized: state.initialized === true,
       updatedAt: state.updatedAt || null,
-      bookings: state.bookings && typeof state.bookings === 'object' ? state.bookings : {},
+      bookings,
+      knownRooms: Array.isArray(state.knownRooms) ? state.knownRooms : derivedKnownRooms,
       sha: String(file?.sha || ''),
     };
   } catch {
-    return { version: 2, initialized: false, updatedAt: null, bookings: {}, sha: String(file?.sha || '') };
+    return { version: 3, initialized: false, updatedAt: null, bookings: {}, knownRooms: [], sha: String(file?.sha || '') };
   }
 }
 
-async function saveState(bookings, sha) {
+async function saveState(bookings, sha, knownRooms) {
   if (!sha) throw new Error('CLEANING_STATE_SHA_MISSING');
   const state = {
-    version: 2,
+    version: 3,
     initialized: true,
     updatedAt: new Date().toISOString(),
+    knownRooms: [...new Set(knownRooms)].sort(),
     bookings,
   };
   await githubState('PUT', {
-    message: 'chore(runtime): update Seocho cleaning state',
+    message: 'chore(runtime): update cleaning state',
     content: Buffer.from(JSON.stringify(state, null, 2), 'utf8').toString('base64'),
     sha,
     branch: STATE_BRANCH,
@@ -161,7 +177,7 @@ async function fetchCurrentBookings(feeds, previousBookings) {
     try {
       const response = await fetch(feed.icalUrl, {
         cache: 'no-store',
-        headers: { 'user-agent': 'helper-office-render-worker/seocho-cleaning-direct' },
+        headers: { 'user-agent': 'helper-office-render-worker/cleaning-direct' },
         signal: AbortSignal.timeout(20_000),
       });
       if (!response.ok) throw new Error(`HTTP_${response.status}`);
@@ -184,12 +200,13 @@ async function fetchCurrentBookings(feeds, previousBookings) {
 }
 
 function buildAlert(type, booking) {
+  const property = propertyName(booking.roomName);
   const title =
     type === 'new'
-      ? '🧹 서초 지젤 신규 청소 일정'
+      ? `🧹 ${property} 신규 청소 일정`
       : type === 'changed'
-        ? '🧹 서초 지젤 청소 일정 변경'
-        : '🧹 서초 지젤 청소 일정 취소';
+        ? `🧹 ${property} 청소 일정 변경`
+        : `🧹 ${property} 청소 일정 취소`;
 
   return [
     title,
@@ -250,7 +267,7 @@ export async function triggerSeochoCleaning() {
         failures: snapshot.failures,
       };
     }
-    await saveState(snapshot.current, previous.sha);
+    await saveState(snapshot.current, previous.sha, feeds.map((feed) => feed.id));
     return {
       ok: true,
       initialized: true,
@@ -261,11 +278,23 @@ export async function triggerSeochoCleaning() {
     };
   }
 
+  const knownRooms = new Set(previous.knownRooms || []);
+  const newlyOnboardedRooms = new Set();
+  for (const feed of feeds) {
+    if (!knownRooms.has(feed.id) && snapshot.succeededRooms.has(feed.id)) {
+      newlyOnboardedRooms.add(feed.id);
+      knownRooms.add(feed.id);
+    }
+  }
+
   const events = [];
   for (const [key, current] of Object.entries(snapshot.current)) {
     const before = previous.bookings[key];
     if (!before) {
-      events.push({ type: 'new', booking: current });
+      // 새 숙소를 처음 연결할 때 이미 존재하던 예약은 기준값으로만 저장한다.
+      if (!newlyOnboardedRooms.has(current.roomName)) {
+        events.push({ type: 'new', booking: current });
+      }
     } else if (before.checkoutDate !== current.checkoutDate) {
       events.push({ type: 'changed', booking: current });
     }
@@ -284,10 +313,11 @@ export async function triggerSeochoCleaning() {
     sent.push({ type: event.type, roomName: event.booking.roomName, checkoutDate: event.booking.checkoutDate, result });
   }
 
-  await saveState(snapshot.current, previous.sha);
+  await saveState(snapshot.current, previous.sha, [...knownRooms]);
   return {
     ok: true,
     initialized: true,
+    newlyOnboardedRooms: [...newlyOnboardedRooms],
     activeBookings: Object.keys(snapshot.current).length,
     events: sent.map(({ type, roomName, checkoutDate }) => ({ type, roomName, checkoutDate })),
     failures: snapshot.failures,
