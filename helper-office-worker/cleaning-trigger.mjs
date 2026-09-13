@@ -14,6 +14,7 @@ const ROOM_FEEDS = [
   { id: 'A506', envKey: 'SEOCHO_GISELLE_ICAL_A506' },
   { id: 'A805', envKey: 'SEOCHO_GISELLE_ICAL_A805' },
   { id: '401호 천호', envKey: 'CHEONHO_401_ICAL' },
+  { id: '청량리', envKey: 'CHEONGLYANGNI_ICAL' },
 ];
 
 function getFeeds() {
@@ -102,7 +103,9 @@ function formatKoreanDate(date) {
 }
 
 function propertyName(roomName) {
-  return roomName === '401호 천호' ? '천호' : '서초 지젤';
+  if (roomName === '401호 천호') return '천호';
+  if (roomName === '청량리') return '청량리';
+  return '서초 지젤';
 }
 
 async function githubState(method = 'GET', body) {
