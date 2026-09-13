@@ -7,22 +7,25 @@ const STATE_BRANCH = process.env.CLEANING_STATE_BRANCH || 'runtime/seocho-cleani
 const STATE_PATH = 'helper-office-worker/runtime/seocho-cleaning-state.json';
 
 const ROOM_FEEDS = [
-  { id: 'A605', envKey: 'SEOCHO_GISELLE_ICAL_A605' },
-  { id: 'A601', envKey: 'SEOCHO_GISELLE_ICAL_A601' },
-  { id: 'A705', envKey: 'SEOCHO_GISELLE_ICAL_A705' },
-  { id: 'A311', envKey: 'SEOCHO_GISELLE_ICAL_A311' },
-  { id: 'A506', envKey: 'SEOCHO_GISELLE_ICAL_A506' },
-  { id: 'A805', envKey: 'SEOCHO_GISELLE_ICAL_A805' },
-  { id: '401호 천호', envKey: 'CHEONHO_401_ICAL' },
-  { id: '청량리', envKey: 'CHEONGLYANGNI_ICAL' },
+  { id: 'A605', source: 'airbnb', feedKey: 'airbnb:A605', envKey: 'SEOCHO_GISELLE_ICAL_A605' },
+  { id: 'A601', source: 'airbnb', feedKey: 'airbnb:A601', envKey: 'SEOCHO_GISELLE_ICAL_A601' },
+  { id: 'A705', source: 'airbnb', feedKey: 'airbnb:A705', envKey: 'SEOCHO_GISELLE_ICAL_A705' },
+  { id: 'A311', source: 'airbnb', feedKey: 'airbnb:A311', envKey: 'SEOCHO_GISELLE_ICAL_A311' },
+  { id: 'A506', source: 'airbnb', feedKey: 'airbnb:A506', envKey: 'SEOCHO_GISELLE_ICAL_A506' },
+  { id: 'A805', source: 'airbnb', feedKey: 'airbnb:A805', envKey: 'SEOCHO_GISELLE_ICAL_A805' },
+  { id: '401호 천호', source: 'airbnb', feedKey: 'airbnb:401호 천호', envKey: 'CHEONHO_401_ICAL' },
+  { id: '청량리', source: 'airbnb', feedKey: 'airbnb:청량리', envKey: 'CHEONGLYANGNI_ICAL' },
+  { id: '청량리', source: 'booking', feedKey: 'booking:청량리', envKey: 'CHEONGNYANGNI_BOOKING_ICAL' },
 ];
 
 function getFeeds() {
-  const feeds = ROOM_FEEDS.map(({ id, envKey }) => ({
+  const feeds = ROOM_FEEDS.map(({ id, source, feedKey, envKey }) => ({
     id,
+    source,
+    feedKey,
     icalUrl: String(process.env[envKey] || '').trim(),
   }));
-  const missing = feeds.filter((feed) => !feed.icalUrl).map((feed) => feed.id);
+  const missing = feeds.filter((feed) => !feed.icalUrl).map((feed) => feed.feedKey);
   if (missing.length) throw new Error(`CLEANING_ICAL_MISSING:${missing.join(',')}`);
   return feeds;
 }
@@ -31,11 +34,8 @@ function unfoldICal(text) {
   const raw = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
   const lines = [];
   for (const line of raw) {
-    if ((line.startsWith(' ') || line.startsWith('\t')) && lines.length > 0) {
-      lines[lines.length - 1] += line.slice(1);
-    } else {
-      lines.push(line);
-    }
+    if ((line.startsWith(' ') || line.startsWith('\t')) && lines.length > 0) lines[lines.length - 1] += line.slice(1);
+    else lines.push(line);
   }
   return lines;
 }
@@ -51,7 +51,37 @@ function normalizeDate(value) {
   return `${match[1]}-${match[2]}-${match[3]}`;
 }
 
-function parseReservedBookings(text, roomName) {
+function dateDiffDays(start, end) {
+  const a = Date.parse(`${start}T00:00:00Z`);
+  const b = Date.parse(`${end}T00:00:00Z`);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+  return Math.round((b - a) / 86400000);
+}
+
+function addDays(date, days) {
+  const ms = Date.parse(`${date}T00:00:00Z`) + days * 86400000;
+  return new Date(ms).toISOString().slice(0, 10);
+}
+
+function isAcceptedEvent(event, feed, today) {
+  const summary = String(event.summary || '').trim().toLowerCase();
+  if (!event.uid || !event.checkoutDate) return false;
+
+  if (feed.source === 'airbnb') return summary === 'reserved';
+
+  if (feed.source === 'booking') {
+    if (!event.checkinDate) return false;
+    if (summary !== 'closed - not available') return false;
+    const nights = dateDiffDays(event.checkinDate, event.checkoutDate);
+    if (nights === null || nights <= 0 || nights > 30) return false;
+    if (event.checkoutDate > addDays(today, 180)) return false;
+    return true;
+  }
+
+  return false;
+}
+
+function parseBookings(text, feed, today) {
   const lines = unfoldICal(text);
   const out = [];
   let event = null;
@@ -62,16 +92,17 @@ function parseReservedBookings(text, roomName) {
       continue;
     }
     if (line === 'END:VEVENT') {
-      if (
-        event &&
-        event.uid &&
-        event.checkoutDate &&
-        String(event.summary || '').trim().toLowerCase() === 'reserved'
-      ) {
+      if (event && isAcceptedEvent(event, feed, today)) {
+        const key = feed.source === 'airbnb'
+          ? `${feed.id}:${event.uid}`
+          : `${feed.id}:booking:${event.uid}`;
         out.push({
-          key: `${roomName}:${event.uid}`,
-          roomName,
+          key,
+          roomName: feed.id,
+          source: feed.source,
+          feedKey: feed.feedKey,
           uid: event.uid,
+          checkinDate: event.checkinDate || null,
           checkoutDate: event.checkoutDate,
         });
       }
@@ -82,6 +113,7 @@ function parseReservedBookings(text, roomName) {
 
     if (line.startsWith('UID')) event.uid = valueOf(line);
     else if (line.startsWith('SUMMARY')) event.summary = valueOf(line);
+    else if (line.startsWith('DTSTART')) event.checkinDate = normalizeDate(valueOf(line));
     else if (line.startsWith('DTEND')) event.checkoutDate = normalizeDate(valueOf(line));
   }
 
@@ -106,6 +138,12 @@ function propertyName(roomName) {
   if (roomName === '401호 천호') return '천호';
   if (roomName === '청량리') return '청량리';
   return '서초 지젤';
+}
+
+function feedKeyForBooking(booking) {
+  if (booking?.feedKey) return booking.feedKey;
+  if (booking?.source === 'booking') return `booking:${booking.roomName}`;
+  return `airbnb:${booking.roomName}`;
 }
 
 async function githubState(method = 'GET', body) {
@@ -139,26 +177,30 @@ async function loadState() {
     const state = JSON.parse(decoded || '{}');
     const bookings = state.bookings && typeof state.bookings === 'object' ? state.bookings : {};
     const derivedKnownRooms = [...new Set(Object.values(bookings).map((booking) => booking.roomName).filter(Boolean))];
+    const knownRooms = Array.isArray(state.knownRooms) ? state.knownRooms : derivedKnownRooms;
+    const derivedKnownFeeds = knownRooms.map((room) => `airbnb:${room}`);
     return {
-      version: Number(state.version || 3),
+      version: Number(state.version || 4),
       initialized: state.initialized === true,
       updatedAt: state.updatedAt || null,
       bookings,
-      knownRooms: Array.isArray(state.knownRooms) ? state.knownRooms : derivedKnownRooms,
+      knownRooms,
+      knownFeeds: Array.isArray(state.knownFeeds) ? state.knownFeeds : derivedKnownFeeds,
       sha: String(file?.sha || ''),
     };
   } catch {
-    return { version: 3, initialized: false, updatedAt: null, bookings: {}, knownRooms: [], sha: String(file?.sha || '') };
+    return { version: 4, initialized: false, updatedAt: null, bookings: {}, knownRooms: [], knownFeeds: [], sha: String(file?.sha || '') };
   }
 }
 
-async function saveState(bookings, sha, knownRooms) {
+async function saveState(bookings, sha, knownRooms, knownFeeds) {
   if (!sha) throw new Error('CLEANING_STATE_SHA_MISSING');
   const state = {
-    version: 3,
+    version: 4,
     initialized: true,
     updatedAt: new Date().toISOString(),
     knownRooms: [...new Set(knownRooms)].sort(),
+    knownFeeds: [...new Set(knownFeeds)].sort(),
     bookings,
   };
   await githubState('PUT', {
@@ -173,7 +215,7 @@ async function saveState(bookings, sha, knownRooms) {
 async function fetchCurrentBookings(feeds, previousBookings) {
   const today = kstToday();
   const current = {};
-  const succeededRooms = new Set();
+  const succeededFeeds = new Set();
   const failures = [];
 
   for (const feed of feeds) {
@@ -185,20 +227,20 @@ async function fetchCurrentBookings(feeds, previousBookings) {
       });
       if (!response.ok) throw new Error(`HTTP_${response.status}`);
       const text = await response.text();
-      for (const booking of parseReservedBookings(text, feed.id)) {
+      for (const booking of parseBookings(text, feed, today)) {
         if (booking.checkoutDate >= today) current[booking.key] = booking;
       }
-      succeededRooms.add(feed.id);
+      succeededFeeds.add(feed.feedKey);
     } catch (error) {
-      failures.push({ room: feed.id, error: String(error.message || error) });
+      failures.push({ feed: feed.feedKey, error: String(error.message || error) });
     }
   }
 
   for (const [key, booking] of Object.entries(previousBookings || {})) {
-    if (!succeededRooms.has(booking.roomName)) current[key] = booking;
+    if (!succeededFeeds.has(feedKeyForBooking(booking))) current[key] = booking;
   }
 
-  return { today, current, succeededRooms, failures };
+  return { today, current, succeededFeeds, failures };
 }
 
 function buildAlert(type, booking) {
@@ -262,29 +304,19 @@ export async function triggerSeochoCleaning() {
 
   if (!previous.initialized) {
     if (snapshot.failures.length > 0) {
-      return {
-        ok: false,
-        initialized: false,
-        reason: 'baseline_requires_all_rooms',
-        failures: snapshot.failures,
-      };
+      return { ok: false, initialized: false, reason: 'baseline_requires_all_feeds', failures: snapshot.failures };
     }
-    await saveState(snapshot.current, previous.sha, feeds.map((feed) => feed.id));
-    return {
-      ok: true,
-      initialized: true,
-      baselineOnly: true,
-      activeBookings: Object.keys(snapshot.current).length,
-      events: [],
-      failures: [],
-    };
+    await saveState(snapshot.current, previous.sha, feeds.map((feed) => feed.id), feeds.map((feed) => feed.feedKey));
+    return { ok: true, initialized: true, baselineOnly: true, activeBookings: Object.keys(snapshot.current).length, events: [], failures: [] };
   }
 
   const knownRooms = new Set(previous.knownRooms || []);
-  const newlyOnboardedRooms = new Set();
+  const knownFeeds = new Set(previous.knownFeeds || []);
+  const newlyOnboardedFeeds = new Set();
   for (const feed of feeds) {
-    if (!knownRooms.has(feed.id) && snapshot.succeededRooms.has(feed.id)) {
-      newlyOnboardedRooms.add(feed.id);
+    if (!knownFeeds.has(feed.feedKey) && snapshot.succeededFeeds.has(feed.feedKey)) {
+      newlyOnboardedFeeds.add(feed.feedKey);
+      knownFeeds.add(feed.feedKey);
       knownRooms.add(feed.id);
     }
   }
@@ -293,33 +325,36 @@ export async function triggerSeochoCleaning() {
   for (const [key, current] of Object.entries(snapshot.current)) {
     const before = previous.bookings[key];
     if (!before) {
-      if (!newlyOnboardedRooms.has(current.roomName)) {
-        events.push({ type: 'new', booking: current });
-      }
+      if (!newlyOnboardedFeeds.has(current.feedKey)) events.push({ type: 'new', booking: current });
     } else if (before.checkoutDate !== current.checkoutDate) {
       events.push({ type: 'changed', booking: current });
     }
   }
 
   for (const [key, before] of Object.entries(previous.bookings)) {
-    if (!snapshot.succeededRooms.has(before.roomName)) continue;
+    const beforeFeedKey = feedKeyForBooking(before);
+    if (!snapshot.succeededFeeds.has(beforeFeedKey)) continue;
     if (before.checkoutDate <= snapshot.today) continue;
     if (!snapshot.current[key]) events.push({ type: 'cancelled', booking: before });
   }
 
   const sent = [];
+  const dedupe = new Set();
   for (const event of events) {
+    const signature = `${event.type}:${event.booking.roomName}:${event.booking.checkoutDate}`;
+    if (dedupe.has(signature)) continue;
+    dedupe.add(signature);
     const result = await sendKakao(buildAlert(event.type, event.booking));
-    sent.push({ type: event.type, roomName: event.booking.roomName, checkoutDate: event.booking.checkoutDate, result });
+    sent.push({ type: event.type, roomName: event.booking.roomName, checkoutDate: event.booking.checkoutDate, source: event.booking.source || 'airbnb', result });
   }
 
-  await saveState(snapshot.current, previous.sha, [...knownRooms]);
+  await saveState(snapshot.current, previous.sha, [...knownRooms], [...knownFeeds]);
   return {
     ok: true,
     initialized: true,
-    newlyOnboardedRooms: [...newlyOnboardedRooms],
+    newlyOnboardedFeeds: [...newlyOnboardedFeeds],
     activeBookings: Object.keys(snapshot.current).length,
-    events: sent.map(({ type, roomName, checkoutDate }) => ({ type, roomName, checkoutDate })),
+    events: sent.map(({ type, roomName, checkoutDate, source }) => ({ type, roomName, checkoutDate, source })),
     failures: snapshot.failures,
   };
 }
