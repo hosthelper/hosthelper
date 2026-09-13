@@ -1,7 +1,7 @@
 {
-  "version": 3,
+  "version": 4,
   "initialized": true,
-  "updatedAt": "2026-09-13T18:31:39.311Z",
+  "updatedAt": "2026-09-13T18:38:33.348Z",
   "knownRooms": [
     "401호 천호",
     "A311",
@@ -12,144 +12,251 @@
     "A805",
     "청량리"
   ],
+  "knownFeeds": [
+    "airbnb:401호 천호",
+    "airbnb:A311",
+    "airbnb:A506",
+    "airbnb:A601",
+    "airbnb:A605",
+    "airbnb:A705",
+    "airbnb:A805",
+    "airbnb:청량리",
+    "booking:청량리"
+  ],
   "bookings": {
     "A605:1418fb94e984-b6d97de2cd975996e1a7beb4f8042b98@airbnb.com": {
       "key": "A605:1418fb94e984-b6d97de2cd975996e1a7beb4f8042b98@airbnb.com",
       "roomName": "A605",
+      "source": "airbnb",
+      "feedKey": "airbnb:A605",
       "uid": "1418fb94e984-b6d97de2cd975996e1a7beb4f8042b98@airbnb.com",
+      "checkinDate": "2026-09-01",
       "checkoutDate": "2026-09-14"
     },
     "A605:1418fb94e984-57956e228d0996a312883a1c2dc67628@airbnb.com": {
       "key": "A605:1418fb94e984-57956e228d0996a312883a1c2dc67628@airbnb.com",
       "roomName": "A605",
+      "source": "airbnb",
+      "feedKey": "airbnb:A605",
       "uid": "1418fb94e984-57956e228d0996a312883a1c2dc67628@airbnb.com",
+      "checkinDate": "2026-10-01",
       "checkoutDate": "2026-10-04"
     },
     "A605:1418fb94e984-8661be7dd43a084e348c3cb0c6f1bb75@airbnb.com": {
       "key": "A605:1418fb94e984-8661be7dd43a084e348c3cb0c6f1bb75@airbnb.com",
       "roomName": "A605",
+      "source": "airbnb",
+      "feedKey": "airbnb:A605",
       "uid": "1418fb94e984-8661be7dd43a084e348c3cb0c6f1bb75@airbnb.com",
+      "checkinDate": "2026-10-04",
       "checkoutDate": "2026-10-12"
     },
     "A705:1418fb94e984-83817d60bf1f85e61b3548b88a6d4db6@airbnb.com": {
       "key": "A705:1418fb94e984-83817d60bf1f85e61b3548b88a6d4db6@airbnb.com",
       "roomName": "A705",
+      "source": "airbnb",
+      "feedKey": "airbnb:A705",
       "uid": "1418fb94e984-83817d60bf1f85e61b3548b88a6d4db6@airbnb.com",
+      "checkinDate": "2026-09-12",
       "checkoutDate": "2026-09-26"
     },
     "A705:1418fb94e984-848eaca539a79ac21aff2d69a3d12176@airbnb.com": {
       "key": "A705:1418fb94e984-848eaca539a79ac21aff2d69a3d12176@airbnb.com",
       "roomName": "A705",
+      "source": "airbnb",
+      "feedKey": "airbnb:A705",
       "uid": "1418fb94e984-848eaca539a79ac21aff2d69a3d12176@airbnb.com",
+      "checkinDate": "2026-10-02",
       "checkoutDate": "2026-10-07"
     },
     "A705:1418fb94e984-212907cfafebaa67524a2f05a4d7a56e@airbnb.com": {
       "key": "A705:1418fb94e984-212907cfafebaa67524a2f05a4d7a56e@airbnb.com",
       "roomName": "A705",
+      "source": "airbnb",
+      "feedKey": "airbnb:A705",
       "uid": "1418fb94e984-212907cfafebaa67524a2f05a4d7a56e@airbnb.com",
+      "checkinDate": "2026-10-10",
       "checkoutDate": "2026-10-26"
     },
     "A311:1418fb94e984-84ec4123402c76adc4d0aaec84edf764@airbnb.com": {
       "key": "A311:1418fb94e984-84ec4123402c76adc4d0aaec84edf764@airbnb.com",
       "roomName": "A311",
+      "source": "airbnb",
+      "feedKey": "airbnb:A311",
       "uid": "1418fb94e984-84ec4123402c76adc4d0aaec84edf764@airbnb.com",
+      "checkinDate": "2026-09-09",
       "checkoutDate": "2026-10-03"
     },
     "A311:1418fb94e984-e54839d13afe49b59096888cf123f5fa@airbnb.com": {
       "key": "A311:1418fb94e984-e54839d13afe49b59096888cf123f5fa@airbnb.com",
       "roomName": "A311",
+      "source": "airbnb",
+      "feedKey": "airbnb:A311",
       "uid": "1418fb94e984-e54839d13afe49b59096888cf123f5fa@airbnb.com",
+      "checkinDate": "2026-10-04",
       "checkoutDate": "2026-10-09"
     },
     "A311:1418fb94e984-e9eab17ebe67f2894e8382a697add13c@airbnb.com": {
       "key": "A311:1418fb94e984-e9eab17ebe67f2894e8382a697add13c@airbnb.com",
       "roomName": "A311",
+      "source": "airbnb",
+      "feedKey": "airbnb:A311",
       "uid": "1418fb94e984-e9eab17ebe67f2894e8382a697add13c@airbnb.com",
+      "checkinDate": "2026-10-09",
       "checkoutDate": "2026-10-23"
     },
     "A311:1418fb94e984-ab4a4d3a90969b6230e603e178268813@airbnb.com": {
       "key": "A311:1418fb94e984-ab4a4d3a90969b6230e603e178268813@airbnb.com",
       "roomName": "A311",
+      "source": "airbnb",
+      "feedKey": "airbnb:A311",
       "uid": "1418fb94e984-ab4a4d3a90969b6230e603e178268813@airbnb.com",
+      "checkinDate": "2026-10-23",
       "checkoutDate": "2026-10-25"
     },
     "A506:1418fb94e984-2a7da7890803dfdb07b5d3fb2f2a348a@airbnb.com": {
       "key": "A506:1418fb94e984-2a7da7890803dfdb07b5d3fb2f2a348a@airbnb.com",
       "roomName": "A506",
+      "source": "airbnb",
+      "feedKey": "airbnb:A506",
       "uid": "1418fb94e984-2a7da7890803dfdb07b5d3fb2f2a348a@airbnb.com",
+      "checkinDate": "2026-09-10",
       "checkoutDate": "2026-09-16"
     },
     "A506:1418fb94e984-8246003f7fdeea8fec85206ba0056ba4@airbnb.com": {
       "key": "A506:1418fb94e984-8246003f7fdeea8fec85206ba0056ba4@airbnb.com",
       "roomName": "A506",
+      "source": "airbnb",
+      "feedKey": "airbnb:A506",
       "uid": "1418fb94e984-8246003f7fdeea8fec85206ba0056ba4@airbnb.com",
+      "checkinDate": "2026-10-03",
       "checkoutDate": "2026-10-05"
     },
     "A506:1418fb94e984-cfe75478fc497356741ed0560db4c932@airbnb.com": {
       "key": "A506:1418fb94e984-cfe75478fc497356741ed0560db4c932@airbnb.com",
       "roomName": "A506",
+      "source": "airbnb",
+      "feedKey": "airbnb:A506",
       "uid": "1418fb94e984-cfe75478fc497356741ed0560db4c932@airbnb.com",
+      "checkinDate": "2026-12-23",
       "checkoutDate": "2026-12-26"
     },
     "A805:1418fb94e984-e9ff99c0646d45b50374691d75764471@airbnb.com": {
       "key": "A805:1418fb94e984-e9ff99c0646d45b50374691d75764471@airbnb.com",
       "roomName": "A805",
+      "source": "airbnb",
+      "feedKey": "airbnb:A805",
       "uid": "1418fb94e984-e9ff99c0646d45b50374691d75764471@airbnb.com",
+      "checkinDate": "2026-09-08",
       "checkoutDate": "2026-09-15"
     },
     "A805:1418fb94e984-7692fb80126766bf3e094ad76a03817a@airbnb.com": {
       "key": "A805:1418fb94e984-7692fb80126766bf3e094ad76a03817a@airbnb.com",
       "roomName": "A805",
+      "source": "airbnb",
+      "feedKey": "airbnb:A805",
       "uid": "1418fb94e984-7692fb80126766bf3e094ad76a03817a@airbnb.com",
+      "checkinDate": "2026-10-02",
       "checkoutDate": "2026-10-06"
     },
     "A805:1418fb94e984-01f7480d8fe477442c570741d3ce5c38@airbnb.com": {
       "key": "A805:1418fb94e984-01f7480d8fe477442c570741d3ce5c38@airbnb.com",
       "roomName": "A805",
+      "source": "airbnb",
+      "feedKey": "airbnb:A805",
       "uid": "1418fb94e984-01f7480d8fe477442c570741d3ce5c38@airbnb.com",
+      "checkinDate": "2026-10-11",
       "checkoutDate": "2026-10-18"
     },
     "401호 천호:1418fb94e984-9c789b7a435cd27f0d0c93dd8fc87059@airbnb.com": {
       "key": "401호 천호:1418fb94e984-9c789b7a435cd27f0d0c93dd8fc87059@airbnb.com",
       "roomName": "401호 천호",
+      "source": "airbnb",
+      "feedKey": "airbnb:401호 천호",
       "uid": "1418fb94e984-9c789b7a435cd27f0d0c93dd8fc87059@airbnb.com",
+      "checkinDate": "2026-09-12",
       "checkoutDate": "2026-09-15"
     },
     "401호 천호:1418fb94e984-ccbb830e939ee3a3b8e00d98a2dc6ba7@airbnb.com": {
       "key": "401호 천호:1418fb94e984-ccbb830e939ee3a3b8e00d98a2dc6ba7@airbnb.com",
       "roomName": "401호 천호",
+      "source": "airbnb",
+      "feedKey": "airbnb:401호 천호",
       "uid": "1418fb94e984-ccbb830e939ee3a3b8e00d98a2dc6ba7@airbnb.com",
+      "checkinDate": "2026-09-15",
       "checkoutDate": "2026-09-18"
     },
     "401호 천호:1418fb94e984-3c2bb50d783ea7d6e728b17be4e37d33@airbnb.com": {
       "key": "401호 천호:1418fb94e984-3c2bb50d783ea7d6e728b17be4e37d33@airbnb.com",
       "roomName": "401호 천호",
+      "source": "airbnb",
+      "feedKey": "airbnb:401호 천호",
       "uid": "1418fb94e984-3c2bb50d783ea7d6e728b17be4e37d33@airbnb.com",
+      "checkinDate": "2026-09-21",
       "checkoutDate": "2026-09-27"
     },
     "청량리:1418fb94e984-5bdd4824e5d574dd832663e0334fa28f@airbnb.com": {
       "key": "청량리:1418fb94e984-5bdd4824e5d574dd832663e0334fa28f@airbnb.com",
       "roomName": "청량리",
+      "source": "airbnb",
+      "feedKey": "airbnb:청량리",
       "uid": "1418fb94e984-5bdd4824e5d574dd832663e0334fa28f@airbnb.com",
+      "checkinDate": "2026-10-02",
       "checkoutDate": "2026-10-07"
     },
     "청량리:1418fb94e984-6e59222164aa6473b35aae390b1b94f7@airbnb.com": {
       "key": "청량리:1418fb94e984-6e59222164aa6473b35aae390b1b94f7@airbnb.com",
       "roomName": "청량리",
+      "source": "airbnb",
+      "feedKey": "airbnb:청량리",
       "uid": "1418fb94e984-6e59222164aa6473b35aae390b1b94f7@airbnb.com",
+      "checkinDate": "2026-10-09",
       "checkoutDate": "2026-10-12"
     },
     "청량리:1418fb94e984-9b7cb35ae5cde8e0edf04a2ea5248ccb@airbnb.com": {
       "key": "청량리:1418fb94e984-9b7cb35ae5cde8e0edf04a2ea5248ccb@airbnb.com",
       "roomName": "청량리",
+      "source": "airbnb",
+      "feedKey": "airbnb:청량리",
       "uid": "1418fb94e984-9b7cb35ae5cde8e0edf04a2ea5248ccb@airbnb.com",
+      "checkinDate": "2026-11-06",
       "checkoutDate": "2026-11-10"
     },
     "청량리:1418fb94e984-1f934ac5f45ea38cbed889b8545372d0@airbnb.com": {
       "key": "청량리:1418fb94e984-1f934ac5f45ea38cbed889b8545372d0@airbnb.com",
       "roomName": "청량리",
+      "source": "airbnb",
+      "feedKey": "airbnb:청량리",
       "uid": "1418fb94e984-1f934ac5f45ea38cbed889b8545372d0@airbnb.com",
+      "checkinDate": "2026-11-12",
       "checkoutDate": "2026-11-16"
+    },
+    "청량리:booking:afa5380b048d40fd558874037d9c4bc6@booking.com": {
+      "key": "청량리:booking:afa5380b048d40fd558874037d9c4bc6@booking.com",
+      "roomName": "청량리",
+      "source": "booking",
+      "feedKey": "booking:청량리",
+      "uid": "afa5380b048d40fd558874037d9c4bc6@booking.com",
+      "checkinDate": "2026-09-15",
+      "checkoutDate": "2026-09-28"
+    },
+    "청량리:booking:c6bb79b6877165bc41b338e478de7316@booking.com": {
+      "key": "청량리:booking:c6bb79b6877165bc41b338e478de7316@booking.com",
+      "roomName": "청량리",
+      "source": "booking",
+      "feedKey": "booking:청량리",
+      "uid": "c6bb79b6877165bc41b338e478de7316@booking.com",
+      "checkinDate": "2026-10-22",
+      "checkoutDate": "2026-10-27"
+    },
+    "청량리:booking:072dfa01d0bf0e3bc393b96215b33348@booking.com": {
+      "key": "청량리:booking:072dfa01d0bf0e3bc393b96215b33348@booking.com",
+      "roomName": "청량리",
+      "source": "booking",
+      "feedKey": "booking:청량리",
+      "uid": "072dfa01d0bf0e3bc393b96215b33348@booking.com",
+      "checkinDate": "2026-10-30",
+      "checkoutDate": "2026-11-01"
     }
   }
 }
