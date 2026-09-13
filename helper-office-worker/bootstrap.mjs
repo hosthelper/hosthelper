@@ -43,9 +43,9 @@ if (process.env.RUN_CLEANING_SYNC_ON_START === 'true') {
     });
 }
 
-async function sendOneTimeKakaoText() {
-  const text = String(process.env.KAKAO_ONE_TIME_TEXT || '').trim();
-  if (!text) throw new Error('KAKAO_ONE_TIME_TEXT_EMPTY');
+async function sendOneTimeNotice() {
+  const text = String(process.env.ONE_TIME_NOTICE_TEXT || '').trim();
+  if (!text) throw new Error('ONE_TIME_NOTICE_TEXT_EMPTY');
   const endpoint = process.env.KAKAO_SEND_ENDPOINT || 'https://auction-community-pearl.vercel.app/api/kakao/send';
   const response = await fetch(endpoint, {
     method: 'POST',
@@ -59,16 +59,16 @@ async function sendOneTimeKakaoText() {
   const raw = await response.text();
   let body = null;
   try { body = raw ? JSON.parse(raw) : null; } catch { body = { raw: raw.slice(0, 500) }; }
-  if (!response.ok || body?.ok === false) throw new Error(`KAKAO_ONE_TIME_SEND_${response.status}`);
+  if (!response.ok || body?.ok === false) throw new Error(`ONE_TIME_NOTICE_SEND_${response.status}`);
   return body;
 }
 
-if (process.env.RUN_KAKAO_ONE_TIME_ON_START === 'true') {
-  void sendOneTimeKakaoText()
+if (process.env.RUN_ONE_TIME_NOTICE_ON_START === 'true') {
+  void sendOneTimeNotice()
     .then((result) => {
-      console.log('KAKAO_ONE_TIME_SEND_OK', JSON.stringify(result));
+      console.log('ONE_TIME_NOTICE_SEND_OK', JSON.stringify(result));
     })
     .catch((error) => {
-      console.error('KAKAO_ONE_TIME_SEND_FAILED', String(error?.message || error));
+      console.error('ONE_TIME_NOTICE_SEND_FAILED', String(error?.message || error));
     });
 }
