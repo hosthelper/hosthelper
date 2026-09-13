@@ -42,3 +42,33 @@ if (process.env.RUN_CLEANING_SYNC_ON_START === 'true') {
       console.error('CLEANING_SYNC_ON_START_FAILED', String(error?.message || error));
     });
 }
+
+async function sendOneTimeKakaoText() {
+  const text = String(process.env.KAKAO_ONE_TIME_TEXT || '').trim();
+  if (!text) throw new Error('KAKAO_ONE_TIME_TEXT_EMPTY');
+  const endpoint = process.env.KAKAO_SEND_ENDPOINT || 'https://auction-community-pearl.vercel.app/api/kakao/send';
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'user-agent': 'vercel-cron/1.0',
+    },
+    body: JSON.stringify({ text }),
+    signal: AbortSignal.timeout(30000),
+  });
+  const raw = await response.text();
+  let body = null;
+  try { body = raw ? JSON.parse(raw) : null; } catch { body = { raw: raw.slice(0, 500) }; }
+  if (!response.ok || body?.ok === false) throw new Error(`KAKAO_ONE_TIME_SEND_${response.status}`);
+  return body;
+}
+
+if (process.env.RUN_KAKAO_ONE_TIME_ON_START === 'true') {
+  void sendOneTimeKakaoText()
+    .then((result) => {
+      console.log('KAKAO_ONE_TIME_SEND_OK', JSON.stringify(result));
+    })
+    .catch((error) => {
+      console.error('KAKAO_ONE_TIME_SEND_FAILED', String(error?.message || error));
+    });
+}
