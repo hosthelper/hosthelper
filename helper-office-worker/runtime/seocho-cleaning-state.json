@@ -1,13 +1,19 @@
 {
   "version": 2,
   "initialized": true,
-  "updatedAt": "2026-09-13T09:40:05.864Z",
+  "updatedAt": "2026-09-13T12:25:47.018Z",
   "bookings": {
     "A605:1418fb94e984-b6d97de2cd975996e1a7beb4f8042b98@airbnb.com": {
       "key": "A605:1418fb94e984-b6d97de2cd975996e1a7beb4f8042b98@airbnb.com",
       "roomName": "A605",
       "uid": "1418fb94e984-b6d97de2cd975996e1a7beb4f8042b98@airbnb.com",
       "checkoutDate": "2026-09-14"
+    },
+    "A605:1418fb94e984-57956e228d0996a312883a1c2dc67628@airbnb.com": {
+      "key": "A605:1418fb94e984-57956e228d0996a312883a1c2dc67628@airbnb.com",
+      "roomName": "A605",
+      "uid": "1418fb94e984-57956e228d0996a312883a1c2dc67628@airbnb.com",
+      "checkoutDate": "2026-10-04"
     },
     "A605:1418fb94e984-8661be7dd43a084e348c3cb0c6f1bb75@airbnb.com": {
       "key": "A605:1418fb94e984-8661be7dd43a084e348c3cb0c6f1bb75@airbnb.com",
