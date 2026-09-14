@@ -1,7 +1,7 @@
 {
   "version": 4,
   "initialized": true,
-  "updatedAt": "2026-09-14T14:06:48.586Z",
+  "updatedAt": "2026-09-14T15:11:10.291Z",
   "knownRooms": [
     "401호 천호",
     "A311",
@@ -24,15 +24,6 @@
     "booking:청량리"
   ],
   "bookings": {
-    "A605:1418fb94e984-b6d97de2cd975996e1a7beb4f8042b98@airbnb.com": {
-      "key": "A605:1418fb94e984-b6d97de2cd975996e1a7beb4f8042b98@airbnb.com",
-      "roomName": "A605",
-      "source": "airbnb",
-      "feedKey": "airbnb:A605",
-      "uid": "1418fb94e984-b6d97de2cd975996e1a7beb4f8042b98@airbnb.com",
-      "checkinDate": "2026-09-01",
-      "checkoutDate": "2026-09-14"
-    },
     "A605:1418fb94e984-57956e228d0996a312883a1c2dc67628@airbnb.com": {
       "key": "A605:1418fb94e984-57956e228d0996a312883a1c2dc67628@airbnb.com",
       "roomName": "A605",
