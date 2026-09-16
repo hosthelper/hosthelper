@@ -69,7 +69,7 @@ jobs:
           grep -q '"ok":true' /tmp/result.json
 
   monthly-summary:
-    if: github.event_name == 'schedule' && github.event.schedule == '27 0 1 * *'
+    if: (github.event_name == 'schedule' && github.event.schedule == '27 0 1 * *') || github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -80,6 +80,6 @@ jobs:
           curl --fail --silent --show-error \
             --retry 5 --retry-all-errors --retry-delay 10 \
             --connect-timeout 20 --max-time 180 \
-            "$WORKER_BASE/internal/seocho-cleaning-month-summary?source=github-actions" \
+            "$WORKER_BASE/internal/seocho-cleaning-month-summary?source=github-actions-september-example" \
             | tee /tmp/result.json
           grep -q '"ok":true' /tmp/result.json
