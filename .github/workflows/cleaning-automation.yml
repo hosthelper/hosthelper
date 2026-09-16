@@ -1,0 +1,85 @@
+name: Cleaning Schedule Automation
+
+on:
+  schedule:
+    # Every 3 hours. Minute 17 avoids GitHub Actions top-of-hour congestion.
+    - cron: '17 */3 * * *'
+    # Monthly full cleaning summary: 09:27 KST on the 1st (00:27 UTC).
+    - cron: '27 0 1 * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/cleaning-automation.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cleaning-schedule-automation
+  cancel-in-progress: false
+
+env:
+  WORKER_BASE: https://helper-office-worker.onrender.com
+
+jobs:
+  preflight-30:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: 30x cloud preflight simulation
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 30); do
+            echo "preflight $i/30"
+            curl --fail --silent --show-error \
+              --retry 5 --retry-all-errors --retry-delay 5 \
+              --connect-timeout 20 --max-time 120 \
+              "$WORKER_BASE/health" >/tmp/health.json
+            grep -q '"ok":true' /tmp/health.json
+            sleep 2
+          done
+          echo '30/30 preflight requests passed'
+      - name: One real cleaning monitor verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            --retry 5 --retry-all-errors --retry-delay 10 \
+            --connect-timeout 20 --max-time 180 \
+            "$WORKER_BASE/internal/seocho-cleaning-trigger?source=github-actions-preflight" \
+            | tee /tmp/result.json
+          grep -q '"ok":true' /tmp/result.json
+
+  every-3-hours:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '17 */3 * * *')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check all cleaning calendars and send only genuine changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            --retry 5 --retry-all-errors --retry-delay 10 \
+            --connect-timeout 20 --max-time 180 \
+            "$WORKER_BASE/internal/seocho-cleaning-trigger?source=github-actions" \
+            | tee /tmp/result.json
+          grep -q '"ok":true' /tmp/result.json
+
+  monthly-summary:
+    if: github.event_name == 'schedule' && github.event.schedule == '27 0 1 * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Send full monthly cleaning schedule on KakaoTalk
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            --retry 5 --retry-all-errors --retry-delay 10 \
+            --connect-timeout 20 --max-time 180 \
+            "$WORKER_BASE/internal/seocho-cleaning-month-summary?source=github-actions" \
+            | tee /tmp/result.json
+          grep -q '"ok":true' /tmp/result.json
