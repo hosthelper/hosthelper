@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>하우스헬퍼 | 호스트 전용 숙소 쇼핑</title>
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="top-inner">
+    <a class="brand" href="#home" aria-label="하우스헬퍼 홈"><span class="brand-mark">H</span><strong>하우스헬퍼</strong></a>
+    <nav class="desktop-nav" aria-label="주요 메뉴">
+      <a href="#packages">패키지</a><a href="#categories">카테고리</a><a href="#space-shop">공간별 쇼핑</a><a href="#host-guide">호스트 가이드</a><a href="#community">커뮤니티</a>
+    </nav>
+    <div class="header-tools">
+      <label class="search"><span>⌕</span><input id="globalSearch" placeholder="상품, 브랜드, 키워드를 검색해보세요." /></label>
+      <button class="icon-btn" title="찜">♡</button>
+      <button class="icon-btn cart-btn" title="장바구니">🛒<b id="cartCount">0</b></button>
+      <button class="host-btn">호스트님⌄</button>
+    </div>
+  </div>
+</header>
+<main id="home">
+  <section class="hero">
+    <img class="hero-photo" src="./public/assets/hero-bedroom.jpg" alt="밝고 정돈된 4인 숙소 침실" />
+    <div class="hero-fade"></div>
+    <div class="hero-copy">
+      <p class="eyebrow">좋은 공간이 좋은 일을 만듭니다.</p>
+      <h1>4인 숙소,<br />준비부터 운영까지<br /><em>하우스헬퍼</em>와 함께하세요.</h1>
+      <p class="hero-desc">침구부터 가구, 주방용품까지<br />4인 숙소에 딱 맞는 패키지로, 더 쉬운 호스팅을 시작하세요.</p>
+    </div>
+    <aside class="featured-card">
+      <span class="badge">이달의 추천 패키지</span>
+      <h2>스탠다드 4인 세트</h2>
+      <p>실용과 감성을 모두 담은<br />가장 인기 있는 구성</p>
+      <ul><li>4인 숙박에 최적화된 구성</li><li>검증된 인기 상품만</li><li>바로 운영 가능한 풀세트</li></ul>
+      <img src="./public/assets/hero-living.jpg" alt="스탠다드 4인 세트 거실 구성" />
+      <div class="feature-footer"><strong>1,290,000원~</strong><button data-scroll="#packages">자세히 보기 →</button></div>
+    </aside>
+    <div class="package-finder" aria-label="패키지 찾기">
+      <label><span>투숙 인원</span><select id="guestCount"><option>4인</option><option>2인</option><option>6인</option></select></label>
+      <label><span>객실 유형</span><select id="roomType"><option>전체 유형</option><option>원룸</option><option>투룸</option><option>쓰리룸</option></select></label>
+      <label><span>예산 범위</span><select id="budget"><option>예산 선택</option><option>100만원 이하</option><option>100~150만원</option><option>150~200만원</option><option>200만원 이상</option></select></label>
+      <button id="findPackage">⌕ 패키지 찾기</button>
+    </div>
+  </section>
+  <section class="category-strip" id="categories">
+    <button class="category active" data-category="all"><span>🛏️</span><b>침구 / 패브릭</b><small>포근한 숙면의 시작</small></button>
+    <button class="category" data-category="furniture"><span>🛋️</span><b>가구</b><small>편안한 공간을 만들어요</small></button>
+    <button class="category" data-category="kitchen"><span>🍲</span><b>주방용품</b><small>맛있는 여행의 추억</small></button>
+    <button class="category" data-category="bath"><span>🧴</span><b>욕실용품</b><small>깨끗하고 쾌적하게</small></button>
+    <button class="category" data-category="light"><span>💡</span><b>조명</b><small>공간을 더 특별하게</small></button>
+    <button class="category" data-category="deco"><span>🪴</span><b>인테리어 소품</b><small>감각적인 분위기 연출</small></button>
+    <button class="category sale" data-category="sale"><span>％</span><b>특가/기획전</b><small>지금, 좋은 가격으로</small></button>
+    <button class="category new" data-category="new"><span>★</span><b>신상품</b><small>새로운 아이디어</small></button>
+    <article class="guide-card" id="host-guide"><div><small>처음이신가요?</small><h3>4인 숙소 준비 가이드</h3><p>공간 구성부터 체크리스트까지<br />호스트의 시작을 도와드려요.</p><a href="#packages">가이드 보기 →</a></div><div class="guide-ico">✓</div></article>
+  </section>
+  <section class="content-section packages-section" id="packages">
+    <div class="section-head"><div><h2>하우스헬퍼 4인 숙소 패키지</h2><p>검증된 상품만, 바로 운영 가능한 구성으로 준비했어요.</p></div><a href="#packages">전체 패키지 보기 →</a></div>
+    <div class="package-grid">
+      <article class="package-card" data-price="890000"><img src="./public/assets/package-basic.jpg" alt="베이직 4인 세트 침실" /><div class="package-body"><span class="choice blue">실속있는 선택</span><h3>베이직 4인 세트</h3><p>꼭 필요한 기본 구성으로<br />합리적인 시작을 도와드려요.</p><div class="tags"><span>#가성비</span><span>#필수구성</span><span>#빠른준비</span></div><strong>890,000원~</strong><div class="card-actions"><button class="outline">구성 보기</button><button class="add-cart" data-name="베이직 4인 세트">🛒 장바구니 담기</button></div></div></article>
+      <article class="package-card popular" data-price="1290000"><div class="popular-ribbon">♛ 가장 인기 있는 패키지</div><img src="./public/assets/package-standard.jpg" alt="스탠다드 4인 세트 거실" /><div class="package-body"><span class="choice green">가장 인기 있는 패키지</span><h3>스탠다드 4인 세트</h3><p>실용과 감성을 모두 담은<br />균형 잡힌 구성입니다.</p><div class="tags"><span>#인기상품</span><span>#감성인테리어</span><span>#완벽한구성</span></div><strong>1,290,000원~</strong><div class="card-actions"><button class="outline">구성 보기</button><button class="add-cart" data-name="스탠다드 4인 세트">🛒 장바구니 담기</button></div></div></article>
+      <article class="package-card" data-price="1990000"><img src="./public/assets/package-premium.jpg" alt="프리미엄 4인 세트 침실" /><div class="package-body"><span class="choice beige">최상의 경험</span><h3>프리미엄 4인 세트</h3><p>특별한 숙박 경험을 위한<br />프리미엄 구성입니다.</p><div class="tags"><span>#프리미엄</span><span>#호텔급</span><span>#차별화된공간</span></div><strong>1,990,000원~</strong><div class="card-actions"><button class="outline">구성 보기</button><button class="add-cart" data-name="프리미엄 4인 세트">🛒 장바구니 담기</button></div></div></article>
+    </div>
+  </section>
+  <section class="dashboard-row" id="space-shop">
+    <article class="stay-panel"><div class="panel-head"><div><h2>내 숙소 관리</h2><p>구매한 상품, 배송 현황, 반복구매까지<br />한 번에 관리해보세요.</p></div></div><div class="stay-summary"><img src="./public/assets/stay-thumbnail.jpg" alt="제주 바다 스테이" /><div><b>제주 바다 스테이</b><span>제주 제주시 애월읍</span></div><button>숙소 관리하기 →</button></div><div class="stay-metrics"><span>▤<b>주문 내역</b><small>3건 진행 중</small></span><span>🚚<b>배송 현황</b><small>1건 배송 중</small></span><span>♡<b>저장한 상품</b><small>12개</small></span><span>↻<b>반복구매 설정</b><small>3개 품목</small></span><span>⚙<b>숙소 정보</b><small>수정하기</small></span></div></article>
+    <article class="reorder-panel"><div class="panel-head"><div><h2>반복구매 추천</h2><p>호스트들이 자주 재구매하는 인기 상품이에요.</p></div><a href="#">전체보기 →</a></div><div class="reorder-grid"><button class="mini-product"><span>🧺</span><b>프리미엄 수건 세트</b><small>(10장)</small><strong>39,000원</strong><i>🛒</i></button><button class="mini-product"><span>🧴</span><b>주방 세제 리필세트</b><small>(3종)</small><strong>24,900원</strong><i>🛒</i></button><button class="mini-product"><span>🧻</span><b>화장지</b><small>(30롤)</small><strong>28,900원</strong><i>🛒</i></button><button class="mini-product"><span>🛏️</span><b>침구 커버 세트</b><small>(Q, 4인용)</small><strong>79,000원</strong><i>🛒</i></button><button class="mini-product"><span>🪵</span><b>디퓨저</b><small>(200ml)</small><strong>19,900원</strong><i>🛒</i></button></div></article>
+  </section>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+<nav class="mobile-nav"><a href="#home">홈</a><a href="#categories">카테고리</a><a href="#packages">패키지</a><button class="cart-btn">장바구니 <b id="cartCountMobile">0</b></button></nav>
+<script src="./app.js"></script>
+</body>
+</html>
