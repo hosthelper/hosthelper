@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'scripts/naver-blog-comment-monitor.mjs'
+      - 'scripts/naver-blog-comment-monitor-v2.mjs'
       - '.github/workflows/naver-blog-comment-alert.yml'
 
 permissions:
@@ -39,4 +39,4 @@ jobs:
           node-version: '20'
 
       - name: Check new Naver blog comments and send Kakao alert
-        run: node scripts/naver-blog-comment-monitor.mjs
+        run: node scripts/naver-blog-comment-monitor-v2.mjs
