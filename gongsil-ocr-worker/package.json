@@ -1,0 +1,12 @@
+{
+  "name": "gongsil-ocr-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=20"},
+  "scripts": {"start": "node server.js"},
+  "dependencies": {
+    "express": "^4.21.2",
+    "tesseract.js": "^6.0.1"
+  }
+}
