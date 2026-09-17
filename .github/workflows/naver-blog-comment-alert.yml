@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'scripts/naver-blog-comment-monitor-v2.mjs'
+      - 'scripts/naver-blog-comment-monitor-v3.mjs'
       - '.github/workflows/naver-blog-comment-alert.yml'
 
 permissions:
@@ -15,12 +15,12 @@ permissions:
 
 concurrency:
   group: naver-blog-comment-alert
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   monitor:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 6
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NAVER_BLOG_ID: kimtaewook86
@@ -28,7 +28,7 @@ jobs:
       NAVER_COMMENT_STATE_REPO: hosthelper/hosthelper
       NAVER_COMMENT_STATE_BRANCH: runtime/seocho-cleaning-state-v2
       NAVER_COMMENT_STATE_PATH: helper-office-worker/runtime/naver-blog-comment-state.json
-      NAVER_COMMENT_MAX_POSTS: '30'
+      NAVER_COMMENT_MAX_POSTS: '20'
     steps:
       - name: Checkout monitor code
         uses: actions/checkout@v4
@@ -39,4 +39,4 @@ jobs:
           node-version: '20'
 
       - name: Check new Naver blog comments and send Kakao alert
-        run: node scripts/naver-blog-comment-monitor-v2.mjs
+        run: node scripts/naver-blog-comment-monitor-v3.mjs
