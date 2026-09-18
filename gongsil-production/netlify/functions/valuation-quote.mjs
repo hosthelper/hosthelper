@@ -119,8 +119,9 @@ export default async (req) => {
   const supabaseUrl = Netlify.env.get("SUPABASE_URL");
   const publishableKey = Netlify.env.get("SUPABASE_PUBLISHABLE_KEY");
   const proxyToken = Netlify.env.get("GONGSIL_ML_PROXY_SECRET");
+  const workerToken = Netlify.env.get("GONGSIL_ML_WORKER_TOKEN");
 
-  if (!supabaseUrl || !publishableKey || !proxyToken) {
+  if (!supabaseUrl || !publishableKey || !proxyToken || !workerToken) {
     return json({ ...fallbackPayload, reason: "ml_proxy_not_configured" });
   }
 
@@ -141,7 +142,10 @@ export default async (req) => {
     try {
       response = await fetch(`${endpoint}/v1/infer`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Gongsil-Worker-Token": workerToken,
+        },
         body: JSON.stringify({
           artifact_uri: model.artifact_uri,
           features,
