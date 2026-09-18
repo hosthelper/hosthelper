@@ -84,6 +84,14 @@ export async function completeGongsilUnifiedLogin(supabase: SupabaseClient) {
   });
   if (linkError) throw linkError;
 
+  const { error: kakaoSyncError } = await supabase.rpc('hu_sync_gongsil_kakao');
+  if (kakaoSyncError) throw kakaoSyncError;
+
+  const { error: serviceRoleError } = await supabase.rpc('hu_ensure_service_user', {
+    p_service: 'gongsil',
+  });
+  if (serviceRoleError) throw serviceRoleError;
+
   window.localStorage.setItem(HU_SERVICE_TOKEN_KEY, exchange.token);
   cleanSsoParams();
 
