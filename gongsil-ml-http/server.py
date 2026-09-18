@@ -5,6 +5,9 @@ import xgboost as xgb
 
 FEATURES=['operating_months','deposit_amount','monthly_rent','avg_monthly_revenue','avg_daily_rate','fixed_cost','management_fee','occupancy_rate','asset_reuse_pct','facility_investment','review_score','reservation_forward_rate','accessibility_score','tourism_proximity_score','area','accommodation_type']
 MAX_BODY=8*1024*1024
+RATE_WINDOW=60
+RATE_LIMIT=30
+RATE={}
 XGB_PREFIX='gongsil-xgb-v1:'
 RIDGE_PREFIX='data:application/json;base64,'
 
@@ -167,6 +170,19 @@ def infer(payload):
     label_mean=float(metrics.get('label_mean') or max(pred,1.0)); conf=max(55.0,min(95.0,100.0*(1.0-mae/(abs(label_mean)+mae))))
     return {'ok':True,'prediction':pred,'premium_min':max(0,pred-spread),'premium_max':pred+spread,'confidence':conf,'metadata':{'engine':engine,'baseline_prediction':baseline_from_features(features)}}
 
+def worker_authorized(headers):
+    expected=os.environ.get('GONGSIL_ML_WORKER_TOKEN','')
+    provided=headers.get('X-Gongsil-Worker-Token','')
+    return bool(expected) and bool(provided) and hashlib.sha256(provided.encode()).digest()==hashlib.sha256(expected.encode()).digest()
+
+def quote_rate_allowed(headers,client_address):
+    forwarded=(headers.get('X-Forwarded-For','').split(',')[0].strip() or (client_address[0] if client_address else 'unknown'))
+    now=int(time.time()); bucket=now//RATE_WINDOW; key=(forwarded,bucket)
+    RATE[key]=RATE.get(key,0)+1
+    for k in list(RATE.keys()):
+        if k[1] < bucket-1: RATE.pop(k,None)
+    return RATE[key] <= RATE_LIMIT
+
 class H(BaseHTTPRequestHandler):
     def _send(self,code,obj):
         b=json.dumps(obj,separators=(',',':')).encode(); self.send_response(code); self.send_header('Content-Type','application/json'); self.send_header('Content-Length',str(len(b)))
@@ -181,15 +197,21 @@ class H(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin',origin); self.send_header('Vary','Origin')
         self.send_header('Access-Control-Allow-Headers','Content-Type'); self.send_header('Access-Control-Allow-Methods','POST,OPTIONS'); self.end_headers()
     def do_GET(self):
-        self._send(200,{'ok':True,'service':'gongsil-ml-http','version':'2.1.0','engine':'xgboost_residual_v1','features':len(FEATURES),'public_quote':True}) if self.path=='/health' else self._send(404,{'ok':False})
+        self._send(200,{'ok':True,'service':'gongsil-ml-http','version':'2.2.0','engine':'xgboost_residual_v1','features':len(FEATURES),'public_quote':True}) if self.path=='/health' else self._send(404,{'ok':False})
     def do_POST(self):
         try:
             size=int(self.headers.get('Content-Length','0'))
             if size<=0 or size>MAX_BODY: return self._send(413,{'ok':False,'error':'invalid_body_size'})
             payload=json.loads(self.rfile.read(size))
-            if self.path=='/v1/train': return self._send(200,train(payload))
-            if self.path=='/v1/infer': return self._send(200,infer(payload))
-            if self.path=='/v1/quote': return self._send(200,public_quote(payload))
+            if self.path=='/v1/train':
+                if not worker_authorized(self.headers): return self._send(401,{'ok':False,'error':'worker_auth_required'})
+                return self._send(200,train(payload))
+            if self.path=='/v1/infer':
+                if not worker_authorized(self.headers): return self._send(401,{'ok':False,'error':'worker_auth_required'})
+                return self._send(200,infer(payload))
+            if self.path=='/v1/quote':
+                if not quote_rate_allowed(self.headers,self.client_address): return self._send(429,{'ok':False,'error':'rate_limited'})
+                return self._send(200,public_quote(payload))
             return self._send(404,{'ok':False})
         except Exception as e:
             return self._send(400,{'ok':False,'error':str(e)[:500]})
