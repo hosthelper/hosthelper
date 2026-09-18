@@ -1,4 +1,4 @@
-import json,base64,hashlib,time,zlib
+import json,base64,hashlib,time,zlib,os,urllib.request,urllib.error
 from http.server import BaseHTTPRequestHandler,HTTPServer
 import numpy as np
 import xgboost as xgb
@@ -118,6 +118,31 @@ def train(payload):
     mae,pred,artifact,engine,meta=best
     return {'ok':True,'model_version':'premium-xgb-'+time.strftime('%Y%m%d%H%M%S',time.gmtime()),'artifact_uri':artifact,'metrics':{'holdout_mae':mae,'baseline_holdout_mae':baseline,'label_mean':float(np.mean(yh)),'engine':engine,'selection':meta,'artifact_bytes':len(artifact)},'eligible_for_promotion':len(tr)>=30 and len(ho)>=10 and mae<baseline}
 
+def fetch_active_model():
+    supa=os.environ.get('SUPABASE_URL','').rstrip('/')
+    key=os.environ.get('SUPABASE_PUBLISHABLE_KEY','')
+    token=os.environ.get('GONGSIL_ML_PROXY_SECRET','')
+    if not supa or not key or not token: raise ValueError('ml_proxy_not_configured')
+    body=json.dumps({'p_proxy_token':token}).encode()
+    req=urllib.request.Request(supa+'/rest/v1/rpc/gongsil_get_active_valuation_model_with_token',data=body,headers={'apikey':key,'Content-Type':'application/json'},method='POST')
+    with urllib.request.urlopen(req,timeout=6) as resp:
+        return json.loads(resp.read().decode())
+
+def public_quote(payload):
+    f=payload.get('features') or payload or {}
+    required=(n(f.get('avg_monthly_revenue'),0)>0 and n(f.get('operating_months'),0)>0 and n(f.get('occupancy_rate'),0)>0)
+    if not required: raise ValueError('required_features_missing')
+    b=baseline_from_features(f)
+    fallback={'ok':True,'mode':'rules_fallback','model_version':'valuation-model-v1','training_source':'rules','premium_recommended':round(b),'premium_min':round(b*.85),'premium_max':round(b*1.15),'confidence':55,'bootstrap_warning':False}
+    try:
+        model=fetch_active_model()
+        out=infer({'artifact_uri':model.get('artifact_uri'),'features':f,'model_metrics':model.get('model_metrics') or {}})
+        source=model.get('training_source') or (model.get('model_metrics') or {}).get('training_source') or 'unknown'
+        return {'ok':True,'mode':'ml','model_version':model.get('model_version'),'training_source':source,'premium_recommended':round(n(out.get('prediction'),0)),'premium_min':round(n(out.get('premium_min'),0)),'premium_max':round(n(out.get('premium_max'),0)),'confidence':round(n(out.get('confidence'),0),1),'bootstrap_warning':source=='historical_asking_premium','baseline_prediction':round(n((out.get('metadata') or {}).get('baseline_prediction'),b)),'engine':(out.get('metadata') or {}).get('engine') or (model.get('model_metrics') or {}).get('engine') or 'ml_worker'}
+    except Exception as e:
+        fallback['reason']=str(e)[:180]
+        return fallback
+
 def infer(payload):
     uri=str(payload.get('artifact_uri',''))
     features=payload.get('features') or {}
@@ -144,9 +169,19 @@ def infer(payload):
 
 class H(BaseHTTPRequestHandler):
     def _send(self,code,obj):
-        b=json.dumps(obj,separators=(',',':')).encode(); self.send_response(code); self.send_header('Content-Type','application/json'); self.send_header('Content-Length',str(len(b))); self.end_headers(); self.wfile.write(b)
+        b=json.dumps(obj,separators=(',',':')).encode(); self.send_response(code); self.send_header('Content-Type','application/json'); self.send_header('Content-Length',str(len(b)))
+        origin=self.headers.get('Origin','')
+        if origin=='https://gongsil-helper.netlify.app' or origin.endswith('--gongsil-helper.netlify.app'):
+            self.send_header('Access-Control-Allow-Origin',origin); self.send_header('Vary','Origin')
+        self.end_headers(); self.wfile.write(b)
+    def do_OPTIONS(self):
+        origin=self.headers.get('Origin','')
+        self.send_response(204)
+        if origin=='https://gongsil-helper.netlify.app' or origin.endswith('--gongsil-helper.netlify.app'):
+            self.send_header('Access-Control-Allow-Origin',origin); self.send_header('Vary','Origin')
+        self.send_header('Access-Control-Allow-Headers','Content-Type'); self.send_header('Access-Control-Allow-Methods','POST,OPTIONS'); self.end_headers()
     def do_GET(self):
-        self._send(200,{'ok':True,'service':'gongsil-ml-http','version':'2.0.0','engine':'xgboost_residual_v1','features':len(FEATURES)}) if self.path=='/health' else self._send(404,{'ok':False})
+        self._send(200,{'ok':True,'service':'gongsil-ml-http','version':'2.1.0','engine':'xgboost_residual_v1','features':len(FEATURES),'public_quote':True}) if self.path=='/health' else self._send(404,{'ok':False})
     def do_POST(self):
         try:
             size=int(self.headers.get('Content-Length','0'))
@@ -154,6 +189,7 @@ class H(BaseHTTPRequestHandler):
             payload=json.loads(self.rfile.read(size))
             if self.path=='/v1/train': return self._send(200,train(payload))
             if self.path=='/v1/infer': return self._send(200,infer(payload))
+            if self.path=='/v1/quote': return self._send(200,public_quote(payload))
             return self._send(404,{'ok':False})
         except Exception as e:
             return self._send(400,{'ok':False,'error':str(e)[:500]})
