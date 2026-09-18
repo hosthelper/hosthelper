@@ -21,10 +21,10 @@ async function supabaseRpc(name: string, body: Record<string, unknown>) {
     signal: AbortSignal.timeout(15000),
   });
   const text = await res.text();
-  let parsed: unknown = null;
+  let parsed: any = null;
   try { parsed = text ? JSON.parse(text) : null; } catch { parsed = text; }
   if (!res.ok) throw new Error('supabase_rpc_' + name + '_' + res.status + ':' + (typeof parsed === 'string' ? parsed : JSON.stringify(parsed)));
-  return parsed as Record<string, unknown> | null;
+  return parsed;
 }
 async function getPortOnePayment(paymentId: string) {
   const secret = requiredEnv('PORTONE_API_SECRET');
@@ -33,22 +33,33 @@ async function getPortOnePayment(paymentId: string) {
     signal: AbortSignal.timeout(15000),
   });
   const text = await res.text();
-  let parsed: unknown = null;
+  let parsed: any = null;
   try { parsed = text ? JSON.parse(text) : null; } catch { parsed = text; }
   if (!res.ok) throw new Error('portone_get_' + res.status + ':' + (typeof parsed === 'string' ? parsed : JSON.stringify(parsed)));
-  return parsed as Record<string, unknown>;
+  return parsed;
 }
-function paymentStatus(payment: Record<string, unknown>) {
-  return String(payment?.status ?? '').toUpperCase();
+async function requestPortOneRefund(paymentId: string, reason: string) {
+  const secret = requiredEnv('PORTONE_API_SECRET');
+  const res = await fetch('https://api.portone.io/payments/' + encodeURIComponent(paymentId) + '/cancel', {
+    method: 'POST',
+    headers: { authorization: 'PortOne ' + secret, 'content-type': 'application/json' },
+    body: JSON.stringify({ reason }),
+    signal: AbortSignal.timeout(15000),
+  });
+  const text = await res.text();
+  let parsed: any = null;
+  try { parsed = text ? JSON.parse(text) : null; } catch { parsed = text; }
+  if (!res.ok) throw new Error('portone_cancel_' + res.status + ':' + (typeof parsed === 'string' ? parsed : JSON.stringify(parsed)));
+  return parsed;
 }
-function totalAmount(payment: Record<string, unknown>) {
-  const amount = payment?.amount as Record<string, unknown> | undefined;
-  const value = amount?.total ?? amount?.totalAmount ?? payment?.totalAmount;
+function paymentStatus(payment: any) { return String(payment?.status ?? '').toUpperCase(); }
+function totalAmount(payment: any) {
+  const value = payment?.amount?.total ?? payment?.amount?.totalAmount ?? payment?.totalAmount;
   const n = Number(value);
   return Number.isFinite(n) ? n : NaN;
 }
-function eventKeyFallback(resourceType: string, resourceId: string, paymentId: string) {
-  return 'server:' + resourceType + ':' + resourceId + ':' + paymentId + ':payment_paid';
+function eventKeyFallback(resourceType: string, resourceId: string, paymentId: string, eventType: string) {
+  return 'server:' + resourceType + ':' + resourceId + ':' + paymentId + ':' + eventType;
 }
 
 export default async (req: Request, _context: Context) => {
@@ -58,16 +69,14 @@ export default async (req: Request, _context: Context) => {
     requiredEnv('SUPABASE_URL');
     requiredEnv('SUPABASE_SERVICE_ROLE_KEY');
 
-    let body: Record<string, unknown>;
+    let body: any;
     try { body = await req.json(); } catch { return json({ error: 'invalid_json' }, 400); }
-
     const resourceType = String(body.resourceType ?? '');
     const resourceId = String(body.resourceId ?? '');
     const paymentId = String(body.paymentId ?? '');
-
-    if (resourceType !== 'access_order') return json({ error: 'invalid_resource_type' }, 400);
+    const action = String(body.action ?? 'verify_payment');
+    if (!['access_order', 'visit_deposit'].includes(resourceType)) return json({ error: 'invalid_resource_type' }, 400);
     if (!/^[0-9a-f-]{36}$/i.test(resourceId)) return json({ error: 'invalid_resource_id' }, 400);
-    if (!paymentId) return json({ error: 'payment_id_required' }, 400);
 
     const contract = await supabaseRpc('gongsil_get_portone_verification_contract', {
       p_resource_type: resourceType,
@@ -76,21 +85,61 @@ export default async (req: Request, _context: Context) => {
     const expectedAmount = Number(contract?.expected_amount_krw);
     if (!Number.isFinite(expectedAmount) || expectedAmount <= 0) return json({ error: 'invalid_server_contract' }, 409);
 
+    if (action === 'request_refund') {
+      if (resourceType !== 'visit_deposit') return json({ error: 'refund_only_for_visit_deposit' }, 400);
+      if (contract?.refundable !== true) return json({ error: 'deposit_not_refundable', status: contract?.status }, 409);
+      const providerPaymentId = String(contract?.existing_payment_id ?? paymentId ?? '');
+      if (!providerPaymentId) return json({ error: 'payment_id_missing' }, 409);
+      const cancellation = await requestPortOneRefund(providerPaymentId, String(body.reason ?? '공실헬퍼 임장보증금 환불'));
+      const payment = await getPortOnePayment(providerPaymentId);
+      if (paymentStatus(payment) === 'CANCELLED') {
+        const eventKey = String(body.eventKey ?? eventKeyFallback(resourceType, resourceId, providerPaymentId, 'refund_completed'));
+        const result = await supabaseRpc('gongsil_ingest_portone_verified_event', {
+          p_event_key: eventKey,
+          p_resource_type: resourceType,
+          p_event_type: 'refund_completed',
+          p_resource_id: resourceId,
+          p_payment_id: providerPaymentId,
+          p_amount_krw: expectedAmount,
+          p_provider_status: 'refunded',
+          p_payload: { provider: payment, cancellation },
+        });
+        return json({ ok: true, refunded: true, result });
+      }
+      return json({ ok: true, refundRequested: true, providerStatus: paymentStatus(payment), cancellation }, 202);
+    }
+
+    if (!paymentId) return json({ error: 'payment_id_required' }, 400);
     const payment = await getPortOnePayment(paymentId);
     const status = paymentStatus(payment);
     const amount = totalAmount(payment);
     const currency = String(payment?.currency ?? 'KRW').toUpperCase();
+
+    if (action === 'verify_refund') {
+      if (resourceType !== 'visit_deposit') return json({ error: 'refund_only_for_visit_deposit' }, 400);
+      if (status !== 'CANCELLED') return json({ error: 'refund_not_completed', providerStatus: status }, 409);
+      const eventKey = String(body.eventKey ?? eventKeyFallback(resourceType, resourceId, paymentId, 'refund_completed'));
+      const result = await supabaseRpc('gongsil_ingest_portone_verified_event', {
+        p_event_key: eventKey,
+        p_resource_type: resourceType,
+        p_event_type: 'refund_completed',
+        p_resource_id: resourceId,
+        p_payment_id: paymentId,
+        p_amount_krw: expectedAmount,
+        p_provider_status: 'refunded',
+        p_payload: { provider: payment },
+      });
+      return json({ ok: true, result });
+    }
 
     if (!['PAID', 'PARTIAL_CANCELLED'].includes(status)) return json({ error: 'payment_not_paid', providerStatus: status }, 409);
     if (!['KRW', 'CURRENCY_KRW'].includes(currency)) return json({ error: 'currency_mismatch', currency }, 409);
     if (!Number.isFinite(amount) || Math.round(amount) !== Math.round(expectedAmount)) {
       return json({ error: 'amount_mismatch', expectedAmount, providerAmount: amount }, 409);
     }
-    if (contract?.payable !== true && contract?.status !== 'paid') {
-      return json({ error: 'resource_not_payable', status: contract?.status }, 409);
-    }
+    if (contract?.payable !== true && contract?.status !== 'paid') return json({ error: 'resource_not_payable', status: contract?.status }, 409);
 
-    const eventKey = String(body.eventKey ?? eventKeyFallback(resourceType, resourceId, paymentId));
+    const eventKey = String(body.eventKey ?? eventKeyFallback(resourceType, resourceId, paymentId, 'payment_paid'));
     const result = await supabaseRpc('gongsil_ingest_portone_verified_event', {
       p_event_key: eventKey,
       p_resource_type: resourceType,
@@ -101,7 +150,6 @@ export default async (req: Request, _context: Context) => {
       p_provider_status: 'paid',
       p_payload: { provider: payment },
     });
-
     return json({ ok: true, result });
   } catch (error) {
     console.error('portone-verify error', error);
