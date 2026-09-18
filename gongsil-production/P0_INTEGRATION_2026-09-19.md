@@ -43,3 +43,22 @@ https://gongsil-helper.netlify.app
 - 결제 금액은 브라우저 값이 아니라 DB 주문 금액을 기준으로 서버에서 재검증
 - Helper ID 연결은 로그인한 본인의 gongsil.profiles 행만 수정
 - SSO code는 1회용이며 PDS가 Origin을 검증
+
+
+## 2026-09-19 추가 완료
+- helpecrm gongsil.profiles에 외부 Helper Universe member mapping 컬럼 적용
+- public.gongsil_link_universe_member(text) 적용: SECURITY INVOKER, authenticated only
+- 기존 hu_sync_gongsil_kakao + hu_ensure_service_user('gongsil')를 SSO 완료 흐름에 연결
+- gongsil_create_access_order_idempotent: anon 실행권 제거
+- gongsil_has_active_access_pass: anon 실행권 제거
+- gongsil_get_portone_verification_contract: service_role only
+- gongsil_ingest_portone_verified_event: service_role only
+- Production /.netlify/functions/portone-config 실응답 확인
+- PortOne V2 PC Promise + 모바일 redirect callback 모두 처리하도록 클라이언트 모듈 준비
+- 기존 visit_deposit 결제/환불 Function 회귀 없이 보존
+
+## 배포 직전 필수
+- PDS UNIVERSE_SERVICE_ORIGINS.gongsil을 https://gongsil-helper.netlify.app 로 변경
+- Netlify에 새로 발급한 PORTONE_API_SECRET 등록
+- Netlify에 현재 helpecrm의 SUPABASE_SERVICE_ROLE_KEY 등록
+- 외부 공유 이력이 있는 과거 Secret은 재사용하지 않음
