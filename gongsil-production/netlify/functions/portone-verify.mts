@@ -98,8 +98,7 @@ export default async (req: Request, _context: Context) => {
         const eventKey = String(body.eventKey ?? eventKeyFallback(resourceType, resourceId, providerPaymentId, 'refund_completed'));
         const result = await supabaseRpc('gongsil_ingest_portone_verified_event_with_token', {
           p_settle_token: settleToken,
-          p_settle_token: settleToken,
-      p_event_key: eventKey,
+          p_event_key: eventKey,
           p_resource_type: resourceType,
           p_event_type: 'refund_completed',
           p_resource_id: resourceId,
@@ -124,6 +123,7 @@ export default async (req: Request, _context: Context) => {
       if (status !== 'CANCELLED') return json({ error: 'refund_not_completed', providerStatus: status }, 409);
       const eventKey = String(body.eventKey ?? eventKeyFallback(resourceType, resourceId, paymentId, 'refund_completed'));
       const result = await supabaseRpc('gongsil_ingest_portone_verified_event_with_token', {
+        p_settle_token: settleToken,
         p_event_key: eventKey,
         p_resource_type: resourceType,
         p_event_type: 'refund_completed',
@@ -145,6 +145,7 @@ export default async (req: Request, _context: Context) => {
 
     const eventKey = String(body.eventKey ?? eventKeyFallback(resourceType, resourceId, paymentId, 'payment_paid'));
     const result = await supabaseRpc('gongsil_ingest_portone_verified_event_with_token', {
+      p_settle_token: settleToken,
       p_event_key: eventKey,
       p_resource_type: resourceType,
       p_event_type: 'payment_paid',
