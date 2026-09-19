@@ -10,7 +10,18 @@
 - 오늘 편 prefix: `jeongchaek-geojeol` (정책자금 거절 사유 4가지)
 
 ## 자동 게시 상태 (주의)
-`publish-reel`(인스타·유튜브·스레드)은 `reel_*.mp4` push로 트리거되지만, `build-reel-daily` 합성 커밋이 `[skip ci]`라 현재 자동 발화하지 않음. 게시하려면 Actions에서 `publish-reel` 수동 실행(workflow_dispatch) 또는 아래 복붙으로 수동 업로드.
+`publish-reel`(인스타·유튜브·스레드)은 `build-reel-daily` 완료를 받아 `workflow_run`으로 실행됩니다.
+
+**이전 기록 정정.** 여기에는 원인이 `[skip ci]` 하나로 적혀 있었으나 **불완전했습니다.** 실제로는 두 가지가 겹쳐 있었고, 실행 이력상 `publish-reel`은 **한 번도 발화한 적이 없습니다**(빌드는 15회 성공).
+
+1. 합성 커밋 메시지의 `[skip ci]`
+2. **`GITHUB_TOKEN`으로 푸시한 커밋은 `push` 워크플로를 트리거하지 않는다** — GitHub Actions 규칙(`workflow_dispatch`·`repository_dispatch`만 예외)
+
+`[skip ci]`만 지웠다면 2번 때문에 여전히 돌지 않았을 것입니다. 그래서 트리거를 `workflow_run`으로 바꾸고 `[skip ci]`도 함께 제거했습니다. 새 시크릿은 필요 없습니다.
+
+**아직 검증되지 않았습니다.** `workflow_run`은 기본 브랜치에 있는 워크플로 파일만 트리거하므로, main 병합 후 `reel/daily/manifest.json`을 한 번 갱신해 연쇄가 실제로 도는지 Actions 로그로 확인해야 합니다.
+
+**초록색 = 게시 완료가 아닙니다.** 채널 토큰이 없으면 각 채널을 조용히 건너뛰고 성공으로 끝납니다. 판정은 텔레그램 알림의 채널별 상태로 하세요.
 
 ## 1) 유튜브 쇼츠 (최신 reel_<prefix>.mp4 그대로 업로드)
 - 제목 템플릿: `<기사 핵심> — 창업 전 꼭 확인`
