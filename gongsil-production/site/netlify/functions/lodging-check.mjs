@@ -13,6 +13,9 @@ const SERVICE_BY_DISTRICT={
 };
 
 const clean=v=>String(v||'').normalize('NFKC').replace(/\([^)]*\)/g,'').replace(/\s+/g,'').replace(/[^0-9A-Za-z가-힣-]/g,'').toLowerCase();
+function compactAddress(v){return clean(v)}
+function sameCompactAddress(a,b){const aa=compactAddress(a),bb=compactAddress(b);return !!aa&&!!bb&&(aa===bb||aa.includes(bb)||bb.includes(aa))}
+
 const unitPattern=/(?:,?\s*(?:b\s*\d+|비\s*\d+\s*층|지하\s*\d+\s*층|\d+\s*층|\d+\s*호|[a-z]?\d{3,4}\s*호?))(?:\s|$)/ig;
 function baseAddress(v){return clean(String(v||'').replace(unitPattern,' ').replace(/,.*$/,''))}
 function hasUnit(v){return /(?:b\s*\d+|비\s*\d+\s*층|지하\s*\d+\s*층|\d+\s*층|\d+\s*호|[a-z]?\d{3,4}\s*호?)/i.test(String(v||''))}
@@ -75,7 +78,7 @@ async function seoulLookup(address){
     for(const row of result.rows||[]){
       const addr=rowAddress(row);
       if(!addr)continue;
-      const rowFull=clean(addr),rowBase=baseAddress(addr);
+      const rowFull=compactAddress(addr),rowBase=baseAddress(addr);
       const inputRoad=roadCore(address),rowRoad=roadCore(addr);const hit=rowBase===inputBase||rowFull.includes(inputBase)||inputFull.includes(rowBase)||(inputRoad&&rowRoad&&inputRoad===rowRoad);
       if(hit)candidates.push({row,district:result.district,service:result.service});
     }
@@ -96,10 +99,7 @@ async function seoulLookup(address){
 
   const active=candidates.filter(x=>isActive(x.row));
   const inactive=candidates.filter(x=>!isActive(x.row));
-  const exactActive=inputHasUnit?active.filter(x=>{
-    const rf=clean(rowAddress(x.row));
-    return rf===inputFull||rf.includes(inputFull)||inputFull.includes(rf);
-  }):[];
+  const exactActive=inputHasUnit?active.filter(x=>sameCompactAddress(rowAddress(x.row),address)):[];
 
   const pack=list=>list.map(x=>({...compactEvidence(x.row),district:x.district,service:x.service}));
   const first=(exactActive[0]||active[0]||inactive[0]||candidates[0]);
