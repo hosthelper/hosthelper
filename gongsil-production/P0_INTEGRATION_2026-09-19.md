@@ -60,5 +60,34 @@ https://gongsil-helper.netlify.app
 ## 배포 직전 필수
 - PDS UNIVERSE_SERVICE_ORIGINS.gongsil을 https://gongsil-helper.netlify.app 로 변경
 - Netlify에 새로 발급한 PORTONE_API_SECRET 등록
-- Netlify에 현재 helpecrm의 SUPABASE_SERVICE_ROLE_KEY 등록
+- Netlify 결제 검증은 SUPABASE_SERVICE_ROLE_KEY 대신 GONGSIL_PORTONE_SETTLE_TOKEN + SUPABASE_PUBLISHABLE_KEY 사용
 - 외부 공유 이력이 있는 과거 Secret은 재사용하지 않음
+
+
+## 2026-09-19 SSO 실제 QA
+- PDS Gongsil 허용 Origin을 canonical Production + staging 2개로 명시 제한
+  - https://gongsil-helper.netlify.app
+  - https://new-gsg1y1.v2.appdeploy.ai
+- SSO exchange에서 one-time code에 기록된 returnTo Origin과 실제 요청 Origin 재검증
+- staging의 기존 direct Supabase Kakao OAuth를 Helper Universe SSO 방식으로 교체
+- 실제 브라우저 QA:
+  - 공실헬퍼 staging 로그인 모달
+  - Helper Universe/PDS SSO
+  - Kakao OAuth
+  - accounts.kakao.com 공식 로그인 화면 도달
+  - Origin/CORS/returnTo 오류 없음
+- 실제 Kakao 계정 입력·로그인 완료는 테스트 계정 자격증명 없이 수행하지 않음
+
+## 결제 보안 업데이트
+- 별도 GONGSIL_PORTONE_SETTLE_TOKEN을 회전
+- DB에는 SHA-256 hash만 저장
+- Netlify에는 Secret으로만 저장
+- DB token validation = true 확인
+- 준비한 portone-verify Function은 SUPABASE_SERVICE_ROLE_KEY 의존 제거
+- publishable key + token-scoped verification/settlement RPC 사용
+- 기존 visit_deposit 결제/환불 경로 유지
+
+## 현재 외부 블로커
+1. Netlify Production은 CLI 수동배포본이며 연결된 도구에 source upload API가 없어 프런트/Function 코드 파일을 직접 교체할 수 없음.
+2. 연결된 Remote Desktop은 offline, Opera Browser Connector는 disconnected.
+3. 실제 PortOne 서버 검증에는 과거 공유된 키를 재사용하지 않고 새 PORTONE_API_SECRET 발급·등록 필요.
