@@ -127,6 +127,7 @@ export default async function(req){
   let body={};try{body=await req.json()}catch{return reply({error:'요청 형식이 올바르지 않습니다.'},400)}
   const address=String(body.address||'').trim(),businessNo=String(body.businessNo||'').replace(/[^0-9]/g,''),buildingUse=String(body.buildingUse||'unknown');
   if(address.length<5)return reply({error:'주소를 정확히 입력해 주세요.'},400);
+  if(!hasUnit(address))return reply({error:'도로명주소와 동·층·호수까지 정확히 입력해 주세요. 사업자등록번호는 입력하지 않아도 됩니다.',code:'unit_required'},400);
 
   const seoul=await seoulLookup(address),region=regionOf(address,seoul.district||''),sources=[];
   sources.push({source:'address_input',label:'입력 주소',status:'confirmed',statusLabel:'입력 확인',message:region.sigungu?region.sido+' '+region.sigungu+' 인허가 DB에서 조회했습니다.':'서울 25개 자치구 인허가 DB를 자동 검색했습니다.'});
@@ -145,7 +146,7 @@ export default async function(req){
   const summary=seoul.status==='confirmed'
     ?'입력한 호수의 외국인관광 도시민박업이 영업/정상 상태로 확인됩니다.'
     :seoul.status==='building_match'
-      ?'같은 건물에 영업/정상 인허가가 있습니다. 호수 없이도 건물 단위 활성 여부를 확인했습니다.'
+      ?'같은 건물에 영업/정상 인허가는 있으나 입력한 동·층·호수와 정확히 일치하지 않습니다.'
       :seoul.status==='inactive'
         ?'같은 주소의 인허가 기록은 있지만 현재 활성 영업으로 확인되지 않습니다.'
         :seoul.status==='not_found'
