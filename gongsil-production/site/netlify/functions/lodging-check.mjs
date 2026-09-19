@@ -135,7 +135,8 @@ export default async function(req){
   const seoulStatus=seoul.status==='confirmed'?'confirmed':seoul.status==='building_match'?'needs_check':seoul.status==='inactive'?'needs_check':seoul.status==='not_found'?'needs_check':'needs_check';
   const seoulLabel=seoul.status==='confirmed'?'영업/정상':seoul.status==='building_match'?'같은 건물 활성':seoul.status==='inactive'?'비활성':seoul.status==='not_found'?'인허가 미확인':'조회 오류';
   const evidenceText=(seoul.matches||[]).slice(0,3).map(x=>[x.businessName,x.roadAddress,x.tradeStatus||x.detailStatus,x.permitDate&&('인가 '+x.permitDate),x.managementNo&&('관리번호 '+x.managementNo)].filter(Boolean).join(' · ')).join(' / ');
-  sources.push({source:'seoul_foreign_homestay',label:'서울시 외국인관광 도시민박업',status:seoulStatus,statusLabel:seoulLabel,message:seoul.message+(evidenceText?' '+evidenceText:''),evidence:seoul.matches||[],service:seoul.service||null});
+  const legacyMatches=(seoul.matches||[]).map(x=>({bizName:x.businessName||null,status:x.tradeStatus||x.detailStatus||null,address:x.roadAddress||x.lotAddress||null,permitDate:x.permitDate||null,managementNo:x.managementNo||null}));
+  sources.push({source:'seoul_outdomin_registry',label:'서울시 외국인관광 도시민박업',status:seoulStatus,statusLabel:seoulLabel,message:seoul.message+(evidenceText?' '+evidenceText:''),matches:legacyMatches,evidence:seoul.matches||[],service:seoul.service||null});
 
   if(businessNo)sources.push({source:'business_number',label:'사업자등록번호',status:'needs_check',statusLabel:'별도 확인',message:'외국인관광 도시민박업 공개 인허가 데이터에는 사업자등록번호가 없어 국세청/홈택스 원천 확인이 별도로 필요합니다.'});
 
