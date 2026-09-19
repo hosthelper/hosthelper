@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>헬퍼아카데미 | 배우고 실행하고 수익화하기</title>
+<title>헬퍼아카데미 | 숙박업 완전초보에서 실제 오픈까지</title>
 <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -12,7 +12,7 @@
     <a class="brand" href="#dashboard"><span class="brand-mark">H</span><strong>헬퍼아카데미</strong></a>
     <nav class="top-nav"><a href="#courses">강의</a><a href="#roadmap">로드맵</a><a href="#mentoring">멘토링</a><a href="#profit">수익화센터</a><a href="#community">커뮤니티</a><a href="#events">이벤트</a></nav>
     <label class="search">⌕<input id="courseSearch" placeholder="원하는 강의, 키워드를 검색해보세요." /></label>
-    <button class="bell">🔔<b>3</b></button><button class="study-btn">▣ 내 학습공간</button><button class="profile"><img src="./public/assets/hero-learner.jpg" alt="학습자 프로필"/>김지현님⌄</button>
+    <button class="bell" type="button" aria-label="알림">🔔<b>3</b></button><button class="study-btn" type="button" data-scroll="#courses">▣ 내 학습공간</button><button class="profile" type="button"><span class="profile-avatar" aria-hidden="true">예</span>예비 호스트⌄</button>
   </div>
 </header>
 <div class="app-shell">
@@ -24,21 +24,66 @@
 </aside>
 <main class="dashboard" id="dashboard">
   <section class="hero-grid">
-    <article class="welcome-card"><div class="welcome-copy"><h1>김지현님, 오늘도 성장하는 하루네요! 👋</h1><p>작은 배움이 쌓여, 새로운 수익의 기회가 됩니다.<br/>헬퍼아카데미가 끝까지 함께할게요.</p><blockquote>“지금의 꾸준함이, 머지않아 원하는 라이프스타일을 만들어줄 거예요.”</blockquote></div><img src="./public/assets/hero-learner.jpg" alt="노트북으로 학습하는 수강생" /></article>
+    <article class="welcome-card"><div class="welcome-copy"><span class="eyebrow">6개월 내 오픈을 목표로 하는 완전초보 전용</span><h1>숙박업, 무엇부터 해야 할지 막막하셨나요?</h1><p>내 상황을 먼저 진단하고, 매물·수익성·세팅·운영까지<br/>실제 오픈에 필요한 순서대로 하나씩 실행합니다.</p><blockquote>“많이 아는 것보다, 오늘 한 가지를 실행하는 것이 먼저입니다.”</blockquote><div class="hero-actions"><button class="primary-cta" type="button" data-scroll="#diagnosis">무료 오픈진단 시작</button><button class="secondary-cta" type="button" data-scroll="#enroll">10만원 실행과정 보기</button></div></div><div class="hero-visual" aria-label="숙박업 오픈 로드맵"><span>START</span><strong>진단 → 실행 → 오픈</strong><small>내 상황에 맞는 다음 행동을 바로 확인하세요.</small></div></article>
     <article class="quote-card"><div class="card-title">🌿 오늘의 한마디 <span>1 / 5</span></div><p>“꾸준히 배우는 사람은<br/>언제나 기회를 만납니다.”</p><div class="leaf">🌿</div></article>
   </section>
-  <section class="stats-row"><article><span class="stat-icon blue">▤</span><div><small>총 학습 시간</small><strong>42시간 30분</strong><em>지난주 대비 ▲ 28%</em></div></article><article><span class="stat-icon pink">▶</span><div><small>수강 중 강의</small><strong>3개</strong><em>완료 2개 / 총 5개</em></div></article><article><span class="stat-icon green">✓</span><div><small>완료한 미션</small><strong>12개</strong><em>이번 달 +4개</em></div></article><article><span class="stat-icon sky">▥</span><div><small>누적 수익화 준비도</small><strong>78%</strong><em>목표까지 22% 남았어요!</em></div></article><article class="level-card"><span>♛</span><div><small>나의 학습 레벨</small><strong>Lv. 4 <i>성장하는 헬퍼</i></strong><div class="level-progress"><b></b></div><em>다음 레벨까지 320 XP</em></div></article></section>
+  <section class="launch-offer" id="diagnosis"><div><span class="offer-badge">STEP 0 · 무료</span><h2>먼저, 내 오픈 준비 상태부터 확인하세요.</h2><p>5개 질문으로 현재 위치를 확인하고 지금 해야 할 1순위 행동을 추천합니다.</p></div><button class="diagnosis-btn" id="startDiagnosis" type="button">무료 오픈진단 받기 →</button></section><section class="stats-row"><article><span class="stat-icon blue">▤</span><div><small>총 학습 시간</small><strong>42시간 30분</strong><em>지난주 대비 ▲ 28%</em></div></article><article><span class="stat-icon pink">▶</span><div><small>수강 중 강의</small><strong>3개</strong><em>완료 2개 / 총 5개</em></div></article><article><span class="stat-icon green">✓</span><div><small>완료한 미션</small><strong>12개</strong><em>이번 달 +4개</em></div></article><article><span class="stat-icon sky">▥</span><div><small>오픈 준비도</small><strong>78%</strong><em>다음 실행과제를 확인하세요</em></div></article><article class="level-card"><span>♛</span><div><small>나의 학습 레벨</small><strong>Lv. 4 <i>오픈 준비 중</i></strong><div class="level-progress"><b></b></div><em>다음 레벨까지 320 XP</em></div></article></section>
   <section class="main-grid">
-    <article class="action-panel"><h2>🎯 오늘의 다음 액션</h2><div class="action-list"><button><span class="round green">✓</span><div><b>강의 이어서 수강하기</b><small>온라인 공간 운영 A to Z 3강 · 브랜딩 기초</small></div><i>바로가기</i></button><button><span class="round blue">💡</span><div><b>오늘의 미션 인증하기</b><small>[미션] 나만의 서비스 한 줄 소개 작성</small></div><i>인증하기</i></button><button><span class="round sky">↩</span><div><b>멘토링 질문 미리 작성하기</b><small>이번 주 멘토링이 곧 시작돼요!</small></div><i>작성하기</i></button><button><span class="round green">▣</span><div><b>수익화 가이드북 살펴보기</b><small>실전 수익화 사례와 전략을 확인해보세요.</small></div><i>바로가기</i></button></div></article>
-    <article class="course-panel" id="courses"><div class="panel-title"><h2>▣ 이어지는 강의</h2><a href="#courses">내 강의 전체보기 ›</a></div><div class="course-image"><img src="./public/assets/course-thumb.jpg" alt="온라인 공간 운영 강의"/><button class="play">▶</button><span>수강 중</span></div><h3>처음 시작하는 온라인 공간 운영 A to Z</h3><p>1인 크리에이터를 위한 실전 가이드</p><div class="course-meta"><b>3강. 나만의 브랜딩 기초</b><strong>12 / 16 강</strong></div><div class="progress"><b></b></div><small class="percent">70%</small><button class="continue">▶ 이어서 수강하기</button><button class="detail">강의 상세보기</button></article>
-    <article class="roadmap-panel" id="roadmap"><div class="panel-title"><h2>▣ 학습 로드맵</h2><a href="#roadmap">전체 로드맵 보기 ›</a></div><ol class="roadmap-list"><li class="done"><span>1</span><div><b>기초 다지기</b><small>온라인 기초 이해와 기본 스킬</small></div><em>완료</em></li><li class="current"><span>2</span><div><b>실무 역량 키우기</b><small>콘텐츠 제작, 운영, 고객관리</small></div><em>진행중</em></li><li><span>3</span><div><b>수익화 준비</b><small>나만의 상품/서비스 기획</small></div><em>대기</em></li><li><span>4</span><div><b>실전 실행</b><small>실제 운영과 마케팅</small></div><em>대기</em></li><li><span>5</span><div><b>확장하기</b><small>지속 가능한 성장과 브랜드화</small></div><em>대기</em></li></ol><div class="mountain">⛰️<small>지금의 배움이 새로운 가능성을 만듭니다!</small></div></article>
+    <article class="action-panel"><h2>🎯 오늘의 다음 액션</h2><div class="action-list"><button type="button" data-scroll="#diagnosis"><span class="round green">✓</span><div><b>무료 오픈진단 완료하기</b><small>현재 자금·지역·오픈 목표일을 먼저 정리합니다.</small></div><i>진단하기</i></button><button type="button" data-scroll="#enroll"><span class="round blue">💡</span><div><b>10만원 실행과정 확인하기</b><small>배우고 끝내지 않고 실제 오픈 행동까지 이어갑니다.</small></div><i>과정보기</i></button><button type="button" data-toast="멘토링 질문함은 다음 단계에서 연결됩니다."><span class="round sky">↩</span><div><b>막힌 부분 질문 남기기</b><small>실행 중 막힌 지점을 구체적으로 기록해두세요.</small></div><i>작성하기</i></button><button type="button" data-scroll="#roadmap"><span class="round green">▣</span><div><b>내 오픈 로드맵 확인하기</b><small>매물·세팅·운영 순서를 한눈에 확인합니다.</small></div><i>바로가기</i></button></div></article>
+    <article class="course-panel" id="courses"><div class="panel-title"><h2>▣ 이어지는 강의</h2><a href="#courses">내 강의 전체보기 ›</a></div><div class="course-image course-cover"><div><span class="cover-kicker">OPEN BASIC</span><strong>숙박업 완전초보<br/>오픈 실전</strong><small>6개월 안에 첫 숙소 오픈을 목표로</small></div><button class="play" type="button" data-toast="수강 영상은 결제·수강 활성화 단계에서 연결됩니다." aria-label="강의 미리보기">▶</button><span>대표 과정</span></div><h3>숙박업 완전초보 오픈 실전</h3><p>막연한 공부보다 실제 오픈 순서에 맞춘 실행형 과정</p><div class="course-meta"><b>3단계. 매물과 수익성 검토</b><strong>12 / 16 강</strong></div><div class="progress"><b></b></div><small class="percent">70%</small><button class="continue" type="button" data-scroll="#enroll">10만원 실행과정 시작하기</button><button class="detail" type="button" data-toast="상세 커리큘럼은 결제 전 확인창에서 볼 수 있습니다.">과정 상세보기</button></article>
+    <article class="roadmap-panel" id="roadmap"><div class="panel-title"><h2>▣ 학습 로드맵</h2><a href="#roadmap">전체 로드맵 보기 ›</a></div><ol class="roadmap-list"><li class="done"><span>1</span><div><b>기초 다지기</b><small>숙박업 구조와 내 상황 진단</small></div><em>완료</em></li><li class="current"><span>2</span><div><b>실무 역량 키우기</b><small>사업·법적 요건과 수익구조 이해</small></div><em>진행중</em></li><li><span>3</span><div><b>수익화 준비</b><small>매물 탐색과 수익성 검토</small></div><em>대기</em></li><li><span>4</span><div><b>실전 실행</b><small>숙소 세팅과 오픈 준비</small></div><em>대기</em></li><li><span>5</span><div><b>확장하기</b><small>첫 예약부터 운영 안정화</small></div><em>대기</em></li></ol><div class="mountain">⛰️<small>오늘의 실행이 실제 오픈으로 이어집니다.</small></div></article>
   </section>
-  <section class="bottom-grid"><article class="missions-panel" id="missions"><div class="panel-title"><div><h2>🎯 이번 주 미션</h2><p>이번 주 미션을 완료하고 성장 인증을 남겨보세요!</p></div><a href="#missions">전체 보기 ›</a></div><div class="mission-grid"><article><span>✓ 미션 1</span><h3>나만의 서비스 한 줄 소개하기</h3><p>내가 제공할 수 있는 가치를 한 줄로 표현해보세요.</p><button class="mission-btn">인증하기</button><small>◷ 1월 25일(토)까지</small></article><article><span>▣ 미션 2</span><h3>타겟 고객 분석해보기</h3><p>내가 도와줄 수 있는 고객은 누구인지 정의해보세요.</p><button class="mission-btn">인증하기</button><small>◷ 1월 26일(일)까지</small></article><article><span>♙ 미션 3</span><h3>수익화 아이디어 3가지 적기</h3><p>나만의 수익화 아이디어를 자유롭게 작성해보세요.</p><button class="mission-btn">인증하기</button><small>◷ 1월 28일(화)까지</small></article></div></article>
+  
+  <section class="paid-offer" id="enroll">
+    <div class="paid-copy">
+      <span class="offer-badge paid">STEP 1 · 실행형</span>
+      <h2>10만원을 결제하고, 첫 수익화 행동까지 실행합니다.</h2>
+      <p>강의만 듣는 과정이 아니라 매주 실행과제를 완료하고, 첫 10만원 수익화에 도전하는 과정입니다.</p>
+      <div class="paid-points">
+        <span>✓ 오픈 로드맵</span><span>✓ 주간 실행과제</span><span>✓ Evidence 인증</span><span>✓ 다음 행동 추천</span>
+      </div>
+    </div>
+    <div class="price-box">
+      <small>헬퍼아카데미 실행과정</small><strong>100,000원</strong><em>1회 결제</em>
+      <button id="startPaidCourse" type="button">결제 전 확인하기 →</button>
+      <p>결제 전 과정·환불기준·제공범위를 다시 확인합니다.</p>
+    </div>
+  </section><section class="bottom-grid"><article class="missions-panel" id="missions"><div class="panel-title"><div><h2>🎯 이번 주 미션</h2><p>이번 주 미션을 완료하고 성장 인증을 남겨보세요!</p></div><a href="#missions">전체 보기 ›</a></div><div class="mission-grid"><article><span>✓ 미션 1</span><h3>나만의 서비스 한 줄 소개하기</h3><p>내가 제공할 수 있는 가치를 한 줄로 표현해보세요.</p><button class="mission-btn">인증하기</button><small>◷ 1월 25일(토)까지</small></article><article><span>▣ 미션 2</span><h3>타겟 고객 분석해보기</h3><p>내가 도와줄 수 있는 고객은 누구인지 정의해보세요.</p><button class="mission-btn">인증하기</button><small>◷ 1월 26일(일)까지</small></article><article><span>♙ 미션 3</span><h3>수익화 아이디어 3가지 적기</h3><p>나만의 수익화 아이디어를 자유롭게 작성해보세요.</p><button class="mission-btn">인증하기</button><small>◷ 1월 28일(화)까지</small></article></div></article>
     <article class="mentor-panel" id="mentoring"><div class="panel-title"><h2>▣ 멘토링 일정</h2><a href="#mentoring">전체 일정 보기 ›</a></div><div class="mentor-event"><div class="date"><small>1월</small><b>22</b><small>(수)</small></div><div><h3>온라인 브랜딩 기초 멘토링</h3><p>14:00 - 15:00 (60분)</p><span><img src="./public/assets/mentor-avatar.jpg" alt="박소현 멘토"/> 박소현 멘토 · 온라인 마케팅 전문가</span><button class="join-btn">멘토링 방 입장하기 ›</button></div></div><div class="next-mentor"><b>다음 멘토링</b><span>1월 29일 (수) 19:00</span><strong>실전 수익화 전략 Q&A</strong></div></article>
     <article class="community-panel" id="community"><div class="panel-title"><h2>▣ 커뮤니티 · Q&A</h2><a href="#community">더보기 ›</a></div><div class="tabs"><button class="active">전체</button><button>질문</button><button>후기</button><button>자유게시판</button></div><div class="posts"><article><img src="./public/assets/community-avatar-1.jpg" alt="서윤님"/><div><b>첫 수익이 발생했어요! 🎉</b><small>서윤님 · 2시간 전</small></div><span>♡ 24　◌ 8</span></article><article><span class="avatar">J</span><div><b>블로그 글쓰기는 어떻게 시작하나요?</b><small>지민님 · 4시간 전</small></div><span>♡ 17　◌ 12</span></article><article><span class="avatar">H</span><div><b>수강생 분들, 어떤 툴을 사용하시나요?</b><small>현우님 · 7시간 전</small></div><span>♡ 9　◌ 6</span></article></div><button class="write-btn">✎ 글 작성하기</button></article></section>
 </main>
 </div>
-<div id="toast" role="status" aria-live="polite"></div>
+
+<dialog id="diagnosisDialog" class="academy-dialog">
+  <form method="dialog" class="dialog-card" id="diagnosisForm">
+    <button class="dialog-close" value="cancel" aria-label="닫기">×</button>
+    <span class="offer-badge">무료 오픈진단</span>
+    <h2>현재 위치를 1분 안에 확인해볼게요.</h2>
+    <div class="diagnosis-questions">
+      <label>오픈 목표 시점<select name="timeline" required><option value="">선택해주세요</option><option>1~2개월</option><option>3~4개월</option><option>5~6개월</option><option>아직 미정</option></select></label>
+      <label>현재 가장 막힌 부분<select name="blocker" required><option value="">선택해주세요</option><option>무엇부터 해야 할지 모르겠어요</option><option>매물을 못 찾겠어요</option><option>수익성 계산이 어려워요</option><option>숙소 세팅이 막막해요</option><option>운영 방법이 궁금해요</option></select></label>
+      <label>예상 시작 예산<select name="budget" required><option value="">선택해주세요</option><option>500만원 미만</option><option>500~1,500만원</option><option>1,500~3,000만원</option><option>3,000만원 이상</option></select></label>
+    </div>
+    <button class="dialog-primary" id="finishDiagnosis" value="default">내 다음 행동 확인하기</button>
+  </form>
+</dialog>
+
+<dialog id="enrollDialog" class="academy-dialog">
+  <form method="dialog" class="dialog-card payment-check">
+    <button class="dialog-close" value="cancel" aria-label="닫기">×</button>
+    <span class="offer-badge paid">결제 전 최종 확인</span>
+    <h2>숙박업 완전초보 오픈 실전</h2>
+    <p class="dialog-sub">6개월 내 오픈을 목표로 하는 초보가 실제 행동을 시작하도록 설계된 실행형 과정입니다.</p>
+    <div class="purchase-summary">
+      <div><span>과정 금액</span><strong>100,000원</strong></div>
+      <div><span>핵심 구성</span><b>로드맵 · 실행과제 · Evidence · 다음 행동 추천</b></div>
+      <div><span>목표</span><b>첫 10만원 수익화에 도전</b></div>
+    </div>
+    <label class="confirm-line"><input type="checkbox" id="purchaseConfirm"/> 과정 범위와 결제 금액을 확인했습니다.</label>
+    <button class="dialog-primary" id="goPayment" type="button" disabled>100,000원 결제 단계로 이동</button>
+    <small class="payment-note">※ 실제 카드/간편결제 승인은 다음 결제모듈 연결 단계에서 활성화합니다.</small>
+  </form>
+</dialog><div id="toast" role="status" aria-live="polite"></div>
 <nav class="mobile-nav"><a href="#dashboard">홈</a><a href="#courses">내 강의</a><a href="#missions">미션</a><a href="#profile">마이</a></nav>
 <script src="./app.js"></script>
 </body>
