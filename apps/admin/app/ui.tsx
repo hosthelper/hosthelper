@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import type { CSSProperties, ReactNode } from 'react';
 
-// admin 전용 경량 디자인(인라인 스타일) — @hosthelper/ui에 의존하지 않고 일관된 운영자 콘솔 룩 제공.
+// Helper Office 운영자 콘솔 공통 UI.
 
 const NAV = [
   { href: '/', label: '콘솔' },
+  { href: '/content-ops', label: '콘텐츠 운영실' },
   { href: '/live', label: '실시간' },
   { href: '/kyc', label: 'KYC 승인' },
   { href: '/disputes', label: '분쟁' },
@@ -37,7 +38,7 @@ export function Shell({
   children: ReactNode;
 }) {
   return (
-    <div style={{ maxWidth: 1040, margin: '0 auto' }}>
+    <div style={{ maxWidth: 1120, margin: '0 auto' }}>
       <nav
         style={{
           display: 'flex',
@@ -49,7 +50,7 @@ export function Shell({
         }}
       >
         <Link href="/" style={{ fontWeight: 700 }}>
-          hosthelper <span style={{ color: '#6b7280', fontWeight: 500 }}>운영자</span>
+          Helper Office <span style={{ color: '#6b7280', fontWeight: 500 }}>운영자</span>
         </Link>
         <span style={{ flex: 1 }} />
         {NAV.map((n) => (
@@ -59,7 +60,7 @@ export function Shell({
         ))}
       </nav>
 
-      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '1.5rem 0' }}>
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', margin: '1.5rem 0' }}>
         <h1 style={{ margin: 0, fontSize: '1.5rem' }}>{title}</h1>
         {actions ?? null}
       </header>
