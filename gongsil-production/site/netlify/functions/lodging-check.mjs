@@ -140,7 +140,7 @@ export default async function(req){
   const summary=seoul.status==='confirmed'
     ?'입력한 호수의 외국인관광 도시민박업이 영업/정상 상태로 확인됩니다.'
     :seoul.status==='building_match'
-      ?'같은 건물에 영업/정상 인허가가 있습니다. 정확한 호수를 확인해 주세요.'
+      ?'같은 건물에 영업/정상 인허가가 있습니다. 호수 없이도 건물 단위 활성 여부를 확인했습니다.'
       :seoul.status==='inactive'
         ?'같은 주소의 인허가 기록은 있지만 현재 활성 영업으로 확인되지 않습니다.'
         :seoul.status==='not_found'
