@@ -1,5 +1,5 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import urllib.request, os
+import urllib.request, os, base64
 
 TARGET='https://gongsil-helper.netlify.app/'
 
@@ -15,7 +15,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header('Content-Type','text/plain; charset=utf-8')
             self.send_header('Cache-Control','no-store')
             self.end_headers()
-            self.wfile.write(data)
+            self.wfile.write(base64.b64encode(data))
         except Exception as exc:
             self.send_response(500); self.end_headers(); self.wfile.write(str(exc).encode())
 
