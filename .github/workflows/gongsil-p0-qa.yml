@@ -1,0 +1,40 @@
+name: Gongsil P0 QA
+on:
+  push:
+    branches:
+      - gongsil/p0-auth-payment-brand-20260919
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'gongsil-production/site/**'
+      - 'gongsil-production/netlify/**'
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: node --check gongsil-production/site/app.js
+      - name: Netlify function syntax
+        run: |
+          node --check gongsil-production/site/netlify/functions/portone-config.mjs
+          node --check gongsil-production/site/netlify/functions/portone-verify.mjs
+          node --check gongsil-production/site/netlify/functions/lodging-check.mjs
+      - name: P0 route and integration guards
+        run: |
+          grep -q "name==='valuation'" gongsil-production/site/app.js
+          grep -q "name==='passes'" gongsil-production/site/app.js
+          grep -q "name==='register'" gongsil-production/site/app.js
+          grep -q "name==='verify'" gongsil-production/site/app.js
+          grep -q "completeUnifiedLogin" gongsil-production/site/app.js
+          grep -q "signInWithIdToken" gongsil-production/site/app.js
+          grep -q "gongsil_create_access_order_idempotent" gongsil-production/site/app.js
+          grep -q "gongsil-ml-http.onrender.com/v1/quote" gongsil-production/site/app.js
+          grep -q "gongsil_get_portone_verification_contract_with_token" gongsil-production/site/netlify/functions/portone-verify.mjs
+          grep -q "gongsil_ingest_portone_verified_event_with_token" gongsil-production/site/netlify/functions/portone-verify.mjs
+      - name: Secret leak guard
+        run: |
+          ! grep -R "PORTONE_API_SECRET=" gongsil-production/site
+          ! grep -R "GONGSIL_PORTONE_SETTLE_TOKEN=" gongsil-production/site
+          ! grep -R "SUPABASE_SERVICE_ROLE_KEY" gongsil-production/site
