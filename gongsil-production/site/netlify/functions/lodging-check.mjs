@@ -16,6 +16,11 @@ const clean=v=>String(v||'').normalize('NFKC').replace(/\([^)]*\)/g,'').replace(
 const unitPattern=/(?:,?\s*(?:b\s*\d+|비\s*\d+\s*층|지하\s*\d+\s*층|\d+\s*층|\d+\s*호|[a-z]?\d{3,4}\s*호?))(?:\s|$)/ig;
 function baseAddress(v){return clean(String(v||'').replace(unitPattern,' ').replace(/,.*$/,''))}
 function hasUnit(v){return /(?:b\s*\d+|비\s*\d+\s*층|지하\s*\d+\s*층|\d+\s*층|\d+\s*호|[a-z]?\d{3,4}\s*호?)/i.test(String(v||''))}
+function roadCore(v){
+  const s=clean(v);
+  const m=s.match(/([가-힣0-9]+(?:대로|로|길)\d+(?:-\d+)?)/);
+  return m?m[1]:'';
+}
 function districtOf(address){return Object.keys(SERVICE_BY_DISTRICT).find(d=>String(address||'').includes(d))||''}
 function regionOf(address,fallbackDistrict=''){const text=String(address||'').trim(),district=districtOf(text)||fallbackDistrict;return{sido:'서울특별시',sigungu:district||''}}
 function isActive(row){
@@ -71,7 +76,7 @@ async function seoulLookup(address){
       const addr=rowAddress(row);
       if(!addr)continue;
       const rowFull=clean(addr),rowBase=baseAddress(addr);
-      const hit=rowBase===inputBase||rowFull.includes(inputBase)||inputFull.includes(rowBase);
+      const inputRoad=roadCore(address),rowRoad=roadCore(addr);const hit=rowBase===inputBase||rowFull.includes(inputBase)||inputFull.includes(rowBase)||(inputRoad&&rowRoad&&inputRoad===rowRoad);
       if(hit)candidates.push({row,district:result.district,service:result.service});
     }
   }
