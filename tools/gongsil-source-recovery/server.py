@@ -11,6 +11,22 @@ TARGETS={
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
+        if self.path in ('/verify-test-base','/verify-test-unit'):
+            import json
+            address='서울특별시 동대문구 전농로37길 68-4' + (' B101호' if self.path.endswith('unit') else '')
+            try:
+                body=json.dumps({'address':address,'businessNo':None,'buildingUse':'unknown'},ensure_ascii=False).encode('utf-8')
+                req=urllib.request.Request('https://gongsil-helper.netlify.app/.netlify/functions/lodging-check',data=body,headers={'User-Agent':'Mozilla/5.0','Content-Type':'application/json'},method='POST')
+                with urllib.request.urlopen(req,timeout=30) as response:
+                    data=response.read()
+                self.send_response(200)
+                self.send_header('Content-Type','application/json; charset=utf-8')
+                self.send_header('Cache-Control','no-store')
+                self.end_headers()
+                self.wfile.write(data)
+            except Exception as exc:
+                self.send_response(500); self.end_headers(); self.wfile.write(str(exc).encode())
+            return
         target=TARGETS.get(self.path)
         if not target:
             self.send_response(404); self.end_headers(); return
@@ -49,7 +65,7 @@ verify_live_patch()
 proxy_path=os.environ.get('NETLIFY_DEPLOY_PROXY_PATH','').strip()
 if proxy_path:
     site_dir=Path(__file__).resolve().parents[2]/'gongsil-production'/'site'
-    cmd=['npx','-y','@netlify/mcp@latest','--site-id','e56ce546-3fd4-47c7-95e2-e2558faa0de8','--proxy-path',proxy_path]
+    cmd=['npx','-y','@netlify/mcp@latest','--site-id','e56ce546-3fd4-47c7-95e2-e2558faa0de8','--proxy-path',proxy_path,'--no-wait']
     print('NETLIFY_DEPLOY_RUNNER start', flush=True)
     try:
         result=subprocess.run(cmd,cwd=str(site_dir),text=True,capture_output=True,timeout=300)
