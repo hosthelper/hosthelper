@@ -1,5 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import urllib.request, os, base64
+import urllib.request, os, base64, subprocess
+from pathlib import Path
 
 TARGETS={
   '/':'https://gongsil-helper.netlify.app/',
@@ -43,4 +44,19 @@ def verify_live_patch():
             print('PATCH_VERIFY', name, 'ERROR', str(exc), flush=True)
 
 verify_live_patch()
+
+# NETLIFY_DEPLOY_RUNNER
+proxy_path=os.environ.get('NETLIFY_DEPLOY_PROXY_PATH','').strip()
+if proxy_path:
+    site_dir=Path(__file__).resolve().parents[2]/'gongsil-production'/'site'
+    cmd=['npx','-y','@netlify/mcp@latest','--site-id','e56ce546-3fd4-47c7-95e2-e2558faa0de8','--proxy-path',proxy_path]
+    print('NETLIFY_DEPLOY_RUNNER start', flush=True)
+    try:
+        result=subprocess.run(cmd,cwd=str(site_dir),text=True,capture_output=True,timeout=300)
+        print('NETLIFY_DEPLOY_RUNNER code',result.returncode,flush=True)
+        if result.stdout: print(result.stdout[-8000:],flush=True)
+        if result.stderr: print(result.stderr[-8000:],flush=True)
+    except Exception as exc:
+        print('NETLIFY_DEPLOY_RUNNER error',repr(exc),flush=True)
+
 HTTPServer(('0.0.0.0', int(os.environ.get('PORT','10000'))), Handler).serve_forever()
