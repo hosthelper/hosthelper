@@ -338,9 +338,24 @@ export async function triggerSeochoCleaning() {
     if (!snapshot.current[key]) events.push({ type: 'cancelled', booking: before });
   }
 
+  // Cross-channel iCal feeds can represent the same stay with different UIDs.
+  // If one source disappears while another source reports the same room/checkout,
+  // that is not a real cleaning change. Suppress the paired new+cancel alert.
+  const scheduleTypes = new Map();
+  for (const event of events) {
+    const sig = `${event.booking.roomName}:${event.booking.checkoutDate}`;
+    if (!scheduleTypes.has(sig)) scheduleTypes.set(sig, new Set());
+    scheduleTypes.get(sig).add(event.type);
+  }
+  const effectiveEvents = events.filter((event) => {
+    const sig = `${event.booking.roomName}:${event.booking.checkoutDate}`;
+    const types = scheduleTypes.get(sig);
+    return !(types?.has('new') && types?.has('cancelled'));
+  });
+
   const sent = [];
   const dedupe = new Set();
-  for (const event of events) {
+  for (const event of effectiveEvents) {
     const signature = `${event.type}:${event.booking.roomName}:${event.booking.checkoutDate}`;
     if (dedupe.has(signature)) continue;
     dedupe.add(signature);
