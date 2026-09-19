@@ -13,10 +13,10 @@ function requiredEnv(name: string) {
 }
 async function supabaseRpc(name: string, body: Record<string, unknown>) {
   const base = requiredEnv('SUPABASE_URL');
-  const serviceKey = requiredEnv('SUPABASE_SERVICE_ROLE_KEY');
+  const publishableKey = requiredEnv('SUPABASE_PUBLISHABLE_KEY');
   const res = await fetch(base + '/rest/v1/rpc/' + name, {
     method: 'POST',
-    headers: { apikey: serviceKey, authorization: 'Bearer ' + serviceKey, 'content-type': 'application/json' },
+    headers: { apikey: publishableKey, authorization: 'Bearer ' + publishableKey, 'content-type': 'application/json' },
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(15000),
   });
@@ -67,7 +67,8 @@ export default async (req: Request, _context: Context) => {
   try {
     requiredEnv('PORTONE_API_SECRET');
     requiredEnv('SUPABASE_URL');
-    requiredEnv('SUPABASE_SERVICE_ROLE_KEY');
+    requiredEnv('SUPABASE_PUBLISHABLE_KEY');
+    const settleToken = requiredEnv('GONGSIL_PORTONE_SETTLE_TOKEN');
 
     let body: any;
     try { body = await req.json(); } catch { return json({ error: 'invalid_json' }, 400); }
@@ -78,7 +79,8 @@ export default async (req: Request, _context: Context) => {
     if (!['access_order', 'visit_deposit'].includes(resourceType)) return json({ error: 'invalid_resource_type' }, 400);
     if (!/^[0-9a-f-]{36}$/i.test(resourceId)) return json({ error: 'invalid_resource_id' }, 400);
 
-    const contract = await supabaseRpc('gongsil_get_portone_verification_contract', {
+    const contract = await supabaseRpc('gongsil_get_portone_verification_contract_with_token', {
+      p_settle_token: settleToken,
       p_resource_type: resourceType,
       p_resource_id: resourceId,
     });
@@ -94,8 +96,10 @@ export default async (req: Request, _context: Context) => {
       const payment = await getPortOnePayment(providerPaymentId);
       if (paymentStatus(payment) === 'CANCELLED') {
         const eventKey = String(body.eventKey ?? eventKeyFallback(resourceType, resourceId, providerPaymentId, 'refund_completed'));
-        const result = await supabaseRpc('gongsil_ingest_portone_verified_event', {
-          p_event_key: eventKey,
+        const result = await supabaseRpc('gongsil_ingest_portone_verified_event_with_token', {
+          p_settle_token: settleToken,
+          p_settle_token: settleToken,
+      p_event_key: eventKey,
           p_resource_type: resourceType,
           p_event_type: 'refund_completed',
           p_resource_id: resourceId,
@@ -119,7 +123,7 @@ export default async (req: Request, _context: Context) => {
       if (resourceType !== 'visit_deposit') return json({ error: 'refund_only_for_visit_deposit' }, 400);
       if (status !== 'CANCELLED') return json({ error: 'refund_not_completed', providerStatus: status }, 409);
       const eventKey = String(body.eventKey ?? eventKeyFallback(resourceType, resourceId, paymentId, 'refund_completed'));
-      const result = await supabaseRpc('gongsil_ingest_portone_verified_event', {
+      const result = await supabaseRpc('gongsil_ingest_portone_verified_event_with_token', {
         p_event_key: eventKey,
         p_resource_type: resourceType,
         p_event_type: 'refund_completed',
@@ -140,7 +144,7 @@ export default async (req: Request, _context: Context) => {
     if (contract?.payable !== true && contract?.status !== 'paid') return json({ error: 'resource_not_payable', status: contract?.status }, 409);
 
     const eventKey = String(body.eventKey ?? eventKeyFallback(resourceType, resourceId, paymentId, 'payment_paid'));
-    const result = await supabaseRpc('gongsil_ingest_portone_verified_event', {
+    const result = await supabaseRpc('gongsil_ingest_portone_verified_event_with_token', {
       p_event_key: eventKey,
       p_resource_type: resourceType,
       p_event_type: 'payment_paid',
