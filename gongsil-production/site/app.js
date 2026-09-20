@@ -102,7 +102,128 @@ async function runGovernmentCheck(payload){const res=await fetch('/.netlify/func
 async function submitRegistration(e){e.preventDefault();if(!$('#registerConsent').checked)return toast('제출정보 검토 및 개인정보 처리 안내 확인이 필요합니다.');const fd=new FormData(e.currentTarget),photos=Array.from($('#publicPhotos').files||[]);if(state.registerType==='takeover'){let verified=null;try{verified=JSON.parse(sessionStorage.getItem('gongsil.lastVerify')||'null')}catch{}const entered=norm(String(fd.get('address')||'')),checked=norm(String(verified?.verifiedAddress||''));if(!verified||verified.overallStatus!=='confirmed')return toast('운영 숙소 양도 매물은 먼저 자동검증에서 해당 호수의 영업/정상 인허가를 확인해 주세요.');if(!entered||entered!==checked)return toast('매물 주소와 자동검증을 통과한 주소가 일치해야 합니다. 다시 자동검증해 주세요.')}if(photos.length<3||photos.length>10)return toast('공개 사진은 3장 이상 10장 이하로 등록해 주세요.');const p={journey:state.registerType,title:String(fd.get('title')||''),area:String(fd.get('area')||''),exact_address:String(fd.get('address')||''),accommodation_type:String(fd.get('accommodationType')||''),contact_name:String(fd.get('contactName')||''),contact_phone:String(fd.get('contactPhone')||''),available_from:state.registerType==='opening'?(fd.get('availableDate')||null):null,takeover_available_at:state.registerType==='takeover'?(fd.get('availableDate')||null):null,deposit_amount:won(fd.get('deposit')),monthly_rent:won(fd.get('rent')),setup_cost_min:state.registerType==='opening'?won(fd.get('setupCost')):null,vacancy_months:state.registerType==='opening'?num(fd.get('vacancyMonths'))||null:null,expected_rooms:state.registerType==='opening'?num(fd.get('expectedRooms'))||null:null,landlord_status:state.registerType==='opening'?String(fd.get('landlordStatus')||''):null,operating_months:state.registerType==='takeover'?months(fd.get('operatingMonths'))||null:null,avg_monthly_revenue:state.registerType==='takeover'?won(fd.get('avgRevenue')):null,occupancy_rate:state.registerType==='takeover'?num(fd.get('occupancy')):null,transfer_fee:state.registerType==='takeover'?won(fd.get('transferFee')):null,monthly_fixed_cost:state.registerType==='takeover'?won(fd.get('fixedCost')):null,management_fee:state.registerType==='takeover'?won(fd.get('managementFee')):null,facility_investment:state.registerType==='takeover'?won(fd.get('facilityInvestment')):null,avg_daily_rate:state.registerType==='takeover'?won(fd.get('avgDailyRate')):null,review_score:state.registerType==='takeover'?num(fd.get('reviewScore'))||null:null,reservation_forward_rate:state.registerType==='takeover'?num(fd.get('reservationForwardRate'))||null:null,accessibility_score:state.registerType==='takeover'?num(fd.get('accessibilityScore'))||null:null,tourism_proximity_score:state.registerType==='takeover'?num(fd.get('tourismScore'))||null:null,transfer_reason:state.registerType==='takeover'?String(fd.get('transferReason')||''):null,included_assets:state.registerType==='takeover'?String(fd.get('includedAssets')||'').split(/[,\n]/).map(x=>x.trim()).filter(Boolean):[]};try{toast('매물 정보를 저장하고 있습니다.');const{data:id,error}=await supabase.rpc('gongsil_submit_property',{p_payload:p});if(error)throw error;for(const f of photos)await uploadFile('gongsil-property-images',state.user.id,String(id),f,'public_image_candidate');let ocrDocPath=null;if(state.registerType==='takeover'){const outdominTypes=['외도민','외국인관광 도시민박업','외국인관광도시민박업'],ocrDocKey=outdominTypes.includes(p.accommodation_type)?'business_registration':'landlord_consent';for(const input of $('[data-doc-key]')){const f=input.files?.[0];if(!f)continue;const up=await uploadFile('gongsil-verification-docs',state.user.id,String(id),f,input.dataset.docKey);if(input.dataset.docKey===ocrDocKey)ocrDocPath=up.path;if($('#ocrAssist')?.checked){toast(`${DOCS.find(x=>x[0]===input.dataset.docKey)?.[1]||'서류'} OCR·자동대조 중`);const ocr=await runBrowserOCR(f,p.exact_address);await recordVerification(String(id),up.documentId,ocr,p.exact_address)}}}const{data:verification,error:verifyErr}=await supabase.rpc('gongsil_start_property_verification',{p_property_id:String(id)});if(verifyErr)throw verifyErr;const ocrRunId=verification?.ocr_run_id||verification?.run_id;if(ocrRunId&&ocrDocPath){const ttlSeconds=900,{data:signed,error:signErr}=await supabase.storage.from('gongsil-verification-docs').createSignedUrl(ocrDocPath,ttlSeconds);if(signErr||!signed?.signedUrl)throw signErr||new Error('OCR 문서 접근권한을 만들지 못했습니다.');const expiresAt=new Date(Date.now()+ttlSeconds*1000).toISOString();const{error:attachErr}=await supabase.rpc('gongsil_attach_ocr_signed_url',{p_run_id:String(ocrRunId),p_signed_url:signed.signedUrl,p_expires_at:expiresAt});if(attachErr)throw attachErr;}if(state.registerType==='takeover'){try{await supabase.rpc('gongsil_calculate_premium',{p_property_id:String(id)})}catch(err){console.warn('valuation deferred',err)}}toast(verification?.status==='queued'?'매물 저장 완료 · 서버 OCR·관공서 자동검증을 시작했습니다.':'매물 저장 완료 · 검증 상태를 확인해 주세요.');go('#account')}catch(err){console.error(err);toast(String(err?.message||'등록 요청에 실패했습니다.'))}}
 function renderVerify(){const body=`<div class="verify-intro"><article><b>1</b><strong>주소 입력</strong><span>공개 전 정확한 주소로 확인</span></article><article><b>2</b><strong>주소 정규화</strong><span>카카오 Local API 연결 시 법정동코드 확인</span></article><article><b>3</b><strong>인허가 대조</strong><span>서울시 외국인관광 도시민박업 조회</span></article><article><b>4</b><strong>영업상태 판정</strong><span>영업/정상 · 같은 건물 · 비활성 · 미확인</span></article></div><div class="split-page verify-split"><div class="route-card"><h2>관공서 자동대조</h2><p class="mode-lead">도로명주소와 동·층·호수까지 정확히 입력하면 서울시 외국인관광 도시민박업 인허가 DB와 대조합니다. 띄어쓰기는 상관없으며 사업자등록번호는 입력하지 않아도 됩니다.</p><form id="verifyForm"><div class="form-grid"><label class="wide">주소 *<input name="address" required placeholder="도로명주소 + 동/층/호수 입력 (띄어쓰기 상관없음)"></label><label>사업자등록번호 (선택)<input name="businessNo" placeholder="입력하지 않아도 조회됩니다."></label><label>자가 확인 건물용도<select name="buildingUse"><option value="unknown">선택 안 함</option><option value="detached">단독주택</option><option value="multi_family">다가구/다세대</option><option value="apartment">공동주택</option><option value="office">업무시설</option><option value="commercial">근린생활/상업시설</option></select></label></div><button class="submit-btn" type="submit">자동대조 실행</button></form><div class="verify-note"><b>개인정보 안내</b><p>이 화면은 주소와 사업자번호를 자동조회 목적으로만 전송합니다. 주민등록번호는 입력하지 마세요.</p></div></div><aside id="verifyResult" class="result-panel"><span class="section-kicker">VERIFY RESULT</span><h2>아직 조회 전입니다.</h2><p>주소를 입력하면 현재 연결 가능한 데이터 소스별 결과를 보여드립니다.</p></aside></div>`;root.innerHTML=page('숙박 공간 자동검증','STEP 3 · #verify',body,'<a class="outline-btn" href="#register">검증자료 등록 →</a>');$('#verifyForm').onsubmit=submitVerify}
 async function submitVerify(e){e.preventDefault();const fd=new FormData(e.currentTarget),address=String(fd.get('address')||'').trim(),businessNo=String(fd.get('businessNo')||'').trim(),buildingUse=String(fd.get('buildingUse')||'unknown'),box=$('#verifyResult');const hasUnit=/(?:\d+\s*동\s*\d+\s*호|(?:b\s*\d+|지하\s*\d+\s*층|\d+\s*층)\s*[a-z]?\d{1,4}\s*호?|[a-z]?\d{2,4}\s*호)/i.test(address);if(!hasUnit){box.innerHTML='<span class="section-kicker">주소 보완 필요</span><h2>도로명주소와 동·층·호수까지 정확히 입력해 주세요.</h2><p>건물 주소만으로는 같은 건물의 다른 숙소와 구분할 수 없어 활성 인허가를 확정하지 않습니다. 사업자등록번호는 입력하지 않아도 됩니다.</p>';return}box.innerHTML='<div class="route-spinner small"></div><p>주소·인허가 데이터를 대조하고 있습니다.</p>';try{const data=await runGovernmentCheck({address,businessNo:businessNo||null,buildingUse});sessionStorage.setItem('gongsil.lastVerify',JSON.stringify({...data,verifiedAddress:address,verifiedAt:new Date().toISOString()}));const statusLabel=data.overallStatus==='confirmed'?'활성 영업 확인':data.overallStatus==='partial'?'같은 건물 활성':data.overallStatus==='inactive'?'비활성 인허가':data.overallStatus==='not_found'?'인허가 미확인':data.overallStatus==='unavailable'?'공공데이터 조회 오류':'추가 확인 필요';const sources=(data.sources||[]).map(s=>`<article class="verify-source"><div><small>${esc(s.source)}</small><h3>${esc(s.label)}</h3></div><span class="status-pill ${s.status==='confirmed'?'confirmed':'needs_check'}">${esc(s.statusLabel||s.status)}</span><p>${esc(s.message||'')}</p></article>`).join('');const permits=(data.permitMatches||[]).map(p=>`<article class="verify-source"><div><small>${esc(p.managementNo||'인허가')}</small><h3>${esc(p.businessName||'사업장명 미표시')}</h3></div><span class="status-pill ${String(p.tradeStatus||p.detailStatus||'').includes('영업')?'confirmed':'needs_check'}">${esc(p.tradeStatus||p.detailStatus||'상태 확인')}</span><p>${esc(p.roadAddress||p.lotAddress||'')} ${p.permitDate?'· 인허가 '+esc(p.permitDate):''}</p></article>`).join('');const canRegister=data.overallStatus==='confirmed';box.innerHTML=`<span class="section-kicker">${esc(statusLabel)}</span><h2>${esc(data.summary||statusLabel)}</h2><div class="verify-sources">${sources}</div>${permits?`<div class="verify-sources">${permits}</div>`:''}${data.building?`<div class="result-breakdown"><div><span>공개데이터 건물용도</span><b>${esc(data.building.useName||data.building.use||'확인 중')}</b></div></div>`:''}<p class="verify-disclaimer">${esc(data.disclaimer||'자동대조 결과는 참고정보입니다. 최종 영업신고·인허가는 관할기관 확인이 필요합니다.')}</p>${canRegister?'<a href="#register" class="btn primary">이 공간 등록하기</a>':'<button class="btn secondary" type="button" disabled>활성 인허가 확인 후 등록 가능</button>'}`}catch(err){console.error(err);box.innerHTML=`<span class="section-kicker">ERROR</span><h2>자동대조를 완료하지 못했습니다.</h2><p>${esc(err?.message||'잠시 후 다시 시도해 주세요.')}</p>`}}
-async function renderAccount(){if(!state.user){root.innerHTML=page('내 공실헬퍼','MY ACCOUNT',`<div class="login-gate route-card"><span class="login-symbol">공</span><h2>카카오 인증이 필요합니다.</h2><p>열람권, 저장매물, 등록매물, 매칭 진행을 한 곳에서 확인합니다.</p><button id="accountLoginBtn" class="kakao-btn">카카오로 계속하기</button></div>`);$('#accountLoginBtn').onclick=()=>{state.pending={type:'route',hash:'#account'};openLogin()};return}skeleton('내 정보를 불러오는 중입니다.');let orders=[],matches=[],properties=[],saved=[];try{const[a,b,c,d]=await Promise.all([supabase.from('gongsil_my_access_orders_v1').select('*').order('created_at',{ascending:false}).limit(20),supabase.from('gongsil_my_match_requests_v1').select('*').order('created_at',{ascending:false}).limit(20),supabase.from('gongsil_my_properties_v1').select('*').order('created_at',{ascending:false}).limit(20),supabase.from('gongsil_my_saved_v1').select('*').limit(20)]);orders=a.data||[];matches=b.data||[];properties=c.data||[];saved=d.data||[]}catch(e){console.error(e)}const name=state.user.user_metadata?.nickname||state.user.user_metadata?.name||'카카오 회원';const body=`<div class="account-summary"><article><span>활성/최근 열람권</span><b>${orders.filter(o=>o.status==='paid').length}</b></article><article><span>저장한 공간</span><b>${saved.length}</b></article><article><span>매칭 요청</span><b>${matches.length}</b></article><article><span>내 등록매물</span><b>${properties.length}</b></article></div><div class="account-grid"><section class="route-card"><h2>열람권</h2><div class="mode-list">${orders.length?orders.map(o=>`<article><div><small>${esc(o.status)}</small><h3>${esc(o.label)}</h3><p>${money(o.amount_krw)} · ${o.status==='paid'?(o.valid_until?new Date(o.valid_until).toLocaleDateString('ko-KR')+'까지':'사용 가능'):'결제 확인 전'}</p></div></article>`).join(''):'<div class="mode-empty">열람권 내역이 없습니다.</div>'}</div><a class="outline-btn" href="#passes">열람권 구매</a></section><section class="route-card"><h2>매칭 진행</h2><div class="mode-list">${matches.length?matches.map(m=>`<article><div><small>${m.mode==='broker'?'중개사 연결':'직거래'} · ${esc(m.status)}</small><h3>${esc(m.area||'')} · ${esc(m.title||'매물')}</h3></div>${['approved','broker_assigned','completed'].includes(m.status)?`<button class="outline-btn" data-contact="${m.property_id}">연락처 확인</button>`:''}</article>`).join(''):'<div class="mode-empty">매칭 요청이 없습니다.</div>'}</div></section><section class="route-card"><h2>내 등록매물</h2><div class="mode-list">${properties.length?properties.map(p=>`<article><div><small>${esc(p.publication_status||'draft')} · ${p.journey==='opening'?'신규오픈':'숙소인수'}</small><h3>${esc(p.area||'')} · ${esc(p.title||'등록 숙소')}</h3><p>${esc(p.verification_summary||p.latest_review_note||'검증 상태 확인 중')}</p></div>${['draft','needs_revision','paused'].includes(p.publication_status)?`<button class="outline-btn" data-finalize-property="${p.id}">검증완료 후 제출</button>`:''}</article>`).join(''):'<div class="mode-empty">등록한 매물이 없습니다.</div>'}</div><a class="outline-btn" href="#register">새 매물 등록</a></section><section class="route-card"><h2>계정</h2><p class="mode-lead">${esc(state.user.email||'카카오 인증 계정')}</p><button id="logoutBtn" class="btn secondary">로그아웃</button></section></div>`;root.innerHTML=page(`${esc(name)}님의 공실헬퍼`,'MY GONGSIL',body);$('[data-contact]').forEach(b=>b.onclick=()=>showMatchContact(b.dataset.contact));$('[data-finalize-property]').forEach(b=>b.onclick=async()=>{try{const{data,error}=await supabase.rpc('gongsil_finalize_property',{p_property_id:b.dataset.finalizeProperty});if(error)throw error;if(!data)throw new Error('최종 제출 조건을 충족하지 못했습니다.');toast('검증 완료 · 운영자 검토 단계로 제출했습니다.');renderAccount()}catch(e){toast(String(e?.message||'OCR·인허가 검증이 아직 완료되지 않았습니다.'))}});$('#logoutBtn').onclick=logout}
+
+function propertyVerificationMeta(p){
+  const docs=Array.isArray(p.documents)?p.documents:[];
+  const items=Array.isArray(p.verification_items)?p.verification_items:[];
+  const item=k=>items.find(x=>x.item_key===k);
+  const outdomin=items.some(x=>x.item_key==='outdomin_registry'||x.item_key==='outdomin_ocr_address')||/외국인관광/.test(String(p.accommodation_type||''));
+  const done=s=>s==='confirmed';
+  const issue=s=>['failed','rejected','unavailable'].includes(String(s||''));
+  const pub=String(p.publication_status||'draft');
+  const submitted=['submitted','approved','published'].includes(pub);
+  let steps=[],ready=false,waiting=false;
+  if(outdomin){
+    const required=['business_registration','lease_contract','landlord_consent','resident_register'];
+    const have=new Set(docs.map(d=>d.document_type));
+    const docCount=required.filter(x=>have.has(x)).length;
+    const docsOk=docCount===required.length;
+    const ocr=item('outdomin_ocr_address'),gov=item('outdomin_registry');
+    ready=docsOk&&done(ocr?.status)&&done(gov?.status);
+    waiting=docsOk&&(!done(ocr?.status)||!done(gov?.status));
+    steps=[
+      {label:'필수서류',detail:`${}docCount}/4`,status:docsOk?'done':'wait'},
+      {label:'OCR 주소일치',detail:done(ocr?.status)?'확인':issue(ocr?.status)?'재확인 필요':'처리 중',status:done(ocr?.status)?'done':issue(ocr?.status)?'issue':'wait'},
+      {label:'관공서 인허가',detail:done(gov?.status)?'영업/정상':issue(gov?.status)?'재확인 필요':'조회 중',status:done(gov?.status)?'done':issue(gov?.status)?'issue':'wait'},
+      {label:'최종 제출',detail:submitted?'제출 완료':ready?'제출 가능':'대기',status:submitted?'done':ready?'ready':'wait'}
+    ];
+  }else{
+    const docOk=docs.some(d=>d.document_type==='landlord_consent');
+    const keys=['sublet_address_match','sublet_landlord','sublet_tenant','sublet_consent','sublet_date','sublet_signature'];
+    const confirmed=keys.filter(k=>done(item(k)?.status)).length;
+    ready=docOk&&confirmed===6;
+    waiting=docOk&&confirmed<6;
+    steps=[
+      {label:'전대동의서',detail:docOk?'제출':'필요',status:docOk?'done':'wait'},
+      {label:'OCR 6항목',detail:`${}confirmed}/6 확인`,status:confirmed===6?'done':'wait'},
+      {label:'운영자 검토',detail:submitted?'접수':'대기',status:submitted?'done':'wait'},
+      {label:'최종 제출',detail:submitted?'제출 완료':ready?'제출 가능':'대기',status:submitted?'done':ready?'ready':'wait'}
+    ];
+  }
+  const html=`<div class="verification-progress">${}steps.map((s,i)=>`<div class="verification-step ${}s.status}"><i>${}s.status==='done'?'✓':i+1}</i><div><strong>${}esc(s.label)}</strong><span>${}esc(s.detail)}</span></div></div>`).join('')}</div>`;
+  return{outdomin,ready,waiting,submitted,html};
+}
+async function restartPropertyVerification(p){
+  const meta=propertyVerificationMeta(p);
+  const docType=meta.outdomin?'business_registration':'landlord_consent';
+  const doc=(Array.isArray(p.documents)?p.documents:[]).filter(d=>d.document_type===docType).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0];
+  if(!doc)throw new Error(meta.outdomin?'사업자등록증을 먼저 업로드해 주세요.':'전대동의서를 먼저 업로드해 주세요.');
+  const{data:verification,error}=await supabase.rpc('gongsil_start_property_verification',{p_property_id:String(p.id)});
+  if(error)throw error;
+  const runId=verification?.ocr_run_id||verification?.run_id;
+  if(runId){
+    const ttlSeconds=900;
+    const{data:signed,error:signErr}=await supabase.storage.from('gongsil-verification-docs').createSignedUrl(doc.storage_path,ttlSeconds);
+    if(signErr||!signed?.signedUrl)throw signErr||new Error('OCR 문서 접근권한을 만들지 못했습니다.');
+    const expiresAt=new Date(Date.now()+ttlSeconds*1000).toISOString();
+    const{error:attachErr}=await supabase.rpc('gongsil_attach_ocr_signed_url',{p_run_id:String(runId),p_signed_url:signed.signedUrl,p_expires_at:expiresAt});
+    if(attachErr)throw attachErr;
+  }
+  return verification;
+}
+async function renderAccount(){
+  if(!state.user){
+    root.innerHTML=page('내 공실헬퍼','MY ACCOUNT',`<div class="login-gate route-card"><span class="login-symbol">공</span><h2>카카오 인증이 필요합니다.</h2><p>열람권, 저장매물, 등록매물, 매칭 진행을 한 곳에서 확인합니다.</p><button id="accountLoginBtn" class="kakao-btn">카카오로 계속하기</button></div>`);
+    $('#accountLoginBtn').onclick=()=>{state.pending={type:'route',hash:'#account'};openLogin()};
+    return;
+  }
+  skeleton('내 정보를 불러오는 중입니다.');
+  let orders=[],matches=[],properties=[],saved=[];
+  try{
+    const[a,b,c,d]=await Promise.all([
+      supabase.from('gongsil_my_access_orders_v1').select('*').order('created_at',{ascending:false}).limit(20),
+      supabase.from('gongsil_my_match_requests_v1').select('*').order('created_at',{ascending:false}).limit(20),
+      supabase.from('gongsil_my_properties_v1').select('*').order('created_at',{ascending:false}).limit(20),
+      supabase.from('gongsil_my_saved_v1').select('*').limit(20)
+    ]);
+    orders=a.data||[];matches=b.data||[];properties=c.data||[];saved=d.data||[];
+  }catch(e){console.error(e)}
+  const name=state.user.user_metadata?.nickname||state.user.user_metadata?.name||'카카오 회원';
+  const propertyCards=properties.length?properties.map(p=>{
+    const meta=propertyVerificationMeta(p);
+    const actionable=['draft','needs_revision','paused'].includes(p.publication_status);
+    const action=!actionable?'':meta.ready
+      ?`<button class="outline-btn verification-action primary" data-finalize-property="${}p.id}">검증 완료 · 최종 제출</button>`
+      :`<button class="outline-btn verification-action" data-restart-verification="${}p.id}">OCR·인허가 다시 확인</button>`;
+    const statusText=meta.submitted?'운영자 검토 단계':meta.ready?'자동검증 완료':meta.waiting?'자동검증 처리 중':'검증 준비 필요';
+    return `<article class="property-account-card"><div class="property-account-main"><small>${}esc(p.publication_status||'draft')} · ${}p.journey==='opening'?'신규오픈':'숙소인수'}</small><h3>${}esc(p.area||'')} · ${}esc(p.title||'등록 숙소')}</h3><p>${}esc(p.verification_summary||p.latest_review_note||statusText)}</p>${}meta.html}</div>${}action}</article>`;
+  }).join(''):'<div class="mode-empty">등록한 매물이 없습니다.</div>';
+  const body=`<div class="account-summary"><article><span>활성/최근 열람권</span><b>${}orders.filter(o=>o.status==='paid').length}</b></article><article><span>저장한 공간</span><b>${}saved.length}</b></article><article><span>매칭 요청</span><b>${}matches.length}</b></article><article><span>내 등록매물</span><b>${}properties.length}</b></article></div><div class="account-grid"><section class="route-card"><h2>열람권</h2><div class="mode-list">${}orders.length?orders.map(o=>`<article><div><small>${}esc(o.status)}</small><h3>${}esc(o.label)}</h3><p>${}money(o.amount_krw)} · ${}o.status==='paid'?(o.valid_until?new Date(o.valid_until).toLocaleDateString('ko-KR')+'까지':'사용 가능'):'결제 확인 전'}</p></div></article>`).join(''):'<div class="mode-empty">열람권 내역이 없습니다.</div>'}</div><a class="outline-btn" href="#passes">열람권 구매</a></section><section class="route-card"><h2>매칭 진행</h2><div class="mode-list">${}matches.length?matches.map(m=>`<article><div><small>${}m.mode==='broker'?'중개사 연결':'직거래'} · ${}esc(m.status)}</small><h3>${}esc(m.area||'')} · ${}esc(m.title||'매물')}</h3></div>${}['approved','broker_assigned','completed'].includes(m.status)?`<button class="outline-btn" data-contact="${}m.property_id}">연락처 확인</button>`:''}</article>`).join(''):'<div class="mode-empty">매칭 요청이 없습니다.</div>'}</div></section><section class="route-card account-properties"><div class="account-section-head"><div><h2>내 등록매물</h2><p>서류 → OCR → 관공서 → 최종제출 순서로 진행됩니다.</p></div><button id="refreshVerificationBtn" class="text-btn" type="button">상태 새로고침</button></div><div class="mode-list">${}propertyCards}</div><a class="outline-btn" href="#register">새 매물 등록</a></section><section class="route-card"><h2>계정</h2><p class="mode-lead">${}esc(state.user.email||'카카오 인증 계정')}</p><button id="logoutBtn" class="btn secondary">로그아웃</button></section></div>`;
+  root.innerHTML=page(`${}esc(name)}님의 공실헬퍼`,'MY GONGSIL',body);
+  $$('[data-contact]').forEach(b=>b.onclick=()=>showMatchContact(b.dataset.contact));
+  $$('[data-restart-verification]').forEach(b=>b.onclick=async()=>{
+    const p=properties.find(x=>String(x.id)===String(b.dataset.restartVerification));
+    if(!p)return;
+    b.disabled=true;b.textContent='검증 요청 중…';
+    try{
+      await restartPropertyVerification(p);
+      toast('클라우드 OCR·관공서 자동검증을 다시 시작했습니다.');
+      setTimeout(()=>{if(location.hash==='#account')renderAccount()},1200);
+    }catch(e){
+      toast(String(e?.message||'자동검증을 다시 시작하지 못했습니다.'));
+      b.disabled=false;b.textContent='OCR·인허가 다시 확인';
+    }
+  });
+  $$('[data-finalize-property]').forEach(b=>b.onclick=async()=>{
+    b.disabled=true;b.textContent='제출 중…';
+    try{
+      const{data,error}=await supabase.rpc('gongsil_finalize_property',{p_property_id:b.dataset.finalizeProperty});
+      if(error)throw error;
+      if(!data)throw new Error('최종 제출 조건을 충족하지 못했습니다.');
+      toast('검증 완료 · 운영자 검토 단계로 제출했습니다.');
+      renderAccount();
+    }catch(e){
+      toast(String(e?.message||'OCR·인허가 검증이 아직 완료되지 않았습니다.'));
+      b.disabled=false;b.textContent='검증 완료 · 최종 제출';
+    }
+  });
+  if($('#refreshVerificationBtn'))$('#refreshVerificationBtn').onclick=()=>renderAccount();
+  $('#logoutBtn').onclick=logout;
+  clearTimeout(state.accountRefreshTimer);
+  if(properties.some(p=>propertyVerificationMeta(p).waiting)&&location.hash==='#account'){
+    state.accountRefreshTimer=setTimeout(()=>{if(location.hash==='#account')renderAccount()},15000);
+  }
+}
 async function showMatchContact(propertyId){try{const{data,error}=await supabase.rpc('gongsil_get_match_contact',{p_property_id:propertyId});if(error)throw error;if(!data)return toast('연락처 정보가 아직 등록되지 않았습니다.');openModal(`<div><span class="section-kicker">MATCH CONTACT</span><h2>${esc(data.label||'매칭 연락처')}</h2><div class="contact-card"><small>${data.mode==='broker'?'공인중개사':'직거래'}</small><h3>${esc(data.contact_name||data.office_name||'담당자')}</h3><p>${esc(data.contact_phone||'연락처 등록 대기')}</p>${data.office_name?`<p>${esc(data.office_name)} · ${esc(data.registration_number||'')} · ${esc(data.service_area||'')}</p>`:''}</div></div>`)}catch(e){toast(String(e?.message||'연락처를 확인하지 못했습니다.'))}}
 function openLogin(){openModal(`<div class="login-view"><span class="login-symbol">공</span><h2>카카오로 시작하기</h2><p>헬퍼유니버스 카카오 통합인증으로 공실헬퍼를 시작합니다.</p><button id="kakaoLoginBtn" class="kakao-btn">카카오로 계속하기</button><small>한 번 인증하면 Helper ID와 공실헬퍼 계정이 연결됩니다.</small></div>`);$('#kakaoLoginBtn').onclick=()=>{try{const pending=state.pending||{type:'route',hash:location.hash||'#home'};localStorage.setItem('gongsil.pending',JSON.stringify(pending));startUnifiedLogin()}catch(e){console.error(e);toast('카카오 통합로그인을 시작하지 못했습니다.')}}}
 async function bootstrapUser(user){state.user=user;$('#authBtn').textContent='내 공실헬퍼';$('#mobileAuthBtn').textContent='내 공실헬퍼';try{await supabase.rpc('gongsil_bootstrap_profile',{p_display_name:String(user.user_metadata?.nickname||user.user_metadata?.name||'카카오 회원')})}catch{}try{const{data}=await supabase.from('gongsil_my_saved_v1').select('*');state.saved=(data||[]).map(x=>String(x.property_id))}catch{}let pending=state.pending;const raw=localStorage.getItem('gongsil.pending');if(raw){localStorage.removeItem('gongsil.pending');try{pending=JSON.parse(raw)}catch{}}state.pending=null;if(pending?.type==='save'){await saveCandidate(pending.id);go('#listings')}else if(pending?.type==='detail'){go(`#property/${pending.id}`)}else if(pending?.type==='route'&&pending.hash){go(pending.hash)}}
