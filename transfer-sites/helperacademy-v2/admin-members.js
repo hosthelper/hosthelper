@@ -12,9 +12,10 @@
   const label=v=>B.providerLabel(v);
   const fmt=v=>v?new Date(v).toLocaleString('ko-KR'):'-';
 
-  const {data,error}=await B.client.rpc('academy_admin_member_directory');
+  const [{data,error},{data:authSummary,error:authError}]=await Promise.all([B.client.rpc('academy_admin_member_directory'),B.client.rpc('academy_admin_auth_e2e_summary')]);
   if(error){root.innerHTML='<div class="empty">회원 목록을 불러오지 못했습니다.</div>';console.error(error);return}
   const rows=Array.isArray(data)?data:[];
+  const authMap=new Map((Array.isArray(authSummary)?authSummary:[]).map(x=>[x.user_id,x]));
 
   const stats=document.querySelectorAll('#memberStats strong');
   if(stats[0])stats[0].textContent=rows.length;
@@ -33,7 +34,7 @@
       +'<div><span class="tag '+(blocked?'gray':'')+'">'+esc(x.member_status||'-')+'</span><small>'+esc(label(x.signup_provider))+'</small></div>'
       +'<div><b>'+Number(x.paid_orders||0)+'건 결제</b><small>최근 '+esc(fmt(x.last_payment_at))+'</small></div>'
       +'<div><b>'+Number(x.active_enrollments||0)+'개 수강</b><small>평균 진도 '+Number(x.average_progress||0)+'%</small></div>'
-      +'<div><b>'+esc(fmt(x.first_seen_at))+'</b><small>가입 · 최근 '+esc(fmt(x.last_seen_at))+'</small></div>'
+      +'<div><b>'+esc(fmt(x.first_seen_at))+'</b><small>가입 · 최근 '+esc(fmt(x.last_seen_at))+'</small><small>'+(()=>{const q=authMap.get(x.user_id);return q?('인증 '+esc(q.last_auth_event||'-')+' · OAuth '+Number(q.oauth_callbacks||0)+' · 로그인 '+Number(q.logins||0)):'인증 기록 없음'})()+'</small></div>'
       +'<div>'+action+'</div>'
       +'</div>';
   }
