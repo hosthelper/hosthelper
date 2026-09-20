@@ -35,11 +35,19 @@ try {
   await page.getByText('카카오 인증 후 등록할 수 있습니다.', { exact: false }).waitFor();
   console.log('PASS register auth gate');
 
-  await route('#verify', '숙박 공간 자동검증');
-  await page.locator('input[name="address"]').fill('서울 종로구 세종대로 1');
+  await route('#verify', '관공서 자동대조');
+  const verifyAddress = page.locator('input[name="address"]');
+
+  await verifyAddress.fill('서울특별시 동대문구 전농로37길 68-4');
   await page.getByRole('button', { name: '자동대조 실행' }).click();
-  await page.locator('#verifyResult').getByText(/자동확인 가능한 항목|외부확인 필요|일부 확인|추가 확인/, { exact: false }).first().waitFor({ timeout: 30000 });
-  console.log('PASS government check');
+  await page.locator('#verifyResult').getByText('주소 보완 필요', { exact: false }).waitFor({ timeout: 10000 });
+  console.log('PASS unit-required gate');
+
+  await verifyAddress.fill('서울특별시동대문구전농로37길68-4B101호');
+  await page.getByRole('button', { name: '자동대조 실행' }).click();
+  await page.locator('#verifyResult').getByText(/활성 영업 확인|영업\/정상/, { exact: false }).first().waitFor({ timeout: 30000 });
+  await page.locator('#verifyResult').getByText('지-안', { exact: false }).first().waitFor({ timeout: 30000 });
+  console.log('PASS exact unit permit check without spaces');
 
   await page.goto(base + '#home', { waitUntil: 'networkidle', timeout: 60000 });
   await page.locator('#authBtn').click();
