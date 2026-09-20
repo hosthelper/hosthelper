@@ -243,6 +243,15 @@ async function fetchCurrentBookings(feeds, previousBookings) {
   return { today, current, succeededFeeds, failures };
 }
 
+// One known Booking.com calendar item (Cheongnyangni, checkout 2027-03-20)
+// has been repeatedly re-issued with unstable identity and must not generate
+// another "new" Kakao alert. Keep change/cancellation alerts intact.
+export function shouldSuppressAlert(event) {
+  return event?.type === 'new'
+    && event?.booking?.roomName === '청량리'
+    && event?.booking?.checkoutDate === '2027-03-20';
+}
+
 function buildAlert(type, booking) {
   const property = propertyName(booking.roomName);
   const title =
@@ -356,6 +365,7 @@ export async function triggerSeochoCleaning() {
   const sent = [];
   const dedupe = new Set();
   for (const event of effectiveEvents) {
+    if (shouldSuppressAlert(event)) continue;
     const signature = `${event.type}:${event.booking.roomName}:${event.booking.checkoutDate}`;
     if (dedupe.has(signature)) continue;
     dedupe.add(signature);
