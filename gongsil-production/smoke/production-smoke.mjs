@@ -68,8 +68,15 @@ try {
   const returnTo = decodeURIComponent(pdsUrl.searchParams.get('hu_return_to') || '');
   if (!returnTo.startsWith('https://gongsil-helper.netlify.app/')) throw new Error('SSO return_to mismatch');
   console.log('PASS unified SSO handoff', page.url());
-  await page.waitForURL(url => url.hostname === 'kauth.kakao.com', { timeout: 30000 });
-  console.log('PASS Kakao authorize screen', page.url());
+  await page.waitForURL(url => url.hostname === 'kauth.kakao.com' || url.hostname === 'accounts.kakao.com', { timeout: 30000 });
+  const kakaoUrl = new URL(page.url());
+  if (kakaoUrl.hostname === 'accounts.kakao.com') {
+    const cont = decodeURIComponent(kakaoUrl.searchParams.get('continue') || '');
+    if (!cont.includes('kauth.kakao.com/oauth/authorize')) throw new Error('Kakao login continue URL mismatch');
+    if (!cont.includes('redirect_uri=https%3A%2F%2Fpds-ai-company-zv30ms.v2.appdeploy.ai%2Fapi%2Fauth%2Fkakao%2Fcallback')) throw new Error('Kakao redirect_uri mismatch');
+    if (!cont.includes('scope=openid%20profile_nickname%20profile_image%20account_email')) throw new Error('Kakao OpenID scope missing');
+  }
+  console.log('PASS Kakao authorize/login screen', page.url());
 
   const cfg = await page.request.get(base + '.netlify/functions/portone-config');
   if (!cfg.ok()) throw new Error('portone-config HTTP ' + cfg.status());
