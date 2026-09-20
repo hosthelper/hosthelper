@@ -57,6 +57,7 @@
         const{data,error}=await B.client.auth.signInWithPassword({email:d.email,password:d.password});
         if(error)throw error;if(!data.user)throw new Error('로그인 정보를 확인해주세요.');
         await B.ensureAcademyMember(data.user);
+        await B.client.rpc('academy_record_auth_event',{p_event_type:'login',p_session_id:null,p_metadata:{method:'password'}}).catch(()=>{});
         location.replace('./'+next);
       }else{
         if(d.password!==d.password_confirm)throw new Error('비밀번호가 서로 다릅니다.');
@@ -64,6 +65,7 @@
         if(error)throw error;
         if(data.session){
           await B.ensureAcademyMember(data.user);
+          await B.client.rpc('academy_record_auth_event',{p_event_type:'signup',p_session_id:null,p_metadata:{method:'email'}}).catch(()=>{});
           location.replace('./index.html');
         }else{
           show('회원가입이 접수되었습니다. 이메일 인증이 필요한 경우 인증 후 로그인해주세요.','ok');
