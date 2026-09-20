@@ -106,10 +106,18 @@
   }
 
   async function loadCommunity(){
-    const root=document.getElementById('communityList');if(!root)return;
+    const root=document.getElementById('communityList');
+    const dash=document.getElementById('dashboardCommunity');
+    if(!root&&!dash)return;
     const{data,error}=await sb.from('academy_community_posts').select('id,category,title,content,created_at').eq('status','PUBLISHED').order('created_at',{ascending:false}).limit(20);
-    if(error){root.innerHTML='<div class="empty">게시글을 불러오지 못했습니다.</div>';return}
-    root.innerHTML=(data||[]).length?(data||[]).map(p=>'<div class="item"><span class="num">'+esc(p.category.slice(0,1))+'</span><div class="grow"><b>'+esc(p.title)+'</b><small>'+esc(p.category)+' · '+new Date(p.created_at).toLocaleDateString('ko-KR')+'</small><p style="margin-top:5px">'+esc(p.content)+'</p></div></div>').join(''):'<div class="empty">첫 글을 작성해보세요.</div>';
+    if(error){
+      if(root)root.innerHTML='<div class="empty">게시글을 불러오지 못했습니다.</div>';
+      if(dash)dash.innerHTML='<article><div><b>커뮤니티를 불러오지 못했습니다.</b><small>잠시 후 다시 확인해주세요.</small></div></article>';
+      return;
+    }
+    const posts=data||[];
+    if(root)root.innerHTML=posts.length?posts.map(p=>'<div class="item"><span class="num">'+esc(p.category.slice(0,1))+'</span><div class="grow"><b>'+esc(p.title)+'</b><small>'+esc(p.category)+' · '+new Date(p.created_at).toLocaleDateString('ko-KR')+'</small><p style="margin-top:5px">'+esc(p.content)+'</p></div></div>').join(''):'<div class="empty">첫 글을 작성해보세요.</div>';
+    if(dash)dash.innerHTML=posts.length?posts.slice(0,3).map(p=>'<article><span class="avatar" aria-hidden="true">'+esc(p.category.slice(0,1))+'</span><div><b>'+esc(p.title)+'</b><small>'+esc(p.category)+' · '+new Date(p.created_at).toLocaleDateString('ko-KR')+'</small></div><span>새 글</span></article>').join(''):'<article><div><b>아직 등록된 글이 없습니다.</b><small>첫 질문이나 후기를 작성해보세요.</small></div></article>';
   }
 
   async function loadReport(){
@@ -119,13 +127,79 @@
       getState('profile')
     ]);
     const doneTasks=(states||[]).filter(x=>x.state_key.startsWith('task:')&&x.payload?.done).length;
-    const active=(enroll||[]).filter(x=>x.access_status==='ACTIVE'||x.access_status==='COMPLETED').length;
-    const progressAvg=active?Math.round((enroll||[]).reduce((a,b)=>a+Number(b.progress_percent||0),0)/active):0;
+    const activeRows=(enroll||[]).filter(x=>x.access_status==='ACTIVE'||x.access_status==='COMPLETED');
+    const active=activeRows.length;
+    const progressAvg=active?Math.round(activeRows.reduce((a,b)=>a+Number(b.progress_percent||0),0)/active):0;
     const coreDone=(states||[]).filter(x=>x.payload?.done&&['task:mission-1','task:mission-2','task:mission-3'].includes(x.state_key)).length;
     const profileComplete=Boolean(profileState?.region&&profileState?.timeline&&profileState?.budget);
     const readiness=Math.min(100,coreDone*25+(profileComplete?25:0));
     if(page==='report.html'){const v=document.querySelectorAll('.g4 .stat strong');if(v[0])v[0].textContent=progressAvg+'%';if(v[1])v[1].textContent=doneTasks+'개';if(v[2])v[2].textContent=active+'개';if(v[3])v[3].textContent=readiness+'%'}
-    if(page==='index.html'){const v=document.querySelectorAll('.stats-row strong');if(v[0])v[0].textContent=progressAvg+'%';if(v[1])v[1].textContent=active+'개';if(v[2])v[2].textContent=doneTasks+'개';if(v[3])v[3].textContent=readiness+'%'}
+    if(page==='index.html'){
+      const v=document.querySelectorAll('.stats-row>article:not(.level-card) strong');
+      if(v[0])v[0].textContent=progressAvg+'%';
+      if(v[1])v[1].textContent=active+'개';
+      if(v[2])v[2].textContent=doneTasks+'개';
+      if(v[3])v[3].textContent=readiness+'%';
+      const level=readiness>=100?5:readiness>=75?4:readiness>=50?3:readiness>=25?2:1;
+      const labels={1:'시작 준비',2:'기초 실행',3:'수익화 준비',4:'오픈 실행',5:'운영 확장'};
+      const le=document.querySelector('[data-dashboard-level]'),lp=document.querySelector('[data-dashboard-level-progress]'),ln=document.querySelector('[data-dashboard-level-note]');
+      if(le)le.textContent='Lv. '+level+' · '+labels[level];
+      if(lp)lp.style.width=readiness+'%';
+      if(ln)ln.textContent='오픈 준비도 '+readiness+'% · 실제 계정 데이터 기준';
+      const items=[...document.querySelectorAll('.roadmap-list li')];
+      if(items.length){
+        const current=readiness>=100?items.length-1:Math.min(items.length-1,Math.floor(readiness/25));
+        items.forEach((li,i)=>{
+          li.classList.remove('done','current');
+          const em=li.querySelector('em');
+          if(readiness>=100||i<current){li.classList.add('done');if(em)em.textContent='완료'}
+          else if(i===current){li.classList.add('current');if(em)em.textContent='진행중'}
+          else if(em)em.textContent='대기';
+        });
+      }
+    }
+  }
+
+  async function loadDashboardCourse(){
+    if(page!=='index.html')return;
+    const{data:rows,error}=await sb.from('academy_enrollments').select('course_id,access_status,progress_percent,created_at').eq('user_id',user.id).in('access_status',['ACTIVE','COMPLETED']).order('created_at',{ascending:false}).limit(1);
+    const cover=document.querySelector('[data-dashboard-course-cover]');
+    const sub=document.querySelector('[data-dashboard-course-sub]');
+    const badge=document.querySelector('[data-dashboard-course-badge]');
+    const title=document.querySelector('[data-dashboard-course-title]');
+    const desc=document.querySelector('[data-dashboard-course-desc]');
+    const stage=document.querySelector('[data-dashboard-course-stage]');
+    const count=document.querySelector('[data-dashboard-course-count]');
+    const bar=document.querySelector('[data-dashboard-course-progress]');
+    const percent=document.querySelector('[data-dashboard-course-percent]');
+    const action=document.querySelector('[data-dashboard-course-action]');
+    const enrollment=rows?.[0];
+    if(error||!enrollment){
+      if(cover)cover.textContent='수강 중인 과정이 없습니다.';
+      if(sub)sub.textContent='무료 과정 또는 실행형 과정을 시작해보세요.';
+      if(badge)badge.textContent='미수강';
+      if(title)title.textContent='첫 과정을 선택해주세요.';
+      if(desc)desc.textContent='과정 목록에서 현재 단계에 맞는 수업을 확인할 수 있습니다.';
+      if(stage)stage.textContent='수강권 없음';
+      if(count)count.textContent='-';
+      if(bar)bar.style.width='0%';
+      if(percent)percent.textContent='0%';
+      if(action){action.textContent='과정 선택하기';action.href='./courses.html'}
+      return;
+    }
+    const{data:course}=await sb.from('academy_courses').select('id,title,subtitle,description,curriculum').eq('id',enrollment.course_id).maybeSingle();
+    const steps=Array.isArray(course?.curriculum)?course.curriculum.length:0;
+    const progress=Number(enrollment.progress_percent||0);
+    if(cover)cover.textContent=course?.title||'내 수강 과정';
+    if(sub)sub.textContent=course?.subtitle||course?.description||'';
+    if(badge)badge.textContent=enrollment.access_status==='COMPLETED'?'완료':'수강 중';
+    if(title)title.textContent=course?.title||'내 수강 과정';
+    if(desc)desc.textContent=course?.subtitle||course?.description||'';
+    if(stage)stage.textContent=enrollment.access_status==='COMPLETED'?'과정 완료':'현재 진도 '+progress+'%';
+    if(count)count.textContent=steps?steps+'단계':'진행 중';
+    if(bar)bar.style.width=Math.max(0,Math.min(100,progress))+'%';
+    if(percent)percent.textContent=progress+'%';
+    if(action){action.textContent=enrollment.access_status==='COMPLETED'?'복습하기':'이어 학습하기';action.href='./course.html?id='+encodeURIComponent(enrollment.course_id)}
   }
 
   if(page==='index.html'){
@@ -133,5 +207,5 @@
     if(go)go.addEventListener('click',async e=>{if(go.disabled)return;e.preventDefault();e.stopImmediatePropagation();const{data:c}=await sb.from('academy_courses').select('id').eq('slug','host-opening-basic').eq('status','PUBLISHED').maybeSingle();if(!c){say('10만원 과정을 찾지 못했습니다.');return}const{data:s}=await sb.from('academy_sessions').select('id').eq('course_id',c.id).eq('status','SCHEDULED').limit(1).maybeSingle();if(!s){say('결제 가능한 세션이 없습니다.');return}location.href='./checkout.html?session='+encodeURIComponent(s.id)},true);
   }
 
-  await Promise.all([loadTaskStates(),loadProfile(),loadCourses(),loadCourseDetail(),loadCommunity(),loadReport()]);
+  await Promise.all([loadTaskStates(),loadProfile(),loadCourses(),loadCourseDetail(),loadCommunity(),loadReport(),loadDashboardCourse()]);
 })();
