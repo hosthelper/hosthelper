@@ -61,11 +61,15 @@ try {
   await page.goto(base + '#home', { waitUntil: 'networkidle', timeout: 60000 });
   await page.locator('#authBtn').click();
   await page.getByText('헬퍼유니버스 카카오 통합인증', { exact: false }).waitFor();
-  await Promise.all([
-    page.waitForURL(url => url.hostname.includes('v2.appdeploy.ai') || url.hostname.includes('kakao.com'), { timeout: 30000 }),
-    page.getByRole('button', { name: '카카오로 계속하기' }).click()
-  ]);
-  console.log('PASS unified SSO start', page.url());
+  await page.getByRole('button', { name: '카카오로 계속하기' }).click();
+  await page.waitForURL(url => url.hostname.includes('v2.appdeploy.ai'), { timeout: 30000 });
+  const pdsUrl = new URL(page.url());
+  if (pdsUrl.searchParams.get('hu_sso_service') !== 'gongsil') throw new Error('SSO service param mismatch');
+  const returnTo = decodeURIComponent(pdsUrl.searchParams.get('hu_return_to') || '');
+  if (!returnTo.startsWith('https://gongsil-helper.netlify.app/')) throw new Error('SSO return_to mismatch');
+  console.log('PASS unified SSO handoff', page.url());
+  await page.waitForURL(url => url.hostname === 'kauth.kakao.com', { timeout: 30000 });
+  console.log('PASS Kakao authorize screen', page.url());
 
   const cfg = await page.request.get(base + '.netlify/functions/portone-config');
   if (!cfg.ok()) throw new Error('portone-config HTTP ' + cfg.status());
