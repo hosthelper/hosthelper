@@ -14,6 +14,46 @@
   async function saveTask(key,title,done=true,extra={}){await saveState('task:'+key,{title,done,...extra,updatedAt:new Date().toISOString()})}
   async function saveNote(kind,key,title,content,metadata={}){await saveState(kind+':'+key,{title,content,metadata,status:'submitted',updatedAt:new Date().toISOString()})}
 
+  if(page==='index.html'){
+    const diagnosisForm=document.getElementById('diagnosisForm');
+    const diagnosisDialog=document.getElementById('diagnosisDialog');
+    const finishDiagnosis=document.getElementById('finishDiagnosis');
+    if(diagnosisForm&&finishDiagnosis){
+      finishDiagnosis.addEventListener('click',async e=>{
+        e.preventDefault();
+        if(!diagnosisForm.reportValidity())return;
+        finishDiagnosis.disabled=true;
+        const d=formObject(diagnosisForm);
+        try{
+          await saveState('diagnosis',{
+            timeline:d.timeline||null,
+            blocker:d.blocker||null,
+            budget:d.budget||null,
+            property_status:d.property_status||null,
+            experience:d.experience||null,
+            completed:true,
+            completedAt:new Date().toISOString()
+          });
+          diagnosisDialog?.close();
+          const blocker=String(d.blocker||'');
+          const message=blocker.includes('매물')?'다음 행동: 공실헬퍼에서 매물 탐색 기준을 정리하세요.':
+            blocker.includes('수익성')?'다음 행동: 수익성 계산 기준부터 익히세요.':
+            blocker.includes('세팅')?'다음 행동: 오픈 필수 세팅 체크리스트부터 만드세요.':
+            blocker.includes('운영')?'다음 행동: 예약·청소·CS 운영 흐름부터 익히세요.':
+            '다음 행동: 숙박업 오픈 전체 로드맵부터 확인하세요.';
+          say('진단 저장 완료 · '+message);
+          await loadReport();
+          document.getElementById('roadmap')?.scrollIntoView({behavior:'smooth',block:'center'});
+        }catch(err){
+          console.error(err);
+          say('진단 저장에 실패했습니다.');
+        }finally{
+          finishDiagnosis.disabled=false;
+        }
+      });
+    }
+  }
+
   document.querySelectorAll('[data-check]').forEach(btn=>btn.addEventListener('click',async()=>{
     btn.disabled=true;try{await saveTask(btn.dataset.check,btn.closest('.card,.item')?.querySelector('h3,b')?.textContent||btn.dataset.check,true);btn.textContent='완료됨 ✓';btn.classList.add('ghost');say('완료 상태를 계정에 저장했습니다.')}catch(e){say('저장 중 오류가 발생했습니다.');console.error(e)}finally{btn.disabled=false}
   }));
