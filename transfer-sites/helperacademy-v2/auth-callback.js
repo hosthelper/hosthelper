@@ -22,6 +22,10 @@
     if(!session?.user)throw new Error('로그인 세션을 확인할 수 없습니다.');
     const member=await B.ensureAcademyMember(session.user);
     if(!member)throw new Error('헬퍼아카데미 회원 등록을 확인하지 못했습니다.');
+    const createdAt=new Date(session.user.created_at||0).getTime();
+    const isNew=Number.isFinite(createdAt)&&Date.now()-createdAt<180000;
+    await B.client.rpc('academy_record_auth_event',{p_event_type:'oauth_callback',p_session_id:null,p_metadata:{provider:session.user.app_metadata?.provider||member.signup_provider||'oauth',new_user:isNew}}).catch(()=>{});
+    await B.client.rpc('academy_record_auth_event',{p_event_type:isNew?'signup':'login',p_session_id:null,p_metadata:{method:'oauth',provider:session.user.app_metadata?.provider||member.signup_provider||'oauth'}}).catch(()=>{});
     title.textContent='로그인 완료';
     text.textContent='헬퍼아카데미 회원으로 확인되었습니다.';
     meta.textContent='회원번호 · '+(member.universe_member_id||'-');
