@@ -14,8 +14,8 @@ try {
   const index = await page.request.get(base);
   if (!index.ok()) throw new Error('index HTTP ' + index.status());
   const indexHtml = await index.text();
-  if (!indexHtml.includes('user-v8-20260921')) throw new Error('latest asset version missing');
-  console.log('PASS asset version v8');
+  if (!indexHtml.includes('user-v9-20260921')) throw new Error('latest asset version missing');
+  console.log('PASS asset version v9');
 
   await route('#valuation', '무료 권리금 시세진단');
   await page.locator('input[name="revenue"]').fill('550만원');
