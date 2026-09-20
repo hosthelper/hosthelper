@@ -38,19 +38,3 @@ jobs:
           ! grep -R "PORTONE_API_SECRET=" gongsil-production/site
           ! grep -R "GONGSIL_PORTONE_SETTLE_TOKEN=" gongsil-production/site
           ! grep -R "SUPABASE_SERVICE_ROLE_KEY" gongsil-production/site
-
-  deploy-production:
-    if: github.event_name == 'push'
-    needs: qa
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Deploy Gongsil production to Netlify
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        run: |
-          test -n "$NETLIFY_AUTH_TOKEN"
-          npx -y netlify-cli@latest deploy --prod --dir=gongsil-production/site --site=e56ce546-3fd4-47c7-95e2-e2558faa0de8
