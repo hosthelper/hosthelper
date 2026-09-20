@@ -122,7 +122,7 @@ function propertyVerificationMeta(p){
     ready=docsOk&&done(ocr?.status)&&done(gov?.status);
     waiting=docsOk&&(!done(ocr?.status)||!done(gov?.status));
     steps=[
-      {label:'필수서류',detail:`${}docCount}/4`,status:docsOk?'done':'wait'},
+      {label:'필수서류',detail:`${docCount}/4`,status:docsOk?'done':'wait'},
       {label:'OCR 주소일치',detail:done(ocr?.status)?'확인':issue(ocr?.status)?'재확인 필요':'처리 중',status:done(ocr?.status)?'done':issue(ocr?.status)?'issue':'wait'},
       {label:'관공서 인허가',detail:done(gov?.status)?'영업/정상':issue(gov?.status)?'재확인 필요':'조회 중',status:done(gov?.status)?'done':issue(gov?.status)?'issue':'wait'},
       {label:'최종 제출',detail:submitted?'제출 완료':ready?'제출 가능':'대기',status:submitted?'done':ready?'ready':'wait'}
@@ -135,12 +135,12 @@ function propertyVerificationMeta(p){
     waiting=docOk&&confirmed<6;
     steps=[
       {label:'전대동의서',detail:docOk?'제출':'필요',status:docOk?'done':'wait'},
-      {label:'OCR 6항목',detail:`${}confirmed}/6 확인`,status:confirmed===6?'done':'wait'},
+      {label:'OCR 6항목',detail:`${confirmed}/6 확인`,status:confirmed===6?'done':'wait'},
       {label:'운영자 검토',detail:submitted?'접수':'대기',status:submitted?'done':'wait'},
       {label:'최종 제출',detail:submitted?'제출 완료':ready?'제출 가능':'대기',status:submitted?'done':ready?'ready':'wait'}
     ];
   }
-  const html=`<div class="verification-progress">${}steps.map((s,i)=>`<div class="verification-step ${}s.status}"><i>${}s.status==='done'?'✓':i+1}</i><div><strong>${}esc(s.label)}</strong><span>${}esc(s.detail)}</span></div></div>`).join('')}</div>`;
+  const html=`<div class="verification-progress">${steps.map((s,i)=>`<div class="verification-step ${s.status}"><i>${s.status==='done'?'✓':i+1}</i><div><strong>${esc(s.label)}</strong><span>${esc(s.detail)}</span></div></div>`).join('')}</div>`;
   return{outdomin,ready,waiting,submitted,html};
 }
 async function restartPropertyVerification(p){
@@ -183,13 +183,13 @@ async function renderAccount(){
     const meta=propertyVerificationMeta(p);
     const actionable=['draft','needs_revision','paused'].includes(p.publication_status);
     const action=!actionable?'':meta.ready
-      ?`<button class="outline-btn verification-action primary" data-finalize-property="${}p.id}">검증 완료 · 최종 제출</button>`
-      :`<button class="outline-btn verification-action" data-restart-verification="${}p.id}">OCR·인허가 다시 확인</button>`;
+      ?`<button class="outline-btn verification-action primary" data-finalize-property="${p.id}">검증 완료 · 최종 제출</button>`
+      :`<button class="outline-btn verification-action" data-restart-verification="${p.id}">OCR·인허가 다시 확인</button>`;
     const statusText=meta.submitted?'운영자 검토 단계':meta.ready?'자동검증 완료':meta.waiting?'자동검증 처리 중':'검증 준비 필요';
-    return `<article class="property-account-card"><div class="property-account-main"><small>${}esc(p.publication_status||'draft')} · ${}p.journey==='opening'?'신규오픈':'숙소인수'}</small><h3>${}esc(p.area||'')} · ${}esc(p.title||'등록 숙소')}</h3><p>${}esc(p.verification_summary||p.latest_review_note||statusText)}</p>${}meta.html}</div>${}action}</article>`;
+    return `<article class="property-account-card"><div class="property-account-main"><small>${esc(p.publication_status||'draft')} · ${p.journey==='opening'?'신규오픈':'숙소인수'}</small><h3>${esc(p.area||'')} · ${esc(p.title||'등록 숙소')}</h3><p>${esc(p.verification_summary||p.latest_review_note||statusText)}</p>${meta.html}</div>${action}</article>`;
   }).join(''):'<div class="mode-empty">등록한 매물이 없습니다.</div>';
-  const body=`<div class="account-summary"><article><span>활성/최근 열람권</span><b>${}orders.filter(o=>o.status==='paid').length}</b></article><article><span>저장한 공간</span><b>${}saved.length}</b></article><article><span>매칭 요청</span><b>${}matches.length}</b></article><article><span>내 등록매물</span><b>${}properties.length}</b></article></div><div class="account-grid"><section class="route-card"><h2>열람권</h2><div class="mode-list">${}orders.length?orders.map(o=>`<article><div><small>${}esc(o.status)}</small><h3>${}esc(o.label)}</h3><p>${}money(o.amount_krw)} · ${}o.status==='paid'?(o.valid_until?new Date(o.valid_until).toLocaleDateString('ko-KR')+'까지':'사용 가능'):'결제 확인 전'}</p></div></article>`).join(''):'<div class="mode-empty">열람권 내역이 없습니다.</div>'}</div><a class="outline-btn" href="#passes">열람권 구매</a></section><section class="route-card"><h2>매칭 진행</h2><div class="mode-list">${}matches.length?matches.map(m=>`<article><div><small>${}m.mode==='broker'?'중개사 연결':'직거래'} · ${}esc(m.status)}</small><h3>${}esc(m.area||'')} · ${}esc(m.title||'매물')}</h3></div>${}['approved','broker_assigned','completed'].includes(m.status)?`<button class="outline-btn" data-contact="${}m.property_id}">연락처 확인</button>`:''}</article>`).join(''):'<div class="mode-empty">매칭 요청이 없습니다.</div>'}</div></section><section class="route-card account-properties"><div class="account-section-head"><div><h2>내 등록매물</h2><p>서류 → OCR → 관공서 → 최종제출 순서로 진행됩니다.</p></div><button id="refreshVerificationBtn" class="text-btn" type="button">상태 새로고침</button></div><div class="mode-list">${}propertyCards}</div><a class="outline-btn" href="#register">새 매물 등록</a></section><section class="route-card"><h2>계정</h2><p class="mode-lead">${}esc(state.user.email||'카카오 인증 계정')}</p><button id="logoutBtn" class="btn secondary">로그아웃</button></section></div>`;
-  root.innerHTML=page(`${}esc(name)}님의 공실헬퍼`,'MY GONGSIL',body);
+  const body=`<div class="account-summary"><article><span>활성/최근 열람권</span><b>${orders.filter(o=>o.status==='paid').length}</b></article><article><span>저장한 공간</span><b>${saved.length}</b></article><article><span>매칭 요청</span><b>${matches.length}</b></article><article><span>내 등록매물</span><b>${properties.length}</b></article></div><div class="account-grid"><section class="route-card"><h2>열람권</h2><div class="mode-list">${orders.length?orders.map(o=>`<article><div><small>${esc(o.status)}</small><h3>${esc(o.label)}</h3><p>${money(o.amount_krw)} · ${o.status==='paid'?(o.valid_until?new Date(o.valid_until).toLocaleDateString('ko-KR')+'까지':'사용 가능'):'결제 확인 전'}</p></div></article>`).join(''):'<div class="mode-empty">열람권 내역이 없습니다.</div>'}</div><a class="outline-btn" href="#passes">열람권 구매</a></section><section class="route-card"><h2>매칭 진행</h2><div class="mode-list">${matches.length?matches.map(m=>`<article><div><small>${m.mode==='broker'?'중개사 연결':'직거래'} · ${esc(m.status)}</small><h3>${esc(m.area||'')} · ${esc(m.title||'매물')}</h3></div>${['approved','broker_assigned','completed'].includes(m.status)?`<button class="outline-btn" data-contact="${m.property_id}">연락처 확인</button>`:''}</article>`).join(''):'<div class="mode-empty">매칭 요청이 없습니다.</div>'}</div></section><section class="route-card account-properties"><div class="account-section-head"><div><h2>내 등록매물</h2><p>서류 → OCR → 관공서 → 최종제출 순서로 진행됩니다.</p></div><button id="refreshVerificationBtn" class="text-btn" type="button">상태 새로고침</button></div><div class="mode-list">${propertyCards}</div><a class="outline-btn" href="#register">새 매물 등록</a></section><section class="route-card"><h2>계정</h2><p class="mode-lead">${esc(state.user.email||'카카오 인증 계정')}</p><button id="logoutBtn" class="btn secondary">로그아웃</button></section></div>`;
+  root.innerHTML=page(`${esc(name)}님의 공실헬퍼`,'MY GONGSIL',body);
   $$('[data-contact]').forEach(b=>b.onclick=()=>showMatchContact(b.dataset.contact));
   $$('[data-restart-verification]').forEach(b=>b.onclick=async()=>{
     const p=properties.find(x=>String(x.id)===String(b.dataset.restartVerification));
