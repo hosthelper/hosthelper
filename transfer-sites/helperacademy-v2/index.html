@@ -121,7 +121,7 @@ button{cursor:pointer}.profile-avatar{width:32px;height:32px;border-radius:50%;d
   if (startDiagnosis && diagnosisDialog) startDiagnosis.addEventListener('click', () => diagnosisDialog.showModal());
 
   const enrollDialog = document.getElementById('enrollDialog');
-  document.querySelectorAll('#startPaidCourse, .continue').forEach((el) => {
+  document.querySelectorAll('#startPaidCourse').forEach((el) => {
     el.addEventListener('click', (event) => {
       event.preventDefault();
       if (enrollDialog) enrollDialog.showModal();
