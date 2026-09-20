@@ -1,7 +1,7 @@
 (async()=>{
   const B=window.academyBackend;if(!B)return;
   const q=new URLSearchParams(location.search);
-  const nextRaw=q.get('next')||'index.html';
+  const nextRaw=q.get('next')||sessionStorage.getItem('academy_auth_next')||'index.html';
   const next=/^[a-z0-9_-]+\.html$/i.test(nextRaw)?nextRaw:'index.html';
   const title=document.getElementById('callbackTitle'),text=document.getElementById('callbackText'),meta=document.getElementById('callbackMeta'),action=document.getElementById('callbackAction');
   const fail=(m)=>{title.textContent='로그인 연결을 완료하지 못했습니다.';text.textContent=m;meta.textContent='다시 로그인해주세요.';action.style.display='block'};
@@ -29,6 +29,6 @@
     title.textContent='로그인 완료';
     text.textContent='헬퍼아카데미 회원으로 확인되었습니다.';
     meta.textContent='회원번호 · '+(member.universe_member_id||'-');
-    setTimeout(()=>location.replace('./'+next),350);
+    sessionStorage.removeItem('academy_auth_next');history.replaceState({},document.title,'./auth-callback.html');setTimeout(()=>location.replace('./'+next),350);
   }catch(e){console.error(e);fail(e.message||'OAuth 연결 오류가 발생했습니다.')}
 })();
