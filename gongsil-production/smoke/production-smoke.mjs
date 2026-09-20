@@ -72,9 +72,13 @@ try {
   const kakaoUrl = new URL(page.url());
   if (kakaoUrl.hostname === 'accounts.kakao.com') {
     const cont = decodeURIComponent(kakaoUrl.searchParams.get('continue') || '');
-    if (!cont.includes('kauth.kakao.com/oauth/authorize')) throw new Error('Kakao login continue URL mismatch');
-    if (!cont.includes('redirect_uri=https%3A%2F%2Fpds-ai-company-zv30ms.v2.appdeploy.ai%2Fapi%2Fauth%2Fkakao%2Fcallback')) throw new Error('Kakao redirect_uri mismatch');
-    if (!cont.includes('scope=openid%20profile_nickname%20profile_image%20account_email')) throw new Error('Kakao OpenID scope missing');
+    const authorizeUrl = new URL(cont);
+    if (authorizeUrl.hostname !== 'kauth.kakao.com' || authorizeUrl.pathname !== '/oauth/authorize') throw new Error('Kakao login continue URL mismatch');
+    if (authorizeUrl.searchParams.get('redirect_uri') !== 'https://pds-ai-company-zv30ms.v2.appdeploy.ai/api/auth/kakao/callback') throw new Error('Kakao redirect_uri mismatch');
+    const scopes = new Set(String(authorizeUrl.searchParams.get('scope') || '').split(/\s+/).filter(Boolean));
+    for (const required of ['openid','profile_nickname','profile_image','account_email']) {
+      if (!scopes.has(required)) throw new Error('Kakao OpenID scope missing: ' + required);
+    }
   }
   console.log('PASS Kakao authorize/login screen', page.url());
 
