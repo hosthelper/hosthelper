@@ -129,9 +129,11 @@ function kstToday() {
   }).format(new Date());
 }
 
-function formatKoreanDate(date) {
-  const [, month, day] = String(date).split('-');
-  return `${Number(month)}월 ${Number(day)}일`;
+function formatKoreanDate(date, includeYear = false) {
+  const [year, month, day] = String(date).split('-');
+  return includeYear
+    ? `${Number(year)}년 ${Number(month)}월 ${Number(day)}일`
+    : `${Number(month)}월 ${Number(day)}일`;
 }
 
 function propertyName(roomName) {
@@ -264,7 +266,7 @@ function buildAlert(type, booking) {
   return [
     title,
     `객실: ${booking.roomName}`,
-    `청소일: ${formatKoreanDate(booking.checkoutDate)}`,
+    `청소일: ${formatKoreanDate(booking.checkoutDate, type === 'new')}`,
     '담당:',
   ].join('\n');
 }
