@@ -11,6 +11,12 @@ async function route(hash, text) {
 }
 
 try {
+  const index = await page.request.get(base);
+  if (!index.ok()) throw new Error('index HTTP ' + index.status());
+  const indexHtml = await index.text();
+  if (!indexHtml.includes('user-v8-20260921')) throw new Error('latest asset version missing');
+  console.log('PASS asset version v8');
+
   await route('#valuation', '무료 권리금 시세진단');
   await page.locator('input[name="revenue"]').fill('550만원');
   await page.locator('input[name="rent"]').fill('180만원');
@@ -34,6 +40,9 @@ try {
   await route('#register', '매물 등록');
   await page.getByText('카카오 인증 후 등록할 수 있습니다.', { exact: false }).waitFor();
   console.log('PASS register auth gate');
+
+  await route('#account', '카카오 인증이 필요합니다.');
+  console.log('PASS account login gate');
 
   await route('#verify', '관공서 자동대조');
   const verifyAddress = page.locator('input[name="address"]');
