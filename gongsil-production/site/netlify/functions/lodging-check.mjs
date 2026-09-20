@@ -47,7 +47,7 @@ function compactEvidence(row){
 
 async function fetchDistrictRows(key,district,service){
   try{
-    const url='https://openapi.seoul.go.kr:8088/'+encodeURIComponent(key)+'/json/'+encodeURIComponent(service)+'/1/1000/';
+    const url='http://openapi.seoul.go.kr:8088/'+encodeURIComponent(key)+'/json/'+encodeURIComponent(service)+'/1/1000/';
     const res=await fetch(url,{signal:AbortSignal.timeout(12000)});
     if(!res.ok)return{district,service,rows:[],error:'http_'+res.status};
     const data=await res.json(),block=data?.[service]||data?.[Object.keys(data).find(k=>data?.[k]?.row)];
@@ -85,7 +85,16 @@ async function seoulLookup(address){
   }
 
   if(!candidates.length){
-    const failed=settled.filter(x=>x.error).length;
+    const failures=settled.filter(x=>x.error);
+    if(failures.length===settled.length){
+      return{
+        status:'unavailable',
+        message:'서울 열린데이터 API 응답을 받지 못했습니다. 잠시 후 다시 조회해 주세요.',
+        matches:[],
+        searchedDistricts:targets.length,
+        failedDistricts:failures.length
+      };
+    }
     return{
       status:'not_found',
       message:explicitDistrict
@@ -93,7 +102,7 @@ async function seoulLookup(address){
         :'서울 25개 자치구 인허가 DB를 검색했지만 입력 주소와 일치하는 항목을 찾지 못했습니다.',
       matches:[],
       searchedDistricts:targets.length,
-      failedDistricts:failed
+      failedDistricts:failures.length
     };
   }
 
