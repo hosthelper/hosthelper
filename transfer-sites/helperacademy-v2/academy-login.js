@@ -60,7 +60,7 @@
         location.replace('./'+next);
       }else{
         if(d.password!==d.password_confirm)throw new Error('비밀번호가 서로 다릅니다.');
-        const{data,error}=await B.client.auth.signUp({email:d.email,password:d.password,options:{data:{name:d.name,display_name:d.name,academy_source:true}}});
+        const emailCallback=new URL('./auth-callback.html',location.href);emailCallback.searchParams.set('next','index.html');const{data,error}=await B.client.auth.signUp({email:d.email,password:d.password,options:{emailRedirectTo:emailCallback.href,data:{name:d.name,display_name:d.name,academy_source:true}}});
         if(error)throw error;
         if(data.session){
           await B.ensureAcademyMember(data.user);
