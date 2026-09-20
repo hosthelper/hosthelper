@@ -37,7 +37,7 @@ button{cursor:pointer}.profile-avatar{width:32px;height:32px;border-radius:50%;d
   <section class="main-grid">
     <article class="action-panel"><h2>🎯 오늘의 다음 액션</h2><div class="action-list"><button type="button" data-scroll="#diagnosis"><span class="round green">✓</span><div><b>무료 오픈진단 완료하기</b><small>현재 자금·지역·오픈 목표일을 먼저 정리합니다.</small></div><i>진단하기</i></button><button type="button" data-scroll="#enroll"><span class="round blue">💡</span><div><b>10만원 실행과정 확인하기</b><small>배우고 끝내지 않고 실제 오픈 행동까지 이어갑니다.</small></div><i>과정보기</i></button><button type="button" data-toast="멘토링 질문함은 다음 단계에서 연결됩니다."><span class="round sky">↩</span><div><b>막힌 부분 질문 남기기</b><small>실행 중 막힌 지점을 구체적으로 기록해두세요.</small></div><i>작성하기</i></button><button type="button" data-scroll="#roadmap"><span class="round green">▣</span><div><b>내 오픈 로드맵 확인하기</b><small>매물·세팅·운영 순서를 한눈에 확인합니다.</small></div><i>바로가기</i></button></div></article>
     <article class="course-panel" id="courses"><div class="panel-title"><h2>▣ 이어지는 강의</h2><a href="./courses.html">내 강의 전체보기 ›</a></div><div class="course-image course-cover"><div><span class="cover-kicker">MY COURSE</span><strong data-dashboard-course-cover>내 수강 데이터를<br/>불러오는 중</strong><small data-dashboard-course-sub>실제 수강권 기준으로 표시됩니다.</small></div><span data-dashboard-course-badge>확인 중</span></div><h3 data-dashboard-course-title>내 강의를 확인하고 있습니다.</h3><p data-dashboard-course-desc>수강권이 있으면 가장 최근 과정이 표시됩니다.</p><div class="course-meta"><b data-dashboard-course-stage>수강 상태 확인 중</b><strong data-dashboard-course-count>-</strong></div><div class="progress"><b data-dashboard-course-progress style="width:0%"></b></div><small class="percent" data-dashboard-course-percent>-</small><a class="continue" data-dashboard-course-action href="./courses.html">내 강의 확인하기</a><a class="detail" href="./courses.html">과정 전체보기</a></article>
-    <article class="roadmap-panel" id="roadmap"><div class="panel-title"><h2>▣ 학습 로드맵</h2><a href="./roadmap.html">전체 로드맵 보기 ›</a></div><ol class="roadmap-list"><li class="done"><span>1</span><div><b>기초 다지기</b><small>숙박업 구조와 내 상황 진단</small></div><em>완료</em></li><li class="current"><span>2</span><div><b>실무 역량 키우기</b><small>사업·법적 요건과 수익구조 이해</small></div><em>진행중</em></li><li><span>3</span><div><b>수익화 준비</b><small>매물 탐색과 수익성 검토</small></div><em>대기</em></li><li><span>4</span><div><b>실전 실행</b><small>숙소 세팅과 오픈 준비</small></div><em>대기</em></li><li><span>5</span><div><b>확장하기</b><small>첫 예약부터 운영 안정화</small></div><em>대기</em></li></ol><div class="mountain">⛰️<small>오늘의 실행이 실제 오픈으로 이어집니다.</small></div></article>
+    <article class="roadmap-panel" id="roadmap"><div class="panel-title"><h2>▣ 학습 로드맵</h2><a href="./roadmap.html">전체 로드맵 보기 ›</a></div><ol class="roadmap-list"><li><span>1</span><div><b>기초 다지기</b><small>숙박업 구조와 내 상황 진단</small></div><em>계산 중</em></li><li><span>2</span><div><b>실무 역량 키우기</b><small>사업·법적 요건과 수익구조 이해</small></div><em>계산 중</em></li><li><span>3</span><div><b>수익화 준비</b><small>매물 탐색과 수익성 검토</small></div><em>계산 중</em></li><li><span>4</span><div><b>실전 실행</b><small>숙소 세팅과 오픈 준비</small></div><em>계산 중</em></li><li><span>5</span><div><b>확장하기</b><small>첫 예약부터 운영 안정화</small></div><em>계산 중</em></li></ol><div class="mountain">⛰️<small>오늘의 실행이 실제 오픈으로 이어집니다.</small></div></article>
   </section>
   
   <section class="paid-offer" id="enroll">
@@ -69,6 +69,8 @@ button{cursor:pointer}.profile-avatar{width:32px;height:32px;border-radius:50%;d
       <label>오픈 목표 시점<select name="timeline" required><option value="">선택해주세요</option><option>1~2개월</option><option>3~4개월</option><option>5~6개월</option><option>아직 미정</option></select></label>
       <label>현재 가장 막힌 부분<select name="blocker" required><option value="">선택해주세요</option><option>무엇부터 해야 할지 모르겠어요</option><option>매물을 못 찾겠어요</option><option>수익성 계산이 어려워요</option><option>숙소 세팅이 막막해요</option><option>운영 방법이 궁금해요</option></select></label>
       <label>예상 시작 예산<select name="budget" required><option value="">선택해주세요</option><option>500만원 미만</option><option>500~1,500만원</option><option>1,500~3,000만원</option><option>3,000만원 이상</option></select></label>
+      <label>현재 매물 진행상태<select name="property_status" required><option value="">선택해주세요</option><option>아직 매물을 찾기 전이에요</option><option>후보 매물을 보고 있어요</option><option>계약 전 검토 중이에요</option><option>계약을 완료했어요</option></select></label>
+      <label>숙박업 경험 수준<select name="experience" required><option value="">선택해주세요</option><option>완전 처음이에요</option><option>예약사이트를 이용해봤어요</option><option>숙소 세팅 경험이 있어요</option><option>숙소를 운영해본 적이 있어요</option></select></label>
     </div>
     <button class="dialog-primary" id="finishDiagnosis" value="default">내 다음 행동 확인하기</button>
   </form>
@@ -118,31 +120,6 @@ button{cursor:pointer}.profile-avatar{width:32px;height:32px;border-radius:50%;d
   const startDiagnosis = document.getElementById('startDiagnosis');
   if (startDiagnosis && diagnosisDialog) startDiagnosis.addEventListener('click', () => diagnosisDialog.showModal());
 
-  const diagnosisForm = document.getElementById('diagnosisForm');
-  const finishDiagnosis = document.getElementById('finishDiagnosis');
-  if (diagnosisForm && finishDiagnosis) {
-    finishDiagnosis.addEventListener('click', (event) => {
-      event.preventDefault();
-      if (!diagnosisForm.reportValidity()) return;
-      const data = new FormData(diagnosisForm);
-      localStorage.setItem('academy_diagnosis', JSON.stringify({
-        timeline: data.get('timeline'),
-        blocker: data.get('blocker'),
-        budget: data.get('budget'),
-        at: new Date().toISOString()
-      }));
-      diagnosisDialog.close();
-      const blocker = String(data.get('blocker') || '');
-      const message = blocker.includes('매물') ? '다음 행동: 매물 탐색 기준부터 정리하세요.' :
-        blocker.includes('수익성') ? '다음 행동: 수익성 계산 기준부터 익히세요.' :
-        blocker.includes('세팅') ? '다음 행동: 오픈 필수 세팅 체크리스트부터 만드세요.' :
-        blocker.includes('운영') ? '다음 행동: 예약·청소·CS 운영 흐름부터 익히세요.' :
-        '다음 행동: 숙박업 오픈 전체 로드맵부터 확인하세요.';
-      showToast(message);
-      document.getElementById('roadmap')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
-  }
-
   const enrollDialog = document.getElementById('enrollDialog');
   document.querySelectorAll('#startPaidCourse, .continue').forEach((el) => {
     el.addEventListener('click', (event) => {
@@ -155,15 +132,6 @@ button{cursor:pointer}.profile-avatar{width:32px;height:32px;border-radius:50%;d
   const goPayment = document.getElementById('goPayment');
   if (purchaseConfirm && goPayment) {
     purchaseConfirm.addEventListener('change', () => { goPayment.disabled = !purchaseConfirm.checked; });
-    goPayment.addEventListener('click', () => {
-      localStorage.setItem('academy_checkout_intent', JSON.stringify({
-        product: '숙박업 완전초보 오픈 실전',
-        amount: 100000,
-        at: new Date().toISOString()
-      }));
-      enrollDialog?.close();
-      showToast('결제 전 준비 완료. 다음 단계에서 실제 결제모듈을 연결합니다.');
-    });
   }
 
   const courseSearch = document.getElementById('courseSearch');
