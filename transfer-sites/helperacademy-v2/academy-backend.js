@@ -2,7 +2,7 @@
   const SUPABASE_URL='https://qjtgueuaoohopffatjsp.supabase.co';
   const SUPABASE_KEY='sb_publishable_Vtcm_EkCSeAFGBqbm9caPg_TT0NR5Yb';
   if(!window.supabase?.createClient){console.error('Supabase client failed to load');return}
-  const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'pkce'}});
   const page=(location.pathname.split('/').pop()||'index.html').toLowerCase();
   const publicPages=new Set(['login.html','signup.html','auth-callback.html','payment-fail.html']);
 
