@@ -13,6 +13,7 @@
 - **아키텍처**: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - **아키텍처 결정**: [`docs/adr/`](docs/adr/)
 - **M&A 실사 체크리스트**: [`docs/M_AND_A_READINESS.md`](docs/M_AND_A_READINESS.md)
+- **AI 회사 OS (운영 체계 · 부서별 프롬프트)**: [`docs/AI_COMPANY_OS.md`](docs/AI_COMPANY_OS.md)
 - **사업자 정보**: [`docs/BUSINESS_ENTITY.md`](docs/BUSINESS_ENTITY.md)
 
 운영 주체: **호스트헬퍼** (사업자등록번호 729-33-00827, 동대문세무서)

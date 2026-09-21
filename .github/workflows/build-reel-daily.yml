@@ -74,5 +74,7 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           git add "apps/changup-site/reel/reel_${PREFIX}.mp4" "apps/changup-site/reel/audio/${PREFIX}"
           if git diff --cached --quiet; then echo "no changes"; exit 0; fi
-          git commit -m "reel(changup-site): 데일리 릴스 자동 합성 — ${PREFIX} [skip ci]"
+          # [skip ci] 를 붙이지 않는다 — publish-reel 이 workflow_run 으로 이어 달린다.
+          # 이 커밋은 manifest.json 을 건드리지 않으므로 이 워크플로 자신을 다시 트리거하지 않는다.
+          git commit -m "reel(changup-site): 데일리 릴스 자동 합성 — ${PREFIX}"
           git push origin HEAD:main
