@@ -64,22 +64,156 @@ function bindNav(){
 }
 function renderHome(){root.innerHTML=`<section class="hero route-hero"><div class="hero-copy"><span class="eyebrow">숙박 매물 거래 플랫폼</span><h1>망하지 않는 숙박사업,<br><em>매물 선택부터 다릅니다.</em></h1><p>기존 호스트의 숙박 매물과 새로운 숙박사업 기회를 찾는 예비·현직 호스트를 연결합니다. 매출·권리금·운영 정보와 자료 확인 상태를 함께 보고 판단하세요.</p><div class="hero-actions"><a class="btn primary" href="#listings">매물 찾기 →</a><a class="btn secondary" href="#verify">공간 자동검증</a></div></div><div class="hero-photo"><div class="hero-note">이 매물로<br>숙박업을 해도 괜찮을까?<small>공실헬퍼<br>확인 가능한 정보부터</small></div></div></section>`;
   root.insertAdjacentHTML('beforeend',`<section class="user-shortcuts"><a href="#listings"><b>01</b><strong>검증 매물 찾기</strong><span>공개정보부터 비교</span></a><a href="#valuation"><b>02</b><strong>권리금 진단</strong><span>예상 범위 계산</span></a><a href="#passes"><b>03</b><strong>열람권 구매</strong><span>상세정보 접근</span></a><a href="#register"><b>04</b><strong>매물 등록</strong><span>증빙과 함께 제출</span></a><a href="#verify"><b>05</b><strong>자동검증</strong><span>관공서 대조 준비</span></a><a href="#account"><b>06</b><strong>내 공실헬퍼</strong><span>열람·저장·매칭 관리</span></a></section>`)}
-function mapCandidate(r){const opening=r.journey==='opening';const capital=opening?Number(r.deposit_amount||0)+Number(r.setup_cost_min||0):Number(r.deposit_amount||0)+Number(r.asking_premium||0);return{id:String(r.id),journey:r.journey,title:r.title||'숙소 후보',area:r.area||'',type:r.accommodation_type||'',capital,rent:Number(r.monthly_rent||0),premium:Number(r.asking_premium||0),verified:r.verification_summary||'검증정보 정리 중',risk:r.risk_summary||'추가 확인사항 정리 중',publishedAt:r.published_at||'',valuationReady:!!r.valuation_ready,items:r.verification_items||[],images:Array.isArray(r.public_image_paths)?r.public_image_paths.map(publicImage):[]}}
-async function loadCandidates(force=false){if(state.candidates.length&&!force)return state.candidates;const{data,error}=await supabase.from('gongsil_candidates_patent_v1').select('*').order('published_at',{ascending:false});if(error)throw error;state.candidates=(data||[]).map(mapCandidate);return state.candidates}
-function verificationBadge(item){const confirmed=(item.items||[]).filter(v=>v.status==='confirmed').length,needs=(item.items||[]).filter(v=>v.status==='needs_check').length;return needs?`추가확인 ${needs}`:confirmed?`확인 ${confirmed}`:'검증정보 확인'}
-async function renderListings(){skeleton('공개 매물을 불러오는 중입니다.');let rows=[];try{rows=await loadCandidates()}catch(e){console.error(e)}const body=`<div class="filters page-filters"><button data-journey="all" class="chip active">전체</button><button data-journey="takeover" class="chip">숙소인수</button><button data-journey="opening" class="chip">신규오픈</button><input id="searchInput" placeholder="지역·매물명 검색"><select id="budgetFilter"><option value="all">전체 예산</option><option value="low">1억 이하</option><option value="high">1억 초과</option></select></div><div class="listing-meta"><span id="listingCount"></span><a href="#register" class="text-btn">내 매물 등록하기 →</a></div><div id="listingGrid" class="listing-grid"></div><div id="emptyState" class="empty-state"><strong>현재 공개된 매물이 없습니다.</strong><p>서류 제출과 운영자 공개승인을 거친 매물만 노출됩니다.</p><a class="btn primary" href="#register">무료 매물 등록</a></div>`;root.innerHTML=page('검증 매물 찾기','PUBLIC LISTINGS',body,'<a class="outline-btn" href="#verify">자동검증 먼저 해보기</a>');
-  let journey='all',query='',budget='all';const draw=()=>{let list=[...rows];if(journey!=='all')list=list.filter(x=>x.journey===journey);if(query){const q=query.toLowerCase();list=list.filter(x=>(x.area+' '+x.title+' '+x.type).toLowerCase().includes(q))}if(budget==='low')list=list.filter(x=>x.capital<=1e8);if(budget==='high')list=list.filter(x=>x.capital>1e8);$('#listingCount').textContent=`${list.length}개 공간`;$('#listingGrid').innerHTML=list.map(cardHtml).join('');$('#emptyState').style.display=list.length?'none':'block';$$('[data-property]').forEach(c=>c.onclick=e=>{if(e.target.closest('[data-save]'))return;go(`#property/${c.dataset.property}`)});$$('[data-save]').forEach(b=>b.onclick=e=>{e.stopPropagation();saveCandidate(b.dataset.save,b)})};
-  $$('[data-journey]').forEach(b=>b.onclick=()=>{$$('[data-journey]').forEach(x=>x.classList.remove('active'));b.classList.add('active');journey=b.dataset.journey;draw()});$('#searchInput').oninput=e=>{query=e.target.value;draw()};$('#budgetFilter').onchange=e=>{budget=e.target.value;draw()};draw()}
+function mapCandidate(r){
+  const opening=r.journey==='opening';
+  const deposit=Number(r.deposit_amount||0);
+  const premium=Number(r.asking_premium||0);
+  const capital=opening?deposit+Number(r.setup_cost_min||0):deposit+premium;
+  return{
+    id:String(r.id),journey:r.journey,title:r.title||'숙소 후보',area:r.area||'',type:r.accommodation_type||'',
+    deposit,capital,rent:Number(r.monthly_rent||0),premium,
+    verified:r.verification_summary||'검증정보 정리 중',risk:r.risk_summary||'추가 확인사항 정리 중',
+    publishedAt:r.published_at||'',valuationReady:!!r.valuation_ready,
+    items:Array.isArray(r.verification_items)?r.verification_items:[],
+    images:Array.isArray(r.public_image_paths)?r.public_image_paths.map(publicImage):[]
+  }
+}
+function candidateVerificationState(item){
+  const items=Array.isArray(item?.items)?item.items:[];
+  const failed=items.filter(v=>['failed','needs_check','unverified'].includes(String(v.status||''))).length;
+  const confirmed=items.filter(v=>['confirmed','passed','verified'].includes(String(v.status||''))).length;
+  if(failed)return 'unverified';
+  if(confirmed)return 'verified';
+  return 'checking';
+}
+function verificationBadge(item){
+  const items=Array.isArray(item?.items)?item.items:[];
+  const confirmed=items.filter(v=>['confirmed','passed','verified'].includes(String(v.status||''))).length;
+  const needs=items.filter(v=>['failed','needs_check','unverified'].includes(String(v.status||''))).length;
+  if(needs)return `미검증 · 추가확인 ${needs}`;
+  if(confirmed)return `검증 · 확인 ${confirmed}`;
+  return '검증 상태 확인 중';
+}
+async function renderListings(){
+  skeleton('공개 매물을 불러오는 중입니다.');
+  let rows=[];
+  try{rows=await loadCandidates()}catch(e){console.error(e)}
+  const types=[...new Set(rows.map(x=>x.type).filter(Boolean))].sort();
+  const body=`<div class="notice-card"><b>특허 제5단계 · 기본정보 검색</b><p>사진·지역·금액·검증상태는 공개하고, 정확한 주소·운영수치·권리금 상세는 열람권 이후 공개합니다.</p></div>
+  <div class="filters page-filters">
+    <button data-journey="all" class="chip active">전체</button>
+    <button data-journey="takeover" class="chip">숙소인수</button>
+    <button data-journey="opening" class="chip">신규오픈</button>
+    <input id="searchInput" placeholder="매물명·특징 검색">
+    <input id="areaFilter" placeholder="지역 예: 마포구">
+    <select id="typeFilter"><option value="all">전체 숙소유형</option>${types.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('')}</select>
+    <input id="depositMax" inputmode="numeric" placeholder="보증금 상한 예: 5000만원">
+    <input id="rentMax" inputmode="numeric" placeholder="월세 상한 예: 200만원">
+    <input id="premiumMax" inputmode="numeric" placeholder="권리금 상한 예: 3000만원">
+    <select id="verificationFilter"><option value="all">전체 검증상태</option><option value="verified">검증 매물</option><option value="unverified">미검증/추가확인</option><option value="checking">확인 중</option></select>
+  </div>
+  <div class="listing-meta"><span id="listingCount"></span><a href="#register" class="text-btn">내 매물 등록하기 →</a></div>
+  <div id="listingGrid" class="listing-grid"></div>
+  <div id="emptyState" class="empty-state"><strong>조건에 맞는 공개 매물이 없습니다.</strong><p>운영자 게시승인을 통과한 매물만 공개됩니다.</p><a class="btn primary" href="#register">무료 매물 등록</a></div>`;
+  root.innerHTML=page('숙박 매물 찾기','STEP 5 · SEARCH',body,'<a class="outline-btn" href="#verify">자동검증 먼저 해보기</a>');
+  let journey='all',query='',area='',type='all',verification='all',depositMax=0,rentMax=0,premiumMax=0;
+  const draw=()=>{
+    let list=[...rows];
+    if(journey!=='all')list=list.filter(x=>x.journey===journey);
+    if(query){const q=query.toLowerCase();list=list.filter(x=>(x.title+' '+x.type+' '+x.verified+' '+x.risk).toLowerCase().includes(q))}
+    if(area){const q=area.toLowerCase();list=list.filter(x=>String(x.area||'').toLowerCase().includes(q))}
+    if(type!=='all')list=list.filter(x=>x.type===type);
+    if(verification!=='all')list=list.filter(x=>candidateVerificationState(x)===verification);
+    if(depositMax)list=list.filter(x=>x.deposit<=depositMax);
+    if(rentMax)list=list.filter(x=>x.rent<=rentMax);
+    if(premiumMax)list=list.filter(x=>x.premium<=premiumMax);
+    $('#listingCount').textContent=`${list.length}개 공간`;
+    $('#listingGrid').innerHTML=list.map(cardHtml).join('');
+    $('#emptyState').style.display=list.length?'none':'block';
+    $$('[data-property]').forEach(card=>card.onclick=e=>{if(e.target.closest('[data-save]'))return;go(`#property/${card.dataset.property}`)});
+    $$('[data-save]').forEach(b=>b.onclick=e=>{e.stopPropagation();saveCandidate(b.dataset.save,b)});
+  };
+  $$('[data-journey]').forEach(b=>b.onclick=()=>{$$('[data-journey]').forEach(x=>x.classList.remove('active'));b.classList.add('active');journey=b.dataset.journey;draw()});
+  $('#searchInput').oninput=e=>{query=e.target.value;draw()};
+  $('#areaFilter').oninput=e=>{area=e.target.value;draw()};
+  $('#typeFilter').onchange=e=>{type=e.target.value;draw()};
+  $('#verificationFilter').onchange=e=>{verification=e.target.value;draw()};
+  $('#depositMax').oninput=e=>{depositMax=won(e.target.value);draw()};
+  $('#rentMax').oninput=e=>{rentMax=won(e.target.value);draw()};
+  $('#premiumMax').oninput=e=>{premiumMax=won(e.target.value);draw()};
+  draw();
+}
 function cardHtml(item){const img=item.images[0]||'';const saved=state.saved.includes(item.id);return `<article class="listing-card" data-property="${item.id}"><div class="listing-image" style="${img?`background-image:url('${img}')`:''}"><span>${esc(item.area||'공개매물')}</span><button class="heart" data-save="${item.id}" aria-label="관심 저장">${saved?'♥':'♡'}</button></div><div class="listing-body"><div class="card-badges"><small>${item.journey==='opening'?'신규오픈':'숙소인수'}</small><small>${verificationBadge(item)}</small>${item.valuationReady?'<small>가치진단</small>':''}</div><h3>${esc(item.title)}</h3><p class="card-type">${esc(item.type||'숙박 운영 후보')}</p><div class="metrics"><div><span>초기 필요자금</span><b>${money(item.capital)}</b></div><div><span>월세</span><b>${money(item.rent)}</b></div></div><p>${esc(item.verified)}</p></div></article>`}
 async function saveCandidate(id,btn){if(!state.user){state.pending={type:'save',id};return openLogin()}try{const saved=state.saved.includes(id),{error}=await supabase.rpc('gongsil_set_saved',{p_property_id:id,p_saved:!saved});if(error)throw error;state.saved=saved?state.saved.filter(x=>x!==id):[...state.saved,id];if(btn)btn.textContent=saved?'♡':'♥';toast(saved?'관심에서 제거했습니다.':'관심 매물에 저장했습니다.')}catch(e){console.error(e);toast('저장 처리에 실패했습니다.')}}
 async function renderProperty(id){skeleton('매물 상세정보를 불러오는 중입니다.');try{const{data,error}=await supabase.rpc('gongsil_get_property_detail',{p_property_id:id});if(error)throw error;const p=data.public||{},d=data.detail||{},a=data.premium||null,imgs=(p.images||[]).map(publicImage),locked=!data.has_access;const checks=(p.verification_items||[]).map(v=>`<li><b>${esc(v.label)}</b><span class="status-pill ${v.status}">${v.status==='confirmed'?'확인':v.status==='host_provided'?'제출정보':v.status==='estimated'?'예상':'추가확인'}</span></li>`).join('');const gallery=imgs.length?`<div class="property-gallery">${imgs.slice(0,5).map((x,i)=>`<img src="${x}" alt="${esc(p.title||'매물')} 사진 ${i+1}">`).join('')}</div>`:'';
 const publicInfo=`${gallery}<div class="info-grid detail-public"><article><b>보증금</b><p>${money(p.deposit_amount)}</p></article><article><b>월세</b><p>${money(p.monthly_rent)}</p></article><article><b>희망 권리금</b><p>${p.asking_premium?money(p.asking_premium):'협의'}</p></article></div><h3 class="detail-subtitle">검증 상태</h3><ul class="verification-list">${checks||'<li>검증정보 정리 중</li>'}</ul>`;
-const premium=locked?`<div class="locked-box"><b>🔒 프리미엄 상세정보</b><p>정확한 주소, 매출·비용·가동률, 권리금 진단과 매칭 기능은 열람권 사용 후 공개됩니다.</p><div class="mode-actions"><a class="btn primary" href="#passes">열람권 보기</a>${state.user?`<button id="unlockCurrentBtn" class="btn secondary">보유 열람권 사용</button>`:''}</div></div>`:`<div class="premium-detail"><h3>프리미엄 운영정보</h3><div class="premium-grid"><article><span>정확한 주소</span><b>${esc(d.exact_address||'확인 중')}</b></article><article><span>월평균 매출</span><b>${money(d.avg_monthly_revenue)}</b></article><article><span>월 고정비</span><b>${money(d.monthly_fixed_cost)}</b></article><article><span>관리비</span><b>${money(d.management_fee)}</b></article><article><span>가동률</span><b>${d.occupancy_rate!=null?d.occupancy_rate+'%':'확인 중'}</b></article><article><span>운영기간</span><b>${d.operating_months!=null?d.operating_months+'개월':'확인 중'}</b></article></div>${a?`<div class="valuation-result"><small>${esc(a.model_version)} · 데이터 완성도 ${a.confidence}%</small><h3>${money(a.premium_min)} ~ ${money(a.premium_max)}</h3><p>기준값 ${money(a.premium_recommended)} · 실제 계약가를 보장하지 않습니다.</p></div>`:''}${!data.is_owner&&!data.is_admin?`<div class="match-actions"><button id="directMatchBtn" class="btn secondary">직거래 매칭 요청</button><button id="brokerMatchBtn" class="btn primary">공인중개사 연결 요청</button></div>`:''}</div>`;
+const premium=locked?`<div class="locked-box"><b>🔒 프리미엄 상세정보</b><p>정확한 주소, 매출·비용·가동률, 권리금 진단과 매칭 기능은 열람권 사용 후 공개됩니다.</p><div class="mode-actions"><a class="btn primary" href="#passes">열람권 보기</a>${state.user?`<button id="unlockCurrentBtn" class="btn secondary">보유 열람권 사용</button>`:''}</div></div>`:`<div class="premium-detail"><h3>프리미엄 운영정보</h3><div class="premium-grid"><article><span>정확한 주소</span><b>${esc(d.exact_address||'확인 중')}</b></article><article><span>월평균 매출</span><b>${money(d.avg_monthly_revenue)}</b></article><article><span>월 고정비</span><b>${money(d.monthly_fixed_cost)}</b></article><article><span>관리비</span><b>${money(d.management_fee)}</b></article><article><span>가동률</span><b>${d.occupancy_rate!=null?d.occupancy_rate+'%':'확인 중'}</b></article><article><span>운영기간</span><b>${d.operating_months!=null?d.operating_months+'개월':'확인 중'}</b></article></div>${a?`<div class="valuation-result"><small>${esc(a.model_version)} · 데이터 완성도 ${a.confidence}%</small><h3>${money(a.premium_min)} ~ ${money(a.premium_max)}</h3><p>기준값 ${money(a.premium_recommended)} · 실제 계약가를 보장하지 않습니다.</p></div>`:''}${!data.is_owner&&!data.is_admin?`<div class="match-actions"><p class="mode-lead">특허 제7단계 · 상세정보 확인 후 직거래 상대방 연락처 또는 지정중개사 연결을 요청할 수 있습니다.</p><button id="directMatchBtn" class="btn secondary">직거래 연락처 요청</button><button id="brokerMatchBtn" class="btn primary">지정중개사 연결 요청</button></div>`:''}</div>`;
 root.innerHTML=page(esc(p.title||'매물 상세'),`${p.journey==='opening'?'신규오픈':'숙소인수'} · ${esc(p.area||'')}`,`<div class="property-detail">${publicInfo}${premium}</div>`,'<a class="outline-btn" href="#listings">← 목록으로</a>');if(locked&&$('#unlockCurrentBtn'))$('#unlockCurrentBtn').onclick=()=>unlockChooser(id);if(!locked&&!data.is_owner&&!data.is_admin){$('#directMatchBtn').onclick=()=>requestMatch(id,'direct');$('#brokerMatchBtn').onclick=()=>requestMatch(id,'broker')}}catch(e){console.error(e);root.innerHTML=page('매물 정보를 불러오지 못했습니다.','ERROR','<p class="mode-lead">잠시 후 다시 시도해 주세요.</p><a class="btn primary" href="#listings">목록으로 돌아가기</a>')}}
 async function unlockChooser(propertyId){if(!state.user){state.pending={type:'detail',id:propertyId};return openLogin()}let orders=[];try{const{data}=await supabase.from('gongsil_my_access_orders_v1').select('*').eq('status','paid');orders=data||[]}catch{}const valid=orders.filter(o=>(!o.valid_until||new Date(o.valid_until)>new Date())&&(o.plan_kind==='time'||Number(o.used_count||0)<Number(o.property_limit||0)));openModal(`<div><span class="section-kicker">DETAIL ACCESS</span><h2>보유 열람권 사용</h2><p class="mode-lead">이 매물의 프리미엄 정보를 열 열람권을 선택하세요.</p><div class="mode-list">${valid.length?valid.map(o=>`<article><div><small>${o.plan_kind==='count'?'건수형':'기간형'}</small><h3>${esc(o.label)}</h3><p>${o.plan_kind==='count'?`${o.used_count||0}/${o.property_limit}건 사용`:o.valid_until?`${new Date(o.valid_until).toLocaleDateString('ko-KR')}까지`:'사용 가능'}</p></div><button class="outline-btn" data-use-order="${o.id}">사용</button></article>`).join(''):'<div class="mode-empty">사용 가능한 열람권이 없습니다.</div>'}</div><a href="#passes" class="btn primary" id="modalPassLink">열람권 구매하기</a></div>`);$$('[data-use-order]').forEach(b=>b.onclick=async()=>{try{const{error}=await supabase.rpc('gongsil_unlock_property',{p_property_id:propertyId,p_order_id:b.dataset.useOrder});if(error)throw error;closeModal();toast('상세정보가 열렸습니다.');renderProperty(propertyId)}catch(e){toast(String(e?.message||'열람권 적용에 실패했습니다.'))}});$('#modalPassLink').onclick=closeModal}
 async function requestMatch(propertyId,mode){if(!state.user){state.pending={type:'detail',id:propertyId};return openLogin()}const note=window.prompt(mode==='direct'?'직거래 요청 시 전달할 메시지를 입력해 주세요.':'공인중개사에게 전달할 요청사항을 입력해 주세요.','');if(note===null)return;try{const{error}=await supabase.rpc('gongsil_request_match',{p_property_id:propertyId,p_mode:mode,p_note:note||null});if(error)throw error;toast(mode==='direct'?'직거래 매칭을 요청했습니다.':'공인중개사 연결을 요청했습니다.');go('#account')}catch(e){toast(String(e?.message||'매칭 요청에 실패했습니다.'))}}
-function renderValuation(){const body=`<div class="split-page"><div class="route-card"><h2>운영 데이터를 입력하세요.</h2><p class="mode-lead">입력값을 이용해 시설가치와 영업가치를 나눠 참고 범위를 계산합니다.</p><form id="valuationForm"><div class="form-grid"><label>월평균 매출 *<input name="revenue" required placeholder="예: 550만원"></label><label>월세 *<input name="rent" required placeholder="예: 180만원"></label><label>월 고정비 *<input name="fixed" required placeholder="예: 120만원"></label><label>관리비<input name="management" placeholder="예: 30만원"></label><label>운영기간 *<input name="months" required placeholder="예: 24개월"></label><label>평균 가동률 *<input name="occupancy" required placeholder="예: 72"></label><label>시설 투자액<input name="facility" placeholder="예: 2500만원"></label><label>재사용 가능 자산 비율<input name="reuse" placeholder="예: 70"></label><label>리뷰 점수<input name="review" placeholder="예: 4.8"></label><label>향후 예약률<input name="forward" placeholder="예: 65"></label></div><button class="submit-btn" type="submit">예상 권리금 계산</button></form></div><aside class="result-panel" id="valuationPreview"><span class="section-kicker">RESULT</span><h2>아직 계산 전입니다.</h2><p>실제 계약가는 현장상태, 계약조건, 허가·신고 가능성, 수요 등 추가 요소에 따라 달라질 수 있습니다.</p></aside></div>`;root.innerHTML=page('무료 권리금 시세진단','VALUATION',body,'<a class="outline-btn" href="#register">진단 후 매물등록</a>');$('#valuationForm').onsubmit=calculateValuation}
-async function calculateValuation(e){e.preventDefault();const fd=new FormData(e.currentTarget),revenue=won(fd.get('revenue')),rent=won(fd.get('rent')),fixed=won(fd.get('fixed')),management=won(fd.get('management')),operating=months(fd.get('months')),occ=num(fd.get('occupancy'))||60,facility=won(fd.get('facility')),reuse=num(fd.get('reuse'))||Math.max(20,100-operating/0.6),review=num(fd.get('review'))||4,forward=num(fd.get('forward'))||occ;const preview=$('#valuationPreview');preview.innerHTML='<div class="route-spinner small"></div><p>실제 운영 데이터로 권리금 범위를 분석하고 있습니다.</p>';const local=()=>{const profit=Math.max(revenue-rent-fixed-management,0),quality=1+Math.max(-.08,Math.min(.12,(occ-60)/400))+Math.max(-.04,Math.min(.06,(review-4)/20))+Math.max(-.04,Math.min(.06,(forward-60)/500)),facilityValue=facility*Math.min(1,Math.max(0,reuse/100)),business=profit*Math.max(6,Math.min(18,8+operating/6))*quality,recommended=Math.max(0,facilityValue+business);return{premium_recommended:recommended,premium_min:recommended*.85,premium_max:recommended*1.15,confidence:55,mode:'local_fallback',facilityValue,business}};let result;try{const res=await fetch('https://gongsil-ml-http.onrender.com/v1/quote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({features:{operating_months:operating,monthly_rent:rent,avg_monthly_revenue:revenue,fixed_cost:fixed,management_fee:management,occupancy_rate:occ,asset_reuse_pct:reuse,facility_investment:facility,review_score:review,reservation_forward_rate:forward}}),signal:AbortSignal.timeout(10000)});const data=await res.json();if(!res.ok||!data?.ok)throw new Error(data?.error||'AI 진단을 불러오지 못했습니다.');result=data}catch(err){console.warn('ML valuation fallback',err);result=local()}const mode=result.mode==='ml'?'AI 모델':result.mode==='rules_fallback'?'AI 기준모델':'간이 기준모델',confidence=Math.round(Number(result.confidence||55));preview.innerHTML=`<span class="section-kicker">${esc(mode)} · 신뢰도 ${confidence}%</span><h2>${money(result.premium_min)} ~ ${money(result.premium_max)}</h2><div class="result-breakdown"><div><span>권리금 기준값</span><b>${money(result.premium_recommended)}</b></div><div><span>분석 방식</span><b>${esc(mode)}</b></div><div><span>모델 버전</span><b>${esc(result.model_version||'valuation-v1')}</b></div></div><p>AI 분석값은 거래 판단을 위한 참고 정보이며 실제 계약가·수익을 보장하지 않습니다.</p><a href="#register" class="btn primary">이 숙소 등록하기</a>`}
+function renderValuation(){
+  const body=`<div class="split-page"><div class="route-card"><h2>특허 제4단계 · 권리금 산정 입력</h2><p class="mode-lead">금액·수익 정보뿐 아니라 리뷰·예약현황·접근성·관광지 인접성을 함께 반영합니다.</p>
+  <form id="valuationForm"><div class="form-grid">
+    <label>지역<input name="area" placeholder="예: 서울 마포구"></label>
+    <label>숙소 유형<input name="accommodationType" placeholder="예: 외국인관광 도시민박업"></label>
+    <label>보증금<input name="deposit" placeholder="예: 3000만원"></label>
+    <label>월평균 매출 *<input name="revenue" required placeholder="예: 550만원"></label>
+    <label>월세 *<input name="rent" required placeholder="예: 180만원"></label>
+    <label>월 고정비 *<input name="fixed" required placeholder="예: 120만원"></label>
+    <label>관리비<input name="management" placeholder="예: 30만원"></label>
+    <label>운영기간 *<input name="months" required placeholder="예: 24개월"></label>
+    <label>평균 가동률 *<input name="occupancy" required placeholder="예: 72"></label>
+    <label>평균 객단가<input name="adr" placeholder="예: 12만원"></label>
+    <label>시설 투자액<input name="facility" placeholder="예: 2500만원"></label>
+    <label>재사용 가능 자산 비율<input name="reuse" placeholder="예: 70"></label>
+    <label>리뷰 점수<input name="review" placeholder="예: 4.8"></label>
+    <label>향후 예약률<input name="forward" placeholder="예: 65"></label>
+    <label>접근성 점수<input name="accessibility" placeholder="0~100"></label>
+    <label>관광지 인접도<input name="tourism" placeholder="0~100"></label>
+  </div><button class="submit-btn" type="submit">AI 적정 권리금 계산</button></form></div>
+  <aside class="result-panel" id="valuationPreview"><span class="section-kicker">RESULT</span><h2>아직 계산 전입니다.</h2><p>실제 계약가는 현장상태, 계약조건, 허가·신고 가능성, 수요 등 추가 요소에 따라 달라질 수 있습니다.</p></aside></div>`;
+  root.innerHTML=page('무료 AI 권리금 시세진단','STEP 4 · XGBOOST / RULE FALLBACK',body,'<a class="outline-btn" href="#register">진단 후 매물등록</a>');
+  $('#valuationForm').onsubmit=calculateValuation;
+}
+async function calculateValuation(e){
+  e.preventDefault();
+  const fd=new FormData(e.currentTarget);
+  const area=String(fd.get('area')||'').trim(),accommodationType=String(fd.get('accommodationType')||'').trim();
+  const deposit=won(fd.get('deposit')),revenue=won(fd.get('revenue')),rent=won(fd.get('rent')),fixed=won(fd.get('fixed')),
+    management=won(fd.get('management')),operating=months(fd.get('months')),occ=num(fd.get('occupancy'))||60,
+    adr=won(fd.get('adr')),facility=won(fd.get('facility')),reuse=num(fd.get('reuse'))||Math.max(20,100-operating/0.6),
+    review=num(fd.get('review'))||4,forward=num(fd.get('forward'))||occ,access=num(fd.get('accessibility'))||50,tourism=num(fd.get('tourism'))||50;
+  const preview=$('#valuationPreview');
+  preview.innerHTML='<div class="route-spinner small"></div><p>리뷰·예약·접근성·관광지 인접성까지 포함해 권리금 범위를 분석하고 있습니다.</p>';
+  const features={operating_months:operating,deposit_amount:deposit,monthly_rent:rent,avg_monthly_revenue:revenue,avg_daily_rate:adr,fixed_cost:fixed,management_fee:management,occupancy_rate:occ,asset_reuse_pct:reuse,facility_investment:facility,review_score:review,reservation_forward_rate:forward,accessibility_score:access,tourism_proximity_score:tourism,area,accommodation_type:accommodationType};
+  const completeness=Object.entries(features).filter(([k,v])=>!['area','accommodation_type'].includes(k)?Number(v)!==0:String(v||'').trim()!=='').length;
+  const local=()=>{
+    const profit=Math.max(revenue-rent-fixed-management,0);
+    const quality=1+Math.max(-.08,Math.min(.12,(occ-60)/400))+Math.max(-.04,Math.min(.06,(review-4)/20))+Math.max(-.04,Math.min(.06,(forward-60)/500))+Math.max(-.03,Math.min(.05,(access-50)/1000))+Math.max(-.03,Math.min(.05,(tourism-50)/1000));
+    const facilityValue=facility*Math.min(1,Math.max(0,reuse/100));
+    const business=profit*Math.max(6,Math.min(18,8+operating/6))*quality;
+    const recommended=Math.max(0,facilityValue+business);
+    return{premium_recommended:recommended,premium_min:recommended*.85,premium_max:recommended*1.15,confidence:55,mode:'local_fallback',facilityValue,business};
+  };
+  let result;
+  try{
+    const res=await fetch('https://gongsil-ml-http.onrender.com/v1/quote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({features}),signal:AbortSignal.timeout(10000)});
+    const data=await res.json();
+    if(!res.ok||!data?.ok)throw new Error(data?.error||'AI 진단을 불러오지 못했습니다.');
+    result=data;
+  }catch(err){console.warn('ML valuation fallback',err);result=local()}
+  const mode=result.mode==='ml'?'XGBoost AI 모델':result.mode==='rules_fallback'?'AI 기준모델':'간이 기준모델';
+  const confidence=Math.round(Number(result.confidence||55));
+  preview.innerHTML=`<span class="section-kicker">${esc(mode)} · 신뢰도 ${confidence}%</span><h2>${money(result.premium_min)} ~ ${money(result.premium_max)}</h2>
+  <div class="result-breakdown">
+    <div><span>권리금 기준값</span><b>${money(result.premium_recommended)}</b></div>
+    <div><span>분석 방식</span><b>${esc(mode)}</b></div>
+    <div><span>모델 버전</span><b>${esc(result.model_version||'valuation-v1')}</b></div>
+    <div><span>입력 완성도</span><b>${completeness}/${Object.keys(features).length}</b></div>
+  </div>
+  <p>반영요소: 매출·비용·가동률·리뷰·예약현황·접근성·관광지 인접성·지역·숙소유형.</p>
+  <p>AI 분석값은 거래 판단을 위한 참고 정보이며 실제 계약가·수익을 보장하지 않습니다.</p><a href="#register" class="btn primary">이 숙소 등록하기</a>`;
+}
 async function renderPasses(){skeleton('열람권 상품을 불러오는 중입니다.');let plans=[];try{const{data,error}=await supabase.from('gongsil_access_plans_v1').select('*').order('display_order');if(error)throw error;plans=data||[]}catch(e){console.error(e)}const cards=plans.length?`<div class="plan-grid user-plan-grid">${plans.map(p=>`<article><small>${p.plan_kind==='count'?'건수형':'기간형'}</small><h3>${esc(p.label)}</h3><b>${money(p.price_krw)}</b><p>${p.plan_kind==='count'?`${p.property_limit}개 매물 상세열람`:`${p.valid_days}일 동안 프리미엄 상세정보 열람`}</p><button class="btn primary" data-buy-plan="${p.plan_code}">PortOne으로 구매</button></article>`).join('')}</div>`:'<div class="mode-empty"><b>현재 판매 중인 열람권이 없습니다.</b><p>운영정책 확정 후 다시 열립니다.</p></div>';root.innerHTML=page('프리미엄 열람권','ACCESS PASS',`<div class="route-card"><p class="mode-lead">공개정보는 무료입니다. 정확한 주소·운영수치·권리금 분석 등 보호가 필요한 정보만 열람권으로 엽니다.</p>${cards}<div class="notice-card"><b>결제 안전장치</b><p>PortOne 결제 완료 후 서버가 결제상태와 금액을 다시 확인해야 열람권이 활성화됩니다.</p></div></div>`,'<a class="outline-btn" href="#account">내 열람권</a>');$$('[data-buy-plan]').forEach(b=>b.onclick=()=>buyPlan(b.dataset.buyPlan,plans.find(p=>p.plan_code===b.dataset.buyPlan)))}
 async function buyPlan(planCode,plan){if(!state.user){state.pending={type:'route',hash:'#passes'};return openLogin()}if(!plan?.price_krw)return toast('판매가격이 설정되지 않은 상품입니다.');try{toast('결제 주문을 만들고 있습니다.');let idem=sessionStorage.getItem('gongsil.payment.idempotency.'+planCode);if(!idem){idem=crypto.randomUUID();sessionStorage.setItem('gongsil.payment.idempotency.'+planCode,idem)}const{data:orderId,error}=await supabase.rpc('gongsil_create_access_order_idempotent',{p_plan_code:planCode,p_idempotency_key:idem});if(error)throw error;sessionStorage.setItem('gongsil.payment.orderId',String(orderId));sessionStorage.setItem('gongsil.payment.planCode',planCode);const cfgRes=await fetch('/.netlify/functions/portone-config',{cache:'no-store'}),cfg=await cfgRes.json();if(!cfgRes.ok||!cfg.storeId||!cfg.channelKey)throw new Error(cfg.error||'PortOne 설정을 불러오지 못했습니다.');const PortOne=await import('https://esm.sh/@portone/browser-sdk@0.1.5/v2');const paymentId=`GSP-${crypto.randomUUID()}`;sessionStorage.setItem('gongsil.payment.paymentId',paymentId);const redirectUrl=`${location.origin}${location.pathname}?orderId=${encodeURIComponent(orderId)}#passes`;const response=await PortOne.requestPayment({storeId:cfg.storeId,channelKey:cfg.channelKey,paymentId,orderName:`공실헬퍼 ${plan.label}`,totalAmount:Number(plan.price_krw),currency:'CURRENCY_KRW',payMethod:'CARD',customer:{customerId:state.user.id,fullName:state.user.user_metadata?.nickname||state.user.user_metadata?.name||'공실헬퍼 회원',email:state.user.email||undefined},redirectUrl});if(response?.code)throw new Error(response.message||'결제가 취소되었습니다.');if(response?.paymentId)await settlePortOne(orderId,response.paymentId)}catch(e){console.error(e);toast(String(e?.message||'결제를 시작하지 못했습니다.'))}}
 async function settlePortOne(orderId,paymentId){const{data:{session}}=await supabase.auth.getSession();if(!session?.access_token)throw new Error('로그인이 만료되었습니다. 다시 로그인해 주세요.');toast('결제 결과를 확인하고 있습니다.');const res=await fetch('/.netlify/functions/portone-verify',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({resourceType:'access_order',resourceId:orderId,paymentId,action:'verify_payment'})});const data=await res.json();if(!res.ok||data?.ok!==true)throw new Error(data.error||data.detail||'결제 검증에 실패했습니다.');sessionStorage.removeItem('gongsil.payment.orderId');sessionStorage.removeItem('gongsil.payment.paymentId');const paidPlan=sessionStorage.getItem('gongsil.payment.planCode');if(paidPlan)sessionStorage.removeItem('gongsil.payment.idempotency.'+paidPlan);sessionStorage.removeItem('gongsil.payment.planCode');history.replaceState({},'',location.pathname+'#account');toast('결제가 완료되어 열람권이 활성화되었습니다.');await renderAccount()}
@@ -153,68 +287,100 @@ async function restartPropertyVerification(p){
   }
   return verification;
 }
-async function renderAccount(){
+async async function renderAccount(){
   if(!state.user){
     root.innerHTML=page('내 공실헬퍼','MY ACCOUNT',`<div class="login-gate route-card"><span class="login-symbol">공</span><h2>카카오 인증이 필요합니다.</h2><p>열람권, 저장매물, 등록매물, 매칭 진행을 한 곳에서 확인합니다.</p><button id="accountLoginBtn" class="kakao-btn">카카오로 계속하기</button></div>`);
     $('#accountLoginBtn').onclick=()=>{state.pending={type:'route',hash:'#account'};openLogin()};
     return;
   }
   skeleton('내 정보를 불러오는 중입니다.');
-  let orders=[],matches=[],properties=[],saved=[];
+  let orders=[],matches=[],properties=[],saved=[],progress=[],roles=[];
   try{
-    const[a,b,c,d]=await Promise.all([
+    const[a,b,c1,d,e1,f1]=await Promise.all([
       supabase.from('gongsil_my_access_orders_v1').select('*').order('created_at',{ascending:false}).limit(20),
       supabase.from('gongsil_my_match_requests_v1').select('*').order('created_at',{ascending:false}).limit(20),
       supabase.from('gongsil_my_properties_v1').select('*').order('created_at',{ascending:false}).limit(20),
-      supabase.from('gongsil_my_saved_v1').select('*').limit(20)
+      supabase.from('gongsil_my_saved_v1').select('*').limit(20),
+      supabase.from('gongsil_my_transaction_progress_v1').select('*').limit(20),
+      supabase.from('gongsil_my_roles_v1').select('*')
     ]);
-    orders=a.data||[];matches=b.data||[];properties=c.data||[];saved=d.data||[];
+    orders=a.data||[];matches=b.data||[];properties=c1.data||[];saved=d.data||[];progress=e1.data||[];roles=f1.data||[];
   }catch(e){console.error(e)}
   const name=state.user.user_metadata?.nickname||state.user.user_metadata?.name||'카카오 회원';
+  const brokerRole=roles.find(r=>r.role==='broker'&&r.status==='active');
   const propertyCards=properties.length?properties.map(p=>{
     const meta=propertyVerificationMeta(p);
     const actionable=['draft','needs_revision','paused'].includes(p.publication_status);
     const action=!actionable?'':meta.ready
       ?`<button class="outline-btn verification-action primary" data-finalize-property="${p.id}">검증 완료 · 최종 제출</button>`
       :`<button class="outline-btn verification-action" data-restart-verification="${p.id}">OCR·인허가 다시 확인</button>`;
+    const patentState=meta.ready||meta.submitted?'검증 매물 후보':'미검증 매물';
     const statusText=meta.submitted?'운영자 검토 단계':meta.ready?'자동검증 완료':meta.waiting?'자동검증 처리 중':'검증 준비 필요';
-    return `<article class="property-account-card"><div class="property-account-main"><small>${esc(p.publication_status||'draft')} · ${p.journey==='opening'?'신규오픈':'숙소인수'}</small><h3>${esc(p.area||'')} · ${esc(p.title||'등록 숙소')}</h3><p>${esc(p.verification_summary||p.latest_review_note||statusText)}</p>${meta.html}</div>${action}</article>`;
+    return `<article class="property-account-card"><div class="property-account-main"><small>${esc(patentState)} · ${esc(p.publication_status||'draft')} · ${p.journey==='opening'?'신규오픈':'숙소인수'}</small><h3>${esc(p.area||'')} · ${esc(p.title||'등록 숙소')}</h3><p>${esc(p.verification_summary||p.latest_review_note||statusText)}</p>${meta.html}</div>${action}</article>`;
   }).join(''):'<div class="mode-empty">등록한 매물이 없습니다.</div>';
-  const body=`<div class="account-summary"><article><span>활성/최근 열람권</span><b>${orders.filter(o=>o.status==='paid').length}</b></article><article><span>저장한 공간</span><b>${saved.length}</b></article><article><span>매칭 요청</span><b>${matches.length}</b></article><article><span>내 등록매물</span><b>${properties.length}</b></article></div><div class="account-grid"><section class="route-card"><h2>열람권</h2><div class="mode-list">${orders.length?orders.map(o=>`<article><div><small>${esc(o.status)}</small><h3>${esc(o.label)}</h3><p>${money(o.amount_krw)} · ${o.status==='paid'?(o.valid_until?new Date(o.valid_until).toLocaleDateString('ko-KR')+'까지':'사용 가능'):'결제 확인 전'}</p></div></article>`).join(''):'<div class="mode-empty">열람권 내역이 없습니다.</div>'}</div><a class="outline-btn" href="#passes">열람권 구매</a></section><section class="route-card"><h2>매칭 진행</h2><div class="mode-list">${matches.length?matches.map(m=>`<article><div><small>${m.mode==='broker'?'중개사 연결':'직거래'} · ${esc(m.status)}</small><h3>${esc(m.area||'')} · ${esc(m.title||'매물')}</h3></div>${['approved','broker_assigned','completed'].includes(m.status)?`<button class="outline-btn" data-contact="${m.property_id}">연락처 확인</button>`:''}</article>`).join(''):'<div class="mode-empty">매칭 요청이 없습니다.</div>'}</div></section><section class="route-card account-properties"><div class="account-section-head"><div><h2>내 등록매물</h2><p>서류 → OCR → 관공서 → 최종제출 순서로 진행됩니다.</p></div><button id="refreshVerificationBtn" class="text-btn" type="button">상태 새로고침</button></div><div class="mode-list">${propertyCards}</div><a class="outline-btn" href="#register">새 매물 등록</a></section><section class="route-card"><h2>계정</h2><p class="mode-lead">${esc(state.user.email||'카카오 인증 계정')}</p><button id="logoutBtn" class="btn secondary">로그아웃</button></section></div>`;
+  const dealCards=progress.length?progress.map(p=>`<article><div><small>${esc(p.match_mode==='broker'?'지정중개사':'직거래')} · ${esc(p.transaction_stage||p.match_status||p.inquiry_stage||'진행')}</small><h3>${esc(p.area||'')} · ${esc(p.title||'거래 매물')}</h3><p>매칭 ${esc(p.match_status||'-')} · 임장 ${esc(p.visit_status||'미정')} · 보증금 ${esc(p.deposit_status||'미결제')}</p></div>${p.property_id&&['approved','broker_assigned','completed'].includes(String(p.match_status||''))?`<button class="outline-btn" data-contact="${p.property_id}">연락처 확인</button>`:''}</article>`).join(''):matches.length?matches.map(m=>`<article><div><small>${m.mode==='broker'?'지정중개사':'직거래'} · ${esc(m.status)}</small><h3>${esc(m.area||'')} · ${esc(m.title||'매물')}</h3><p>매칭 요청 접수 후 승인되면 상대방 또는 지정중개사 연락처가 공개됩니다.</p></div>${['approved','broker_assigned','completed'].includes(m.status)?`<button class="outline-btn" data-contact="${m.property_id}">연락처 확인</button>`:''}</article>`).join(''):'<div class="mode-empty">아직 거래 연결 요청이 없습니다.</div>';
+  const body=`<div class="account-summary"><article><span>활성/최근 열람권</span><b>${orders.filter(o=>o.status==='paid').length}</b></article><article><span>저장한 공간</span><b>${saved.length}</b></article><article><span>매칭 요청</span><b>${matches.length}</b></article><article><span>내 등록매물</span><b>${properties.length}</b></article></div>
+  <div class="account-grid">
+    <section class="route-card"><h2>열람권</h2><div class="mode-list">${orders.length?orders.map(o=>`<article><div><small>${esc(o.status)}</small><h3>${esc(o.label)}</h3><p>${money(o.amount_krw)} · ${o.status==='paid'?(o.valid_until?new Date(o.valid_until).toLocaleDateString('ko-KR')+'까지':'사용 가능'):'결제 확인 전'}</p></div></article>`).join(''):'<div class="mode-empty">열람권 내역이 없습니다.</div>'}</div><a class="outline-btn" href="#passes">열람권 구매</a></section>
+    <section class="route-card"><h2>특허 제7단계 · 거래 연결</h2><p class="mode-lead">상세정보 확인 후 직거래 또는 지정중개사를 선택하고, 승인되면 연락처를 확인합니다.</p><div class="mode-list">${dealCards}</div></section>
+    <section class="route-card account-properties"><div class="account-section-head"><div><h2>내 등록매물</h2><p>서류 → OCR → 관공서 → 운영자 검토 순서로 진행됩니다.</p></div><button id="refreshVerificationBtn" class="text-btn" type="button">상태 새로고침</button></div><div class="mode-list">${propertyCards}</div><a class="outline-btn" href="#register">새 매물 등록</a></section>
+    <section class="route-card"><h2>공인중개사</h2><p class="mode-lead">${brokerRole?'승인된 공인중개사 계정입니다. 의뢰받은 매물을 등록하고 지정중개사 업무를 진행할 수 있습니다.':'공인중개사도 매도인의 의뢰를 받아 매물을 등록·연결할 수 있습니다.'}</p><a class="outline-btn" href="#broker">${brokerRole?'중개사 대시보드':'공인중개사 신청'}</a></section>
+    <section class="route-card"><h2>계정</h2><p class="mode-lead">${esc(state.user.email||'카카오 인증 계정')}</p><button id="logoutBtn" class="btn secondary">로그아웃</button></section>
+  </div>`;
   root.innerHTML=page(`${esc(name)}님의 공실헬퍼`,'MY GONGSIL',body);
   $$('[data-contact]').forEach(b=>b.onclick=()=>showMatchContact(b.dataset.contact));
   $$('[data-restart-verification]').forEach(b=>b.onclick=async()=>{
-    const p=properties.find(x=>String(x.id)===String(b.dataset.restartVerification));
-    if(!p)return;
+    const p=properties.find(x=>String(x.id)===String(b.dataset.restartVerification));if(!p)return;
     b.disabled=true;b.textContent='검증 요청 중…';
-    try{
-      await restartPropertyVerification(p);
-      toast('클라우드 OCR·관공서 자동검증을 다시 시작했습니다.');
-      setTimeout(()=>{if(location.hash==='#account')renderAccount()},1200);
-    }catch(e){
-      toast(String(e?.message||'자동검증을 다시 시작하지 못했습니다.'));
-      b.disabled=false;b.textContent='OCR·인허가 다시 확인';
-    }
+    try{await restartPropertyVerification(p);toast('클라우드 OCR·관공서 자동검증을 다시 시작했습니다.');setTimeout(()=>{if(location.hash==='#account')renderAccount()},1200)}
+    catch(e){toast(String(e?.message||'자동검증을 다시 시작하지 못했습니다.'));b.disabled=false;b.textContent='OCR·인허가 다시 확인'}
   });
   $$('[data-finalize-property]').forEach(b=>b.onclick=async()=>{
     b.disabled=true;b.textContent='제출 중…';
-    try{
-      const{data,error}=await supabase.rpc('gongsil_finalize_property',{p_property_id:b.dataset.finalizeProperty});
-      if(error)throw error;
-      if(!data)throw new Error('최종 제출 조건을 충족하지 못했습니다.');
-      toast('검증 완료 · 운영자 검토 단계로 제출했습니다.');
-      renderAccount();
-    }catch(e){
-      toast(String(e?.message||'OCR·인허가 검증이 아직 완료되지 않았습니다.'));
-      b.disabled=false;b.textContent='검증 완료 · 최종 제출';
-    }
+    try{const{data,error}=await supabase.rpc('gongsil_finalize_property',{p_property_id:b.dataset.finalizeProperty});if(error)throw error;if(!data)throw new Error('최종 제출 조건을 충족하지 못했습니다.');toast('검증 완료 · 운영자 검토 단계로 제출했습니다.');renderAccount()}
+    catch(e){toast(String(e?.message||'OCR·인허가 검증이 아직 완료되지 않았습니다.'));b.disabled=false;b.textContent='검증 완료 · 최종 제출'}
   });
   if($('#refreshVerificationBtn'))$('#refreshVerificationBtn').onclick=()=>renderAccount();
   $('#logoutBtn').onclick=logout;
   clearTimeout(state.accountRefreshTimer);
-  if(properties.some(p=>propertyVerificationMeta(p).waiting)&&location.hash==='#account'){
-    state.accountRefreshTimer=setTimeout(()=>{if(location.hash==='#account')renderAccount()},15000);
+  if(properties.some(p=>propertyVerificationMeta(p).waiting)&&location.hash==='#account')state.accountRefreshTimer=setTimeout(()=>{if(location.hash==='#account')renderAccount()},15000);
+}
+
+async function renderBroker(){
+  if(!state.user){
+    root.innerHTML=page('공인중개사 파트너','PATENT CLAIM 3',`<div class="login-gate route-card"><span class="login-symbol">공</span><h2>카카오 인증 후 신청할 수 있습니다.</h2><p>공인중개사는 매도인의 의뢰를 받아 매물을 등록하고 지정중개사로 거래 연결에 참여할 수 있습니다.</p><button id="brokerLoginBtn" class="kakao-btn">카카오로 계속하기</button></div>`);
+    $('#brokerLoginBtn').onclick=()=>{state.pending={type:'route',hash:'#broker'};openLogin()};return;
   }
+  skeleton('공인중개사 정보를 불러오는 중입니다.');
+  let applications=[],roles=[],dashboard=[],assigned=[];
+  try{
+    const[a,b,d,e]=await Promise.all([
+      supabase.from('gongsil_broker_applications_v1').select('*').eq('user_id',state.user.id).order('created_at',{ascending:false}).limit(1),
+      supabase.from('gongsil_my_roles_v1').select('*'),
+      supabase.from('gongsil_broker_dashboard_v1').select('*').limit(1),
+      supabase.from('gongsil_broker_assigned_properties_v1').select('*').order('assigned_at',{ascending:false}).limit(30)
+    ]);
+    applications=a.data||[];roles=b.data||[];dashboard=d.data||[];assigned=e.data||[];
+  }catch(e){console.error(e)}
+  const app=applications[0]||null,active=roles.some(r=>r.role==='broker'&&r.status==='active');
+  if(active){
+    const d=dashboard[0]||{};
+    const cards=assigned.length?assigned.map(p=>`<article><div><small>${esc(p.publication_status||'배정')}</small><h3>${esc(p.area||'')} · ${esc(p.title||'매물')}</h3><p>진행 문의 ${Number(p.active_inquiry_count||0)}건 · 예정 임장 ${Number(p.upcoming_visit_count||0)}건</p></div></article>`).join(''):'<div class="mode-empty">현재 지정 배정된 매물이 없습니다.</div>';
+    root.innerHTML=page('공인중개사 대시보드','PATENT CLAIM 3',`<div class="account-summary"><article><span>지정 매물</span><b>${Number(d.designated_property_count||0)}</b></article><article><span>진행 문의</span><b>${Number(d.active_inquiry_count||0)}</b></article><article><span>상담 대기</span><b>${Number(d.pending_consultation_count||0)}</b></article><article><span>예정 임장</span><b>${Number(d.upcoming_visit_count||0)}</b></article></div><section class="route-card"><h2>지정 매물</h2><div class="mode-list">${cards}</div><a class="btn primary" href="#register">의뢰 매물 등록하기</a></section>`,'<a class="outline-btn" href="#account">내 공실헬퍼</a>');
+    return;
+  }
+  if(app&&['submitted','pending','in_review'].includes(String(app.status))){
+    root.innerHTML=page('공인중개사 신청','PATENT CLAIM 3',`<section class="route-card"><h2>신청 검토 중입니다.</h2><p class="mode-lead">${esc(app.office_name)} · ${esc(app.registration_number)}</p><p>상태: ${esc(app.status)}. 승인 후 매도인의 의뢰 매물을 등록하고 지정중개사로 연결할 수 있습니다.</p></section>`,'<a class="outline-btn" href="#account">내 공실헬퍼</a>');return;
+  }
+  root.innerHTML=page('공인중개사 신청','PATENT CLAIM 3',`<section class="route-card"><h2>공인중개사도 매물 등록 주체가 될 수 있습니다.</h2><p class="mode-lead">중개사무소 정보를 제출하면 운영자 확인 후 지정중개사 기능을 활성화합니다.</p><form id="brokerApplyForm"><div class="form-grid"><label>중개사무소명 *<input name="officeName" required></label><label>중개사무소 등록번호 *<input name="registrationNumber" required></label><label>서비스 지역<input name="serviceArea" placeholder="예: 서울 전역"></label><label>전문 분야<input name="specialty" placeholder="예: 외도민·게스트하우스"></label><label>연락처 *<input name="contactPhone" required placeholder="010-0000-0000"></label></div><button class="submit-btn" type="submit">공인중개사 신청</button></form></section>`,'<a class="outline-btn" href="#account">내 공실헬퍼</a>');
+  $('#brokerApplyForm').onsubmit=async e=>{
+    e.preventDefault();const fd=new FormData(e.currentTarget);
+    const btn=e.currentTarget.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='신청 중…';
+    try{
+      const{error}=await supabase.rpc('gongsil_submit_broker_application_v2',{p_office_name:String(fd.get('officeName')||''),p_registration_number:String(fd.get('registrationNumber')||''),p_service_area:String(fd.get('serviceArea')||'')||null,p_specialty:String(fd.get('specialty')||'')||null,p_contact_phone:String(fd.get('contactPhone')||'')});
+      if(error)throw error;toast('공인중개사 신청을 접수했습니다.');renderBroker();
+    }catch(err){toast(String(err?.message||'신청을 접수하지 못했습니다.'));btn.disabled=false;btn.textContent='공인중개사 신청'}
+  };
 }
 async function showMatchContact(propertyId){try{const{data,error}=await supabase.rpc('gongsil_get_match_contact',{p_property_id:propertyId});if(error)throw error;if(!data)return toast('연락처 정보가 아직 등록되지 않았습니다.');openModal(`<div><span class="section-kicker">MATCH CONTACT</span><h2>${esc(data.label||'매칭 연락처')}</h2><div class="contact-card"><small>${data.mode==='broker'?'공인중개사':'직거래'}</small><h3>${esc(data.contact_name||data.office_name||'담당자')}</h3><p>${esc(data.contact_phone||'연락처 등록 대기')}</p>${data.office_name?`<p>${esc(data.office_name)} · ${esc(data.registration_number||'')} · ${esc(data.service_area||'')}</p>`:''}</div></div>`)}catch(e){toast(String(e?.message||'연락처를 확인하지 못했습니다.'))}}
 function openLogin(){openModal(`<div class="login-view"><span class="login-symbol">공</span><h2>카카오로 시작하기</h2><p>카카오 로그인 후 바로 공실헬퍼 내 계정으로 돌아옵니다.</p><button id="kakaoLoginBtn" class="kakao-btn">카카오로 계속하기</button><small>최초 로그인 시 공실헬퍼 계정이 자동 생성됩니다.</small></div>`);$('#kakaoLoginBtn').onclick=async()=>{try{const pending=state.pending||{type:'route',hash:'#account'};localStorage.setItem('gongsil.pending',JSON.stringify(pending));$('#kakaoLoginBtn').disabled=true;$('#kakaoLoginBtn').textContent='카카오 연결 중…';await startUnifiedLogin()}catch(e){console.error(e);$('#kakaoLoginBtn').disabled=false;$('#kakaoLoginBtn').textContent='카카오로 계속하기';toast(String(e?.message||'카카오 로그인을 시작하지 못했습니다.'))}}}
@@ -222,5 +388,19 @@ async function bootstrapUser(user){state.user=user;$('#authBtn').textContent='�
 async function logout(){await unifiedLogout();state.user=null;state.saved=[];$('#authBtn').textContent='● 카카오로 시작';$('#mobileAuthBtn').textContent='카카오로 시작';toast('로그아웃했습니다.');go('#home')}
 function openLegal(kind){openModal(kind==='privacy'?`<div class="legal-copy"><span class="section-kicker">PRIVACY</span><h3>개인정보 처리 안내 요약</h3><p>카카오 계정 식별정보, 사용자가 직접 입력한 매물·문의·결제·매칭 정보, 선택적으로 제출한 검증자료를 처리합니다.</p><ul><li>정확한 주소·연락처·검증 원본은 공개탐색에 노출하지 않습니다.</li><li>OCR 원문 전체를 DB에 저장하지 않고 확인 메타데이터를 저장합니다.</li><li>결제는 PortOne 결과를 서버에서 재검증한 뒤 권한을 활성화합니다.</li></ul></div>`:`<div class="legal-copy"><span class="section-kicker">SERVICE POLICY</span><h3>검증·열람·매칭 기준</h3><p>제출정보, OCR 보조, 공공데이터 자동대조, 운영자 확인을 구분합니다.</p><ul><li>자동조회만으로 최종 합법·적법을 확정하지 않습니다.</li><li>권리금 진단은 참고범위이며 실제 계약가를 보장하지 않습니다.</li><li>상세주소·운영정보·연락처는 인증·결제·매칭 승인 단계에 따라 공개합니다.</li></ul></div>`)}
 async function handlePaymentCallback(){const q=new URLSearchParams(location.search),paymentId=q.get('paymentId'),code=q.get('code'),message=q.get('message'),orderId=q.get('orderId')||sessionStorage.getItem('gongsil.payment.orderId');if(!paymentId&&!code)return false;if(code){history.replaceState({},'',location.pathname+'#passes');toast(`결제가 완료되지 않았습니다: ${message||code}`);return true}if(!orderId){history.replaceState({},'',location.pathname+'#passes');toast('결제 주문 정보를 찾지 못했습니다.');return true}try{await settlePortOne(orderId,paymentId);return true}catch(e){console.error(e);history.replaceState({},'',location.pathname+'#passes');toast(String(e?.message||'결제 검증에 실패했습니다.'));return true}}
-async function route(){const{name,id}=routeName();window.scrollTo({top:0,behavior:'instant'});$$('.nav a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')===`#${name}`));if(name==='home'||name==='top')return renderHome();if(name==='listings')return renderListings();if(name==='property'&&id)return renderProperty(id);if(name==='valuation')return renderValuation();if(name==='passes')return renderPasses();if(name==='register')return renderRegister();if(name==='verify')return renderVerify();if(name==='account')return renderAccount();return renderHome()}
+async function route(){
+  const{name,id}=routeName();
+  window.scrollTo({top:0,behavior:'instant'});
+  $$('.nav a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')===`#${name}`));
+  if(name==='home'||name==='top')return renderHome();
+  if(name==='listings')return renderListings();
+  if(name==='property'&&id)return renderProperty(id);
+  if(name==='valuation')return renderValuation();
+  if(name==='passes')return renderPasses();
+  if(name==='register')return renderRegister();
+  if(name==='verify')return renderVerify();
+  if(name==='broker')return renderBroker();
+  if(name==='account')return renderAccount();
+  return renderHome();
+}
 window.addEventListener('hashchange',route);bindNav();try{await completeUnifiedLogin()}catch(e){console.error(e);toast(String(e?.message||'카카오 통합로그인을 완료하지 못했습니다.'))}const{data:{session}}=await supabase.auth.getSession();if(session?.user)await bootstrapUser(session.user);supabase.auth.onAuthStateChange(async(_event,s)=>{if(s?.user&&!state.user){await bootstrapUser(s.user)}else if(!s?.user&&state.user){state.user=null;state.saved=[];$('#authBtn').textContent='● 카카오로 시작';$('#mobileAuthBtn').textContent='카카오로 시작'}});const handled=await handlePaymentCallback();if(!handled)await route();
