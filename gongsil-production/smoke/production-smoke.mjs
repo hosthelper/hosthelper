@@ -14,8 +14,8 @@ try {
   const index = await page.request.get(base);
   if (!index.ok()) throw new Error('index HTTP ' + index.status());
   const indexHtml = await index.text();
-  if (!indexHtml.includes('user-v10-20260922')) throw new Error('latest asset version missing');
-  console.log('PASS asset version v10');
+  if (!indexHtml.includes('user-v11-20260922')) throw new Error('latest asset version missing');
+  console.log('PASS asset version v11');
 
   await route('#valuation', '무료 권리금 시세진단');
   await page.locator('input[name="revenue"]').fill('550만원');
@@ -59,36 +59,21 @@ try {
   console.log('PASS exact unit permit check without spaces');
 
   await page.goto(base + '#home', { waitUntil: 'networkidle', timeout: 60000 });
-  let directLoginUrl = '';
-  page.on('request', req => {
-    if (req.url().includes('/api/universe/auth/start-redirect')) directLoginUrl = req.url();
-  });
   await page.locator('#authBtn').click();
   await page.getByText('카카오 로그인 후 공실헬퍼 내 계정으로 바로 연결됩니다.', { exact: false }).waitFor();
+  const startResponsePromise = page.waitForResponse(res => res.url().includes('/api/universe/auth/kakao-start') && res.request().method() === 'POST', { timeout: 30000 });
   await page.getByRole('button', { name: '카카오로 계속하기' }).click();
-  await page.waitForURL(url => !url.pathname.includes('/api/universe/auth/start-redirect'), { timeout: 10000 });
+  const startResponse = await startResponsePromise;
+  if (!startResponse.ok()) throw new Error('Background PDS Kakao start failed: ' + startResponse.status());
+  const startJson = await startResponse.json();
+  const authorizeUrl = new URL(String(startJson.authorizeUrl || ''));
+  if (authorizeUrl.hostname !== 'kauth.kakao.com' || authorizeUrl.pathname !== '/oauth/authorize') throw new Error('Kakao authorize URL mismatch');
+  if (authorizeUrl.searchParams.get('redirect_uri') !== 'https://gongsil-helper.netlify.app/') throw new Error('Kakao redirect_uri must return directly to Gongsil');
+  const scopes = new Set(String(authorizeUrl.searchParams.get('scope') || '').split(/\s+/).filter(Boolean));
+  if (scopes.size !== 1 || !scopes.has('openid')) throw new Error('Kakao scope must be openid only');
   await page.waitForURL(url => url.hostname === 'kauth.kakao.com' || url.hostname === 'accounts.kakao.com', { timeout: 30000 });
-  if (!directLoginUrl) throw new Error('Direct PDS auth endpoint was not requested');
-  const directUrl = new URL(directLoginUrl);
-  if (directUrl.pathname !== '/api/universe/auth/start-redirect') throw new Error('Unexpected auth start path');
-  if (directUrl.searchParams.get('service') !== 'gongsil') throw new Error('Direct auth service mismatch');
-  const directReturnTo = directUrl.searchParams.get('returnTo') || '';
-  if (!directReturnTo.startsWith('https://gongsil-helper.netlify.app/') || !directReturnTo.endsWith('#account')) throw new Error('Direct auth returnTo must target Gongsil account');
-  if (page.url().includes('v2.appdeploy.ai/?')) throw new Error('PDS workspace UI should not render during Gongsil login');
-  console.log('PASS direct Kakao handoff + account return target', directReturnTo);
-  const kakaoUrl = new URL(page.url());
-  if (kakaoUrl.hostname === 'accounts.kakao.com') {
-    const cont = decodeURIComponent(kakaoUrl.searchParams.get('continue') || '');
-    const authorizeUrl = new URL(cont);
-    if (authorizeUrl.hostname !== 'kauth.kakao.com' || authorizeUrl.pathname !== '/oauth/authorize') throw new Error('Kakao login continue URL mismatch');
-    if (authorizeUrl.searchParams.get('redirect_uri') !== 'https://pds-ai-company-zv30ms.v2.appdeploy.ai/api/auth/kakao/callback') throw new Error('Kakao redirect_uri mismatch');
-    const scopes = new Set(String(authorizeUrl.searchParams.get('scope') || '').split(/\s+/).filter(Boolean));
-    if (!scopes.has('openid')) throw new Error('Kakao OpenID scope missing: openid');
-    for (const unnecessary of ['profile_nickname','profile_image','account_email']) {
-      if (scopes.has(unnecessary)) throw new Error('Unnecessary Kakao scope requested: ' + unnecessary);
-    }
-  }
-  console.log('PASS Kakao authorize/login screen', page.url());
+  if (page.url().includes('v2.appdeploy.ai')) throw new Error('PDS browser navigation must not occur');
+  console.log('PASS background PDS auth + direct Kakao handoff', authorizeUrl.toString());
 
   const cfg = await page.request.get(base + '.netlify/functions/portone-config');
   if (!cfg.ok()) throw new Error('portone-config HTTP ' + cfg.status());
