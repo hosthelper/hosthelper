@@ -16,10 +16,14 @@ function cleanSsoParams(){
 function startUnifiedLogin(){
   const target=new URL(location.href);
   ['hu_sso','hu_sso_code','hu_sso_service'].forEach(k=>target.searchParams.delete(k));
-  const pds=new URL(HELPER_UNIVERSE_AUTH_URL+'/');
-  pds.searchParams.set('hu_sso_service','gongsil');
-  pds.searchParams.set('hu_return_to',target.toString());
-  location.assign(pds.toString());
+  let pending=null;
+  try{pending=JSON.parse(localStorage.getItem('gongsil.pending')||'null')}catch{}
+  if(pending?.type==='route'&&pending.hash)target.hash=pending.hash;
+  else if(!pending||pending.type==='route')target.hash='#account';
+  const direct=new URL(HELPER_UNIVERSE_AUTH_URL+'/api/universe/auth/direct');
+  direct.searchParams.set('service','gongsil');
+  direct.searchParams.set('returnTo',target.toString());
+  location.assign(direct.toString());
 }
 async function completeUnifiedLogin(){
   const params=new URLSearchParams(location.search),code=String(params.get('hu_sso_code')||'').trim();
@@ -225,7 +229,7 @@ async function renderAccount(){
   }
 }
 async function showMatchContact(propertyId){try{const{data,error}=await supabase.rpc('gongsil_get_match_contact',{p_property_id:propertyId});if(error)throw error;if(!data)return toast('연락처 정보가 아직 등록되지 않았습니다.');openModal(`<div><span class="section-kicker">MATCH CONTACT</span><h2>${esc(data.label||'매칭 연락처')}</h2><div class="contact-card"><small>${data.mode==='broker'?'공인중개사':'직거래'}</small><h3>${esc(data.contact_name||data.office_name||'담당자')}</h3><p>${esc(data.contact_phone||'연락처 등록 대기')}</p>${data.office_name?`<p>${esc(data.office_name)} · ${esc(data.registration_number||'')} · ${esc(data.service_area||'')}</p>`:''}</div></div>`)}catch(e){toast(String(e?.message||'연락처를 확인하지 못했습니다.'))}}
-function openLogin(){openModal(`<div class="login-view"><span class="login-symbol">공</span><h2>카카오로 시작하기</h2><p>헬퍼유니버스 카카오 통합인증으로 공실헬퍼를 시작합니다.</p><button id="kakaoLoginBtn" class="kakao-btn">카카오로 계속하기</button><small>한 번 인증하면 Helper ID와 공실헬퍼 계정이 연결됩니다.</small></div>`);$('#kakaoLoginBtn').onclick=()=>{try{const pending=state.pending||{type:'route',hash:location.hash||'#home'};localStorage.setItem('gongsil.pending',JSON.stringify(pending));startUnifiedLogin()}catch(e){console.error(e);toast('카카오 통합로그인을 시작하지 못했습니다.')}}}
+function openLogin(){openModal(`<div class="login-view"><span class="login-symbol">공</span><h2>카카오로 시작하기</h2><p>카카오 로그인 후 공실헬퍼 내 계정으로 바로 연결됩니다.</p><button id="kakaoLoginBtn" class="kakao-btn">카카오로 계속하기</button><small>한 번 인증하면 Helper ID와 공실헬퍼 계정이 연결됩니다.</small></div>`);$('#kakaoLoginBtn').onclick=()=>{try{const pending=state.pending||{type:'route',hash:'#account'};localStorage.setItem('gongsil.pending',JSON.stringify(pending));startUnifiedLogin()}catch(e){console.error(e);toast('카카오 로그인을 시작하지 못했습니다.')}}}
 async function bootstrapUser(user){state.user=user;$('#authBtn').textContent='내 공실헬퍼';$('#mobileAuthBtn').textContent='내 공실헬퍼';try{await supabase.rpc('gongsil_bootstrap_profile',{p_display_name:String(user.user_metadata?.nickname||user.user_metadata?.name||'카카오 회원')})}catch{}try{const{data}=await supabase.from('gongsil_my_saved_v1').select('*');state.saved=(data||[]).map(x=>String(x.property_id))}catch{}let pending=state.pending;const raw=localStorage.getItem('gongsil.pending');if(raw){localStorage.removeItem('gongsil.pending');try{pending=JSON.parse(raw)}catch{}}state.pending=null;if(pending?.type==='save'){await saveCandidate(pending.id);go('#listings')}else if(pending?.type==='detail'){go(`#property/${pending.id}`)}else if(pending?.type==='route'&&pending.hash){go(pending.hash)}}
 async function logout(){await unifiedLogout();state.user=null;state.saved=[];$('#authBtn').textContent='● 카카오로 시작';$('#mobileAuthBtn').textContent='카카오로 시작';toast('로그아웃했습니다.');go('#home')}
 function openLegal(kind){openModal(kind==='privacy'?`<div class="legal-copy"><span class="section-kicker">PRIVACY</span><h3>개인정보 처리 안내 요약</h3><p>카카오 계정 식별정보, 사용자가 직접 입력한 매물·문의·결제·매칭 정보, 선택적으로 제출한 검증자료를 처리합니다.</p><ul><li>정확한 주소·연락처·검증 원본은 공개탐색에 노출하지 않습니다.</li><li>OCR 원문 전체를 DB에 저장하지 않고 확인 메타데이터를 저장합니다.</li><li>결제는 PortOne 결과를 서버에서 재검증한 뒤 권한을 활성화합니다.</li></ul></div>`:`<div class="legal-copy"><span class="section-kicker">SERVICE POLICY</span><h3>검증·열람·매칭 기준</h3><p>제출정보, OCR 보조, 공공데이터 자동대조, 운영자 확인을 구분합니다.</p><ul><li>자동조회만으로 최종 합법·적법을 확정하지 않습니다.</li><li>권리금 진단은 참고범위이며 실제 계약가를 보장하지 않습니다.</li><li>상세주소·운영정보·연락처는 인증·결제·매칭 승인 단계에 따라 공개합니다.</li></ul></div>`)}
