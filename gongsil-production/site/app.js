@@ -151,6 +151,103 @@ const premium=locked?`<div class="locked-box"><b>🔒 프리미엄 상세정보<
 root.innerHTML=page(esc(p.title||'매물 상세'),`${p.journey==='opening'?'신규오픈':'숙소인수'} · ${esc(p.area||'')}`,`<div class="property-detail">${publicInfo}${premium}</div>`,'<a class="outline-btn" href="#listings">← 목록으로</a>');if(locked&&$('#unlockCurrentBtn'))$('#unlockCurrentBtn').onclick=()=>unlockChooser(id);if(!locked&&!data.is_owner&&!data.is_admin){$('#directMatchBtn').onclick=()=>requestMatch(id,'direct');$('#brokerMatchBtn').onclick=()=>requestMatch(id,'broker')}}catch(e){console.error(e);root.innerHTML=page('매물 정보를 불러오지 못했습니다.','ERROR','<p class="mode-lead">잠시 후 다시 시도해 주세요.</p><a class="btn primary" href="#listings">목록으로 돌아가기</a>')}}
 async function unlockChooser(propertyId){if(!state.user){state.pending={type:'detail',id:propertyId};return openLogin()}let orders=[];try{const{data}=await supabase.from('gongsil_my_access_orders_v1').select('*').eq('status','paid');orders=data||[]}catch{}const valid=orders.filter(o=>(!o.valid_until||new Date(o.valid_until)>new Date())&&(o.plan_kind==='time'||Number(o.used_count||0)<Number(o.property_limit||0)));openModal(`<div><span class="section-kicker">DETAIL ACCESS</span><h2>보유 열람권 사용</h2><p class="mode-lead">이 매물의 프리미엄 정보를 열 열람권을 선택하세요.</p><div class="mode-list">${valid.length?valid.map(o=>`<article><div><small>${o.plan_kind==='count'?'건수형':'기간형'}</small><h3>${esc(o.label)}</h3><p>${o.plan_kind==='count'?`${o.used_count||0}/${o.property_limit}건 사용`:o.valid_until?`${new Date(o.valid_until).toLocaleDateString('ko-KR')}까지`:'사용 가능'}</p></div><button class="outline-btn" data-use-order="${o.id}">사용</button></article>`).join(''):'<div class="mode-empty">사용 가능한 열람권이 없습니다.</div>'}</div><a href="#passes" class="btn primary" id="modalPassLink">열람권 구매하기</a></div>`);$$('[data-use-order]').forEach(b=>b.onclick=async()=>{try{const{error}=await supabase.rpc('gongsil_unlock_property',{p_property_id:propertyId,p_order_id:b.dataset.useOrder});if(error)throw error;closeModal();toast('상세정보가 열렸습니다.');renderProperty(propertyId)}catch(e){toast(String(e?.message||'열람권 적용에 실패했습니다.'))}});$('#modalPassLink').onclick=closeModal}
 async function requestMatch(propertyId,mode){if(!state.user){state.pending={type:'detail',id:propertyId};return openLogin()}const note=window.prompt(mode==='direct'?'직거래 요청 시 전달할 메시지를 입력해 주세요.':'공인중개사에게 전달할 요청사항을 입력해 주세요.','');if(note===null)return;try{const{error}=await supabase.rpc('gongsil_request_match',{p_property_id:propertyId,p_mode:mode,p_note:note||null});if(error)throw error;toast(mode==='direct'?'직거래 매칭을 요청했습니다.':'공인중개사 연결을 요청했습니다.');go('#account')}catch(e){toast(String(e?.message||'매칭 요청에 실패했습니다.'))}}
+function transactionStageLabel(stage){
+  return ({matched:'매칭 완료',visit_scheduled:'임장 일정 확정',deposit_pending:'보증금 결제 대기',deposit_paid:'보증금 결제 완료',address_shared:'임장 주소 공유',visit_completed:'방문 확인 완료',refund_pending:'보증금 환불 대기',deposit_refunded:'임장 절차 완료',dispute_open:'분쟁 검토',no_show_review:'노쇼 검토',no_show_settled:'노쇼 정산 완료'}[stage]||stage||'진행 중');
+}
+async function verifyVisitDeposit(depositId,paymentId,inquiryId){
+  const res=await fetch('/.netlify/functions/portone-verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({resourceType:'visit_deposit',resourceId:depositId,paymentId,action:'verify_payment'})});
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok||data?.ok!==true)throw new Error(data.error||data.detail||'임장 보증금 결제 검증에 실패했습니다.');
+  sessionStorage.removeItem('gongsil.visit.depositId');sessionStorage.removeItem('gongsil.visit.inquiryId');sessionStorage.removeItem('gongsil.visit.paymentId');
+  history.replaceState({},'',location.pathname+'#deal/'+inquiryId);
+  toast('임장 안심보증금 5만원 결제가 확인되었습니다.');
+  await renderDeal(inquiryId);
+}
+async function payVisitDeposit(visitId,inquiryId){
+  try{
+    toast('임장 보증금 주문을 준비하고 있습니다.');
+    const{data:depositId,error}=await supabase.rpc('gongsil_create_visit_deposit',{p_visit_id:visitId});
+    if(error)throw error;
+    const{data:dep,error:depError}=await supabase.from('gongsil_my_visit_deposits_v2').select('*').eq('deposit_id',depositId).maybeSingle();
+    if(depError)throw depError;
+    const amount=Number(dep?.amount_krw||50000);
+    const cfgRes=await fetch('/.netlify/functions/portone-config',{cache:'no-store'}),cfg=await cfgRes.json();
+    if(!cfgRes.ok||!cfg.storeId||!cfg.channelKey)throw new Error(cfg.error||'PortOne 설정을 불러오지 못했습니다.');
+    const PortOne=await import('https://esm.sh/@portone/browser-sdk@0.1.5/v2');
+    const paymentId='GSV-'+crypto.randomUUID();
+    sessionStorage.setItem('gongsil.visit.depositId',String(depositId));
+    sessionStorage.setItem('gongsil.visit.inquiryId',String(inquiryId));
+    sessionStorage.setItem('gongsil.visit.paymentId',paymentId);
+    const redirectUrl=`${location.origin}${location.pathname}?visitDepositId=${encodeURIComponent(depositId)}&inquiryId=${encodeURIComponent(inquiryId)}#deal/${inquiryId}`;
+    const response=await PortOne.requestPayment({storeId:cfg.storeId,channelKey:cfg.channelKey,paymentId,orderName:'공실헬퍼 임장 안심보증금',totalAmount:amount,currency:'CURRENCY_KRW',payMethod:'CARD',customer:{customerId:state.user.id,fullName:state.user.user_metadata?.nickname||state.user.user_metadata?.name||'공실헬퍼 회원',email:state.user.email||undefined},redirectUrl});
+    if(response?.code)throw new Error(response.message||'결제가 취소되었습니다.');
+    if(response?.paymentId)await verifyVisitDeposit(String(depositId),response.paymentId,String(inquiryId));
+  }catch(e){console.error(e);toast(String(e?.message||'임장 보증금 결제를 시작하지 못했습니다.'))}
+}
+async function renderDeal(inquiryId){
+  if(!state.user){
+    root.innerHTML=page('거래 진행','DEAL ROOM',`<div class="login-gate route-card"><span class="login-symbol">공</span><h2>카카오 인증이 필요합니다.</h2><p>매칭 당사자와 지정중개사만 거래방을 확인할 수 있습니다.</p><button id="dealLoginBtn" class="kakao-btn">카카오로 계속하기</button></div>`);
+    $('#dealLoginBtn').onclick=()=>{state.pending={type:'route',hash:'#deal/'+inquiryId};openLogin()};return;
+  }
+  skeleton('거래 진행상태를 불러오는 중입니다.');
+  try{
+    const[{data:thread,error},{data:tx,error:txError}]=await Promise.all([
+      supabase.rpc('gongsil_get_inquiry_thread',{p_inquiry_id:inquiryId}),
+      supabase.rpc('gongsil_get_transaction_state',{p_inquiry_id:inquiryId})
+    ]);
+    if(error)throw error;if(txError)throw txError;
+    const progress=tx||thread?.progress||{},visit=thread?.visit||{},deposit=thread?.deposit||{},messages=Array.isArray(thread?.messages)?thread.messages:[];
+    const role=String(thread?.viewer_role||'participant');
+    const activeVisit=visit?.id&&String(visit.id)!=='null';
+    const startAt=visit?.start_at?new Date(visit.start_at):null;
+    const started=!!startAt&&Date.now()>=startAt.getTime();
+    const paid=String(deposit?.status||progress?.deposit_status||'')==='paid';
+    const addressShared=progress?.address_shared===true||messages.some(m=>m.message_type==='visit_address');
+    const canCounterparty=['owner','broker','admin'].includes(role);
+    const messageHtml=messages.length?messages.map(m=>`<article class="deal-message ${m.is_mine?'mine':''} ${m.message_type==='visit_address'?'address':''}"><small>${m.is_mine?'나':m.message_type==='visit_address'?'임장주소':'상대방'} · ${m.created_at?new Date(m.created_at).toLocaleString('ko-KR'):''}</small><p>${esc(m.body||'')}</p></article>`).join(''):'<div class="mode-empty">아직 대화가 없습니다. 매칭 목적과 확인할 조건부터 남겨보세요.</div>';
+    const visitSummary=activeVisit?`<div class="transaction-box"><b>임장 일정</b><p>${startAt?startAt.toLocaleString('ko-KR'):'일정 미정'} · ${esc(visit.status||'')}</p><small>보증금 ${esc(deposit?.status||progress?.deposit_status||'미결제')} · 주소공유 ${addressShared?'완료':'대기'}</small></div>`:'<div class="transaction-box"><b>임장 일정</b><p>아직 확정되지 않았습니다.</p></div>';
+    const actions=[];
+    if(['matched','accepted'].includes(String(progress.transaction_stage||''))||(!activeVisit&&['approved','broker_assigned'].includes(String(progress.match_status||'')))){
+      actions.push(`<form id="visitScheduleForm" class="deal-action-form"><label>임장 일시<input id="visitStartAt" type="datetime-local" required></label><button class="btn primary" type="submit">임장 일정 확정</button></form>`);
+    }
+    if(activeVisit&&role==='buyer'&&!paid&&!['refund_pending','refunded','no_show_review','settled'].includes(String(deposit?.status||''))){
+      actions.push(`<button id="visitDepositBtn" class="btn primary">임장 안심보증금 5만원 결제</button>`);
+    }
+    if(activeVisit&&paid&&!addressShared&&canCounterparty){
+      actions.push(`<button id="shareVisitAddressBtn" class="btn primary">결제 확인 · 임장주소 공유</button>`);
+    }
+    if(activeVisit&&paid&&addressShared&&started&&String(visit.status||'')!=='completed'){
+      actions.push(`<button id="confirmVisitBtn" class="btn secondary">방문 완료 확인</button>`);
+      if(canCounterparty)actions.push(`<button id="reportNoShowBtn" class="outline-btn danger">양수인 노쇼 신고</button>`);
+      if(role==='buyer')actions.push(`<button id="reportCounterNoShowBtn" class="outline-btn danger">상대방 노쇼 신고</button>`);
+    }
+    const body=`<div class="deal-layout">
+      <section class="route-card">
+        <span class="section-kicker">TRANSACTION STATE</span>
+        <h2>${esc(progress.title||'거래 진행')}</h2>
+        <div class="transaction-stage"><b>${esc(transactionStageLabel(progress.transaction_stage))}</b><p>${esc(progress.next_action||'매칭 진행상태를 확인하세요.')}</p></div>
+        <div class="transaction-grid"><div><span>매칭 방식</span><b>${progress.match_mode==='broker'?'지정중개사':'직거래'}</b></div><div><span>문의 상태</span><b>${esc(progress.inquiry_stage||'-')}</b></div><div><span>매칭 상태</span><b>${esc(progress.match_status||'-')}</b></div><div><span>내 역할</span><b>${esc(role)}</b></div></div>
+        ${visitSummary}
+        <div class="deal-actions">${actions.join('')}</div>
+      </section>
+      <section class="route-card deal-chat">
+        <div class="account-section-head"><div><h2>거래방 · 내부채팅</h2><p>양수인·양도인·지정중개사만 참여합니다.</p></div><button id="refreshDealBtn" class="text-btn" type="button">새로고침</button></div>
+        <div class="deal-messages">${messageHtml}</div>
+        <form id="dealMessageForm" class="deal-message-form"><textarea id="dealMessageBody" maxlength="2000" required placeholder="확인할 조건, 임장 관련 내용 등을 입력하세요."></textarea><button class="btn primary" type="submit">메시지 보내기</button></form>
+      </section>
+    </div>`;
+    root.innerHTML=page(progress.title?esc(progress.title):'거래 진행','PATENT STEP 7 · MATCH',body,'<a class="outline-btn" href="#account">내 공실헬퍼</a>');
+    $('#refreshDealBtn').onclick=()=>renderDeal(inquiryId);
+    $('#dealMessageForm').onsubmit=async e=>{e.preventDefault();const body=$('#dealMessageBody').value.trim();if(!body)return;const btn=e.currentTarget.querySelector('button');btn.disabled=true;try{const{error}=await supabase.rpc('gongsil_send_inquiry_message',{p_inquiry_id:inquiryId,p_body:body});if(error)throw error;await renderDeal(inquiryId)}catch(err){toast(String(err?.message||'메시지를 보내지 못했습니다.'));btn.disabled=false}};
+    if($('#visitScheduleForm'))$('#visitScheduleForm').onsubmit=async e=>{e.preventDefault();const value=$('#visitStartAt').value;if(!value)return;const btn=e.currentTarget.querySelector('button');btn.disabled=true;try{const{error}=await supabase.rpc('gongsil_schedule_visit',{p_inquiry_id:inquiryId,p_start_at:new Date(value).toISOString()});if(error)throw error;toast('임장 일정을 확정했습니다.');await renderDeal(inquiryId)}catch(err){toast(String(err?.message||'임장 일정을 확정하지 못했습니다.'));btn.disabled=false}};
+    if($('#visitDepositBtn'))$('#visitDepositBtn').onclick=()=>payVisitDeposit(visit.id,inquiryId);
+    if($('#shareVisitAddressBtn'))$('#shareVisitAddressBtn').onclick=async()=>{try{const{error}=await supabase.rpc('gongsil_share_visit_address',{p_visit_id:visit.id});if(error)throw error;toast('임장 주소를 거래방에 공유했습니다.');await renderDeal(inquiryId)}catch(err){toast(String(err?.message||'주소를 공유하지 못했습니다.'))}};
+    if($('#confirmVisitBtn'))$('#confirmVisitBtn').onclick=async()=>{try{const{error}=await supabase.rpc('gongsil_confirm_visit_attendance',{p_visit_id:visit.id});if(error)throw error;toast('방문 완료를 확인했습니다.');await renderDeal(inquiryId)}catch(err){toast(String(err?.message||'방문 확인을 완료하지 못했습니다.'))}};
+    if($('#reportNoShowBtn'))$('#reportNoShowBtn').onclick=async()=>{const note=window.prompt('양수인 노쇼 신고 사유를 입력해 주세요.','');if(note===null)return;try{const{error}=await supabase.rpc('gongsil_report_visit_no_show',{p_visit_id:visit.id,p_note:note||null});if(error)throw error;toast('노쇼 검토 요청을 접수했습니다.');await renderDeal(inquiryId)}catch(err){toast(String(err?.message||'노쇼 신고를 접수하지 못했습니다.'))}};
+    if($('#reportCounterNoShowBtn'))$('#reportCounterNoShowBtn').onclick=async()=>{const note=window.prompt('상대방 노쇼 신고 사유를 입력해 주세요.','');if(note===null)return;try{const{error}=await supabase.rpc('gongsil_report_counterparty_no_show',{p_visit_id:visit.id,p_note:note||null});if(error)throw error;toast('노쇼 검토 요청을 접수했습니다.');await renderDeal(inquiryId)}catch(err){toast(String(err?.message||'노쇼 신고를 접수하지 못했습니다.'))}};
+  }catch(e){console.error(e);root.innerHTML=page('거래 진행을 불러오지 못했습니다.','DEAL ROOM',`<div class="route-card"><p>${esc(e?.message||'거래 참가자만 확인할 수 있습니다.')}</p><a class="btn secondary" href="#account">내 공실헬퍼로 돌아가기</a></div>`)}
+}
+
 function renderValuation(){
   const body=`<div class="split-page"><div class="route-card"><h2>특허 제4단계 · 권리금 산정 입력</h2><p class="mode-lead">금액·수익 정보뿐 아니라 리뷰·예약현황·접근성·관광지 인접성을 함께 반영합니다.</p>
   <form id="valuationForm"><div class="form-grid">
@@ -318,7 +415,7 @@ async async function renderAccount(){
     const statusText=meta.submitted?'운영자 검토 단계':meta.ready?'자동검증 완료':meta.waiting?'자동검증 처리 중':'검증 준비 필요';
     return `<article class="property-account-card"><div class="property-account-main"><small>${esc(patentState)} · ${esc(p.publication_status||'draft')} · ${p.journey==='opening'?'신규오픈':'숙소인수'}</small><h3>${esc(p.area||'')} · ${esc(p.title||'등록 숙소')}</h3><p>${esc(p.verification_summary||p.latest_review_note||statusText)}</p>${meta.html}</div>${action}</article>`;
   }).join(''):'<div class="mode-empty">등록한 매물이 없습니다.</div>';
-  const dealCards=progress.length?progress.map(p=>`<article><div><small>${esc(p.match_mode==='broker'?'지정중개사':'직거래')} · ${esc(p.transaction_stage||p.match_status||p.inquiry_stage||'진행')}</small><h3>${esc(p.area||'')} · ${esc(p.title||'거래 매물')}</h3><p>매칭 ${esc(p.match_status||'-')} · 임장 ${esc(p.visit_status||'미정')} · 보증금 ${esc(p.deposit_status||'미결제')}</p></div>${p.property_id&&['approved','broker_assigned','completed'].includes(String(p.match_status||''))?`<button class="outline-btn" data-contact="${p.property_id}">연락처 확인</button>`:''}</article>`).join(''):matches.length?matches.map(m=>`<article><div><small>${m.mode==='broker'?'지정중개사':'직거래'} · ${esc(m.status)}</small><h3>${esc(m.area||'')} · ${esc(m.title||'매물')}</h3><p>매칭 요청 접수 후 승인되면 상대방 또는 지정중개사 연락처가 공개됩니다.</p></div>${['approved','broker_assigned','completed'].includes(m.status)?`<button class="outline-btn" data-contact="${m.property_id}">연락처 확인</button>`:''}</article>`).join(''):'<div class="mode-empty">아직 거래 연결 요청이 없습니다.</div>';
+  const dealCards=progress.length?progress.map(p=>`<article><div><small>${esc(p.match_mode==='broker'?'지정중개사':'직거래')} · ${esc(transactionStageLabel(p.transaction_stage||p.match_status||p.inquiry_stage||'진행'))}</small><h3>${esc(p.area||'')} · ${esc(p.title||'거래 매물')}</h3><p>매칭 ${esc(p.match_status||'-')} · 임장 ${esc(p.visit_status||'미정')} · 보증금 ${esc(p.deposit_status||'미결제')}</p></div><div class="mode-actions">${p.inquiry_id?`<a class="outline-btn" href="#deal/${p.inquiry_id}">거래방 열기</a>`:''}${p.property_id&&['approved','broker_assigned','completed'].includes(String(p.match_status||''))?`<button class="outline-btn" data-contact="${p.property_id}">연락처 확인</button>`:''}</div></article>`).join(''):matches.length?matches.map(m=>`<article><div><small>${m.mode==='broker'?'지정중개사':'직거래'} · ${esc(m.status)}</small><h3>${esc(m.area||'')} · ${esc(m.title||'매물')}</h3><p>매칭 요청 접수 후 승인되면 상대방 또는 지정중개사 연락처가 공개됩니다.</p></div><div class="mode-actions">${m.inquiry_id?`<a class="outline-btn" href="#deal/${m.inquiry_id}">거래방 열기</a>`:''}${['approved','broker_assigned','completed'].includes(m.status)?`<button class="outline-btn" data-contact="${m.property_id}">연락처 확인</button>`:''}</div></article>`).join(''):'<div class="mode-empty">아직 거래 연결 요청이 없습니다.</div>';
   const body=`<div class="account-summary"><article><span>활성/최근 열람권</span><b>${orders.filter(o=>o.status==='paid').length}</b></article><article><span>저장한 공간</span><b>${saved.length}</b></article><article><span>매칭 요청</span><b>${matches.length}</b></article><article><span>내 등록매물</span><b>${properties.length}</b></article></div>
   <div class="account-grid">
     <section class="route-card"><h2>열람권</h2><div class="mode-list">${orders.length?orders.map(o=>`<article><div><small>${esc(o.status)}</small><h3>${esc(o.label)}</h3><p>${money(o.amount_krw)} · ${o.status==='paid'?(o.valid_until?new Date(o.valid_until).toLocaleDateString('ko-KR')+'까지':'사용 가능'):'결제 확인 전'}</p></div></article>`).join(''):'<div class="mode-empty">열람권 내역이 없습니다.</div>'}</div><a class="outline-btn" href="#passes">열람권 구매</a></section>
@@ -387,7 +484,7 @@ function openLogin(){openModal(`<div class="login-view"><span class="login-symbo
 async function bootstrapUser(user){state.user=user;$('#authBtn').textContent='내 공실헬퍼';$('#mobileAuthBtn').textContent='내 공실헬퍼';try{await supabase.rpc('gongsil_bootstrap_profile',{p_display_name:String(user.user_metadata?.nickname||user.user_metadata?.name||'카카오 회원')})}catch{}try{await Promise.all([supabase.rpc('hu_sync_gongsil_kakao'),supabase.rpc('hu_ensure_service_user',{p_service:'gongsil'})])}catch{}try{const{data}=await supabase.from('gongsil_my_saved_v1').select('*');state.saved=(data||[]).map(x=>String(x.property_id))}catch{}let pending=state.pending;const raw=localStorage.getItem('gongsil.pending');if(raw){localStorage.removeItem('gongsil.pending');try{pending=JSON.parse(raw)}catch{}}state.pending=null;if(pending?.type==='save'){await saveCandidate(pending.id);go('#listings')}else if(pending?.type==='detail'){go(`#property/${pending.id}`)}else if(pending?.type==='route'&&pending.hash){go(pending.hash)}}
 async function logout(){await unifiedLogout();state.user=null;state.saved=[];$('#authBtn').textContent='● 카카오로 시작';$('#mobileAuthBtn').textContent='카카오로 시작';toast('로그아웃했습니다.');go('#home')}
 function openLegal(kind){openModal(kind==='privacy'?`<div class="legal-copy"><span class="section-kicker">PRIVACY</span><h3>개인정보 처리 안내 요약</h3><p>카카오 계정 식별정보, 사용자가 직접 입력한 매물·문의·결제·매칭 정보, 선택적으로 제출한 검증자료를 처리합니다.</p><ul><li>정확한 주소·연락처·검증 원본은 공개탐색에 노출하지 않습니다.</li><li>OCR 원문 전체를 DB에 저장하지 않고 확인 메타데이터를 저장합니다.</li><li>결제는 PortOne 결과를 서버에서 재검증한 뒤 권한을 활성화합니다.</li></ul></div>`:`<div class="legal-copy"><span class="section-kicker">SERVICE POLICY</span><h3>검증·열람·매칭 기준</h3><p>제출정보, OCR 보조, 공공데이터 자동대조, 운영자 확인을 구분합니다.</p><ul><li>자동조회만으로 최종 합법·적법을 확정하지 않습니다.</li><li>권리금 진단은 참고범위이며 실제 계약가를 보장하지 않습니다.</li><li>상세주소·운영정보·연락처는 인증·결제·매칭 승인 단계에 따라 공개합니다.</li></ul></div>`)}
-async function handlePaymentCallback(){const q=new URLSearchParams(location.search),paymentId=q.get('paymentId'),code=q.get('code'),message=q.get('message'),orderId=q.get('orderId')||sessionStorage.getItem('gongsil.payment.orderId');if(!paymentId&&!code)return false;if(code){history.replaceState({},'',location.pathname+'#passes');toast(`결제가 완료되지 않았습니다: ${message||code}`);return true}if(!orderId){history.replaceState({},'',location.pathname+'#passes');toast('결제 주문 정보를 찾지 못했습니다.');return true}try{await settlePortOne(orderId,paymentId);return true}catch(e){console.error(e);history.replaceState({},'',location.pathname+'#passes');toast(String(e?.message||'결제 검증에 실패했습니다.'));return true}}
+async function handlePaymentCallback(){const q=new URLSearchParams(location.search),paymentId=q.get('paymentId'),code=q.get('code'),message=q.get('message');const visitDepositId=q.get('visitDepositId')||sessionStorage.getItem('gongsil.visit.depositId'),visitInquiryId=q.get('inquiryId')||sessionStorage.getItem('gongsil.visit.inquiryId');if(visitDepositId&&(paymentId||code)){if(code){history.replaceState({},'',location.pathname+(visitInquiryId?'#deal/'+visitInquiryId:'#account'));toast(`결제가 완료되지 않았습니다: ${message||code}`);return true}try{await verifyVisitDeposit(visitDepositId,paymentId,visitInquiryId||'');return true}catch(e){console.error(e);history.replaceState({},'',location.pathname+(visitInquiryId?'#deal/'+visitInquiryId:'#account'));toast(String(e?.message||'임장 보증금 결제 검증에 실패했습니다.'));return true}}const orderId=q.get('orderId')||sessionStorage.getItem('gongsil.payment.orderId');if(!paymentId&&!code)return false;if(code){history.replaceState({},'',location.pathname+'#passes');toast(`결제가 완료되지 않았습니다: ${message||code}`);return true}if(!orderId){history.replaceState({},'',location.pathname+'#passes');toast('결제 주문 정보를 찾지 못했습니다.');return true}try{await settlePortOne(orderId,paymentId);return true}catch(e){console.error(e);history.replaceState({},'',location.pathname+'#passes');toast(String(e?.message||'결제 검증에 실패했습니다.'));return true}}
 async function route(){
   const{name,id}=routeName();
   window.scrollTo({top:0,behavior:'instant'});
@@ -400,6 +497,7 @@ async function route(){
   if(name==='register')return renderRegister();
   if(name==='verify')return renderVerify();
   if(name==='broker')return renderBroker();
+  if(name==='deal'&&id)return renderDeal(id);
   if(name==='account')return renderAccount();
   return renderHome();
 }
