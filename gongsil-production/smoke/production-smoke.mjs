@@ -62,13 +62,9 @@ try {
   await page.locator('#authBtn').click();
   await page.getByText('헬퍼유니버스 카카오 통합인증', { exact: false }).waitFor();
   await page.getByRole('button', { name: '카카오로 계속하기' }).click();
-  await page.waitForURL(url => url.hostname.includes('v2.appdeploy.ai'), { timeout: 30000 });
-  const pdsUrl = new URL(page.url());
-  if (pdsUrl.searchParams.get('hu_sso_service') !== 'gongsil') throw new Error('SSO service param mismatch');
-  const returnTo = decodeURIComponent(pdsUrl.searchParams.get('hu_return_to') || '');
-  if (!returnTo.startsWith('https://gongsil-helper.netlify.app/')) throw new Error('SSO return_to mismatch');
-  console.log('PASS unified SSO handoff', page.url());
   await page.waitForURL(url => url.hostname === 'kauth.kakao.com' || url.hostname === 'accounts.kakao.com', { timeout: 30000 });
+  if (page.url().includes('v2.appdeploy.ai/?')) throw new Error('PDS workspace UI should not render during Gongsil login');
+  console.log('PASS direct Kakao handoff without PDS workspace UI', page.url());
   const kakaoUrl = new URL(page.url());
   if (kakaoUrl.hostname === 'accounts.kakao.com') {
     const cont = decodeURIComponent(kakaoUrl.searchParams.get('continue') || '');
