@@ -61,7 +61,7 @@ try {
   await page.goto(base + '#home', { waitUntil: 'networkidle', timeout: 60000 });
   let directLoginUrl = '';
   page.on('request', req => {
-    if (req.url().includes('/api/universe/auth/direct')) directLoginUrl = req.url();
+    if (req.url().includes('/api/universe/auth/start-redirect')) directLoginUrl = req.url();
   });
   await page.locator('#authBtn').click();
   await page.getByText('카카오 로그인 후 공실헬퍼 내 계정으로 바로 연결됩니다.', { exact: false }).waitFor();
@@ -69,7 +69,7 @@ try {
   await page.waitForURL(url => url.hostname === 'kauth.kakao.com' || url.hostname === 'accounts.kakao.com', { timeout: 30000 });
   if (!directLoginUrl) throw new Error('Direct PDS auth endpoint was not requested');
   const directUrl = new URL(directLoginUrl);
-  if (directUrl.pathname !== '/api/universe/auth/direct') throw new Error('Unexpected auth start path');
+  if (directUrl.pathname !== '/api/universe/auth/start-redirect') throw new Error('Unexpected auth start path');
   if (directUrl.searchParams.get('service') !== 'gongsil') throw new Error('Direct auth service mismatch');
   const directReturnTo = directUrl.searchParams.get('returnTo') || '';
   if (!directReturnTo.startsWith('https://gongsil-helper.netlify.app/') || !directReturnTo.endsWith('#account')) throw new Error('Direct auth returnTo must target Gongsil account');
