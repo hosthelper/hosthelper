@@ -14,48 +14,24 @@ function cleanSsoParams(){
   history.replaceState({},'',url.pathname+url.search+url.hash);
 }
 async function startUnifiedLogin(){
-  const target=new URL(location.href);
-  ['hu_sso','hu_sso_code','hu_sso_service','code','state','error','error_description'].forEach(k=>target.searchParams.delete(k));
-  let pending=null;
-  try{pending=JSON.parse(localStorage.getItem('gongsil.pending')||'null')}catch{}
-  if(pending?.type==='route'&&pending.hash)target.hash=pending.hash;
-  else if(!pending||pending.type==='route')target.hash='#account';
-  const res=await fetch(HELPER_UNIVERSE_AUTH_URL+'/api/universe/auth/kakao-start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service:'gongsil',returnTo:target.toString()})});
-  const data=await res.json().catch(()=>({}));
-  if(!res.ok||!data?.authorizeUrl)throw new Error(data?.error||data?.message||'카카오 로그인을 시작하지 못했습니다.');
-  location.assign(String(data.authorizeUrl));
+  const redirectTo='https://gongsil-helper.netlify.app/#account';
+  const{data,error}=await supabase.auth.signInWithOAuth({
+    provider:'kakao',
+    options:{redirectTo}
+  });
+  if(error)throw error;
+  if(!data?.url)throw new Error('카카오 로그인 주소를 만들지 못했습니다.');
 }
 async function completeUnifiedLogin(){
   const params=new URLSearchParams(location.search);
-  const kakaoState=String(params.get('state')||'').trim().toLowerCase();
-  const kakaoCode=String(params.get('code')||'').trim();
-  const oauthError=String(params.get('error_description')||params.get('error')||'').trim();
-  let exchange=null;
-  if(kakaoState&&(kakaoCode||oauthError)){
-    const res=await fetch(HELPER_UNIVERSE_AUTH_URL+'/api/universe/auth/kakao-complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:kakaoState,code:kakaoCode,error:String(params.get('error')||''),error_description:String(params.get('error_description')||'')})});
-    exchange=await res.json().catch(()=>({}));
-    if(!res.ok)throw new Error(exchange?.error||exchange?.message||'카카오 로그인을 완료하지 못했습니다.');
-  }else{
-    const code=String(params.get('hu_sso_code')||'').trim();
-    if(!code)return null;
-    if(!/^[a-f0-9]{32}$/i.test(code)){cleanSsoParams();throw new Error('통합로그인 코드가 올바르지 않습니다.')}
-    const res=await fetch(HELPER_UNIVERSE_AUTH_URL+'/api/universe/auth/exchange',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
-    exchange=await res.json().catch(()=>({}));
-    if(!res.ok)throw new Error(exchange?.error||exchange?.message||'헬퍼유니버스 통합로그인을 완료하지 못했습니다.');
-  }
-  if(!exchange?.kakaoIdToken||!exchange?.token||!exchange?.user?.memberId){cleanSsoParams();throw new Error('공실헬퍼 로그인 정보를 확인하지 못했습니다.')}
+  const legacyCode=String(params.get('hu_sso_code')||'').trim();
+  if(!legacyCode)return null;
+  if(!/^[a-f0-9]{32}$/i.test(legacyCode)){cleanSsoParams();return null}
+  const res=await fetch(HELPER_UNIVERSE_AUTH_URL+'/api/universe/auth/exchange',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:legacyCode})});
+  const exchange=await res.json().catch(()=>({}));
+  if(!res.ok||!exchange?.kakaoIdToken)return null;
   const{data,error}=await supabase.auth.signInWithIdToken({provider:'kakao',token:exchange.kakaoIdToken});
-  if(error||!data?.session){cleanSsoParams();throw error||new Error('공실헬퍼 로그인 세션을 만들지 못했습니다.')}
-  const displayName=String(exchange.user.name||data.session.user.user_metadata?.nickname||data.session.user.user_metadata?.name||'카카오 회원');
-  const steps=[
-    supabase.rpc('gongsil_bootstrap_profile',{p_display_name:displayName}),
-    supabase.rpc('gongsil_link_universe_member',{p_member_id:exchange.user.memberId}),
-    supabase.rpc('hu_sync_gongsil_kakao'),
-    supabase.rpc('hu_ensure_service_user',{p_service:'gongsil'})
-  ];
-  const results=await Promise.all(steps),failed=results.find(x=>x.error);
-  if(failed?.error){await supabase.auth.signOut();cleanSsoParams();throw failed.error}
-  localStorage.setItem(HU_SERVICE_TOKEN_KEY,exchange.token);
+  if(error||!data?.session)return null;
   cleanSsoParams();
   return data.session;
 }
@@ -241,8 +217,8 @@ async function renderAccount(){
   }
 }
 async function showMatchContact(propertyId){try{const{data,error}=await supabase.rpc('gongsil_get_match_contact',{p_property_id:propertyId});if(error)throw error;if(!data)return toast('연락처 정보가 아직 등록되지 않았습니다.');openModal(`<div><span class="section-kicker">MATCH CONTACT</span><h2>${esc(data.label||'매칭 연락처')}</h2><div class="contact-card"><small>${data.mode==='broker'?'공인중개사':'직거래'}</small><h3>${esc(data.contact_name||data.office_name||'담당자')}</h3><p>${esc(data.contact_phone||'연락처 등록 대기')}</p>${data.office_name?`<p>${esc(data.office_name)} · ${esc(data.registration_number||'')} · ${esc(data.service_area||'')}</p>`:''}</div></div>`)}catch(e){toast(String(e?.message||'연락처를 확인하지 못했습니다.'))}}
-function openLogin(){openModal(`<div class="login-view"><span class="login-symbol">공</span><h2>카카오로 시작하기</h2><p>카카오 로그인 후 공실헬퍼 내 계정으로 바로 연결됩니다.</p><button id="kakaoLoginBtn" class="kakao-btn">카카오로 계속하기</button><small>한 번 인증하면 Helper ID와 공실헬퍼 계정이 연결됩니다.</small></div>`);$('#kakaoLoginBtn').onclick=async()=>{try{const pending=state.pending||{type:'route',hash:'#account'};localStorage.setItem('gongsil.pending',JSON.stringify(pending));$('#kakaoLoginBtn').disabled=true;$('#kakaoLoginBtn').textContent='카카오 연결 중…';await startUnifiedLogin()}catch(e){console.error(e);$('#kakaoLoginBtn').disabled=false;$('#kakaoLoginBtn').textContent='카카오로 계속하기';toast(String(e?.message||'카카오 로그인을 시작하지 못했습니다.'))}}}
-async function bootstrapUser(user){state.user=user;$('#authBtn').textContent='내 공실헬퍼';$('#mobileAuthBtn').textContent='내 공실헬퍼';try{await supabase.rpc('gongsil_bootstrap_profile',{p_display_name:String(user.user_metadata?.nickname||user.user_metadata?.name||'카카오 회원')})}catch{}try{const{data}=await supabase.from('gongsil_my_saved_v1').select('*');state.saved=(data||[]).map(x=>String(x.property_id))}catch{}let pending=state.pending;const raw=localStorage.getItem('gongsil.pending');if(raw){localStorage.removeItem('gongsil.pending');try{pending=JSON.parse(raw)}catch{}}state.pending=null;if(pending?.type==='save'){await saveCandidate(pending.id);go('#listings')}else if(pending?.type==='detail'){go(`#property/${pending.id}`)}else if(pending?.type==='route'&&pending.hash){go(pending.hash)}}
+function openLogin(){openModal(`<div class="login-view"><span class="login-symbol">공</span><h2>카카오로 시작하기</h2><p>카카오 로그인 후 바로 공실헬퍼 내 계정으로 돌아옵니다.</p><button id="kakaoLoginBtn" class="kakao-btn">카카오로 계속하기</button><small>최초 로그인 시 공실헬퍼 계정이 자동 생성됩니다.</small></div>`);$('#kakaoLoginBtn').onclick=async()=>{try{const pending=state.pending||{type:'route',hash:'#account'};localStorage.setItem('gongsil.pending',JSON.stringify(pending));$('#kakaoLoginBtn').disabled=true;$('#kakaoLoginBtn').textContent='카카오 연결 중…';await startUnifiedLogin()}catch(e){console.error(e);$('#kakaoLoginBtn').disabled=false;$('#kakaoLoginBtn').textContent='카카오로 계속하기';toast(String(e?.message||'카카오 로그인을 시작하지 못했습니다.'))}}}
+async function bootstrapUser(user){state.user=user;$('#authBtn').textContent='내 공실헬퍼';$('#mobileAuthBtn').textContent='내 공실헬퍼';try{await supabase.rpc('gongsil_bootstrap_profile',{p_display_name:String(user.user_metadata?.nickname||user.user_metadata?.name||'카카오 회원')})}catch{}try{await Promise.all([supabase.rpc('hu_sync_gongsil_kakao'),supabase.rpc('hu_ensure_service_user',{p_service:'gongsil'})])}catch{}try{const{data}=await supabase.from('gongsil_my_saved_v1').select('*');state.saved=(data||[]).map(x=>String(x.property_id))}catch{}let pending=state.pending;const raw=localStorage.getItem('gongsil.pending');if(raw){localStorage.removeItem('gongsil.pending');try{pending=JSON.parse(raw)}catch{}}state.pending=null;if(pending?.type==='save'){await saveCandidate(pending.id);go('#listings')}else if(pending?.type==='detail'){go(`#property/${pending.id}`)}else if(pending?.type==='route'&&pending.hash){go(pending.hash)}}
 async function logout(){await unifiedLogout();state.user=null;state.saved=[];$('#authBtn').textContent='● 카카오로 시작';$('#mobileAuthBtn').textContent='카카오로 시작';toast('로그아웃했습니다.');go('#home')}
 function openLegal(kind){openModal(kind==='privacy'?`<div class="legal-copy"><span class="section-kicker">PRIVACY</span><h3>개인정보 처리 안내 요약</h3><p>카카오 계정 식별정보, 사용자가 직접 입력한 매물·문의·결제·매칭 정보, 선택적으로 제출한 검증자료를 처리합니다.</p><ul><li>정확한 주소·연락처·검증 원본은 공개탐색에 노출하지 않습니다.</li><li>OCR 원문 전체를 DB에 저장하지 않고 확인 메타데이터를 저장합니다.</li><li>결제는 PortOne 결과를 서버에서 재검증한 뒤 권한을 활성화합니다.</li></ul></div>`:`<div class="legal-copy"><span class="section-kicker">SERVICE POLICY</span><h3>검증·열람·매칭 기준</h3><p>제출정보, OCR 보조, 공공데이터 자동대조, 운영자 확인을 구분합니다.</p><ul><li>자동조회만으로 최종 합법·적법을 확정하지 않습니다.</li><li>권리금 진단은 참고범위이며 실제 계약가를 보장하지 않습니다.</li><li>상세주소·운영정보·연락처는 인증·결제·매칭 승인 단계에 따라 공개합니다.</li></ul></div>`)}
 async function handlePaymentCallback(){const q=new URLSearchParams(location.search),paymentId=q.get('paymentId'),code=q.get('code'),message=q.get('message'),orderId=q.get('orderId')||sessionStorage.getItem('gongsil.payment.orderId');if(!paymentId&&!code)return false;if(code){history.replaceState({},'',location.pathname+'#passes');toast(`결제가 완료되지 않았습니다: ${message||code}`);return true}if(!orderId){history.replaceState({},'',location.pathname+'#passes');toast('결제 주문 정보를 찾지 못했습니다.');return true}try{await settlePortOne(orderId,paymentId);return true}catch(e){console.error(e);history.replaceState({},'',location.pathname+'#passes');toast(String(e?.message||'결제 검증에 실패했습니다.'));return true}}
