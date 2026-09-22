@@ -397,7 +397,7 @@ async function restartPropertyVerification(p){
   }
   return verification;
 }
-async async function renderAccount(){
+async function renderAccount(){
   if(!state.user){
     root.innerHTML=page('내 공실헬퍼','MY ACCOUNT',`<div class="login-gate route-card"><span class="login-symbol">공</span><h2>카카오 인증이 필요합니다.</h2><p>열람권, 저장매물, 등록매물, 매칭 진행을 한 곳에서 확인합니다.</p><button id="accountLoginBtn" class="kakao-btn">카카오로 계속하기</button></div>`);
     $('#accountLoginBtn').onclick=()=>{state.pending={type:'route',hash:'#account'};openLogin()};
