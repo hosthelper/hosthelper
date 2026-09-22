@@ -33,7 +33,7 @@ try {
   await page.getByText('60일 열람권', { exact: false }).waitFor();
   const firstBuy = page.locator('[data-buy-plan]').first();
   await firstBuy.click();
-  await page.getByText('카카오 로그인 후 공실헬퍼 내 계정으로 바로 연결됩니다.', { exact: false }).waitFor({ timeout: 10000 });
+  await page.getByText('카카오 로그인 후 바로 공실헬퍼 내 계정으로 돌아옵니다.', { exact: false }).waitFor({ timeout: 10000 });
   console.log('PASS access pass login gate');
   await page.locator('#modalClose').click();
 
