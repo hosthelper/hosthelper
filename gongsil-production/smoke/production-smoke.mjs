@@ -72,7 +72,7 @@ try {
   const supabaseUrl = new URL(supabaseAuthorizeUrl);
   if (supabaseUrl.searchParams.get('provider') !== 'kakao') throw new Error('Supabase OAuth provider must be kakao');
   const redirectTo = supabaseUrl.searchParams.get('redirect_to') || '';
-  if (redirectTo !== 'https://gongsil-helper.netlify.app/#account') throw new Error('Supabase redirect_to must target Gongsil account');
+  if (redirectTo !== 'https://gongsil-helper.netlify.app/') throw new Error('Supabase redirect_to must target Gongsil root before session recovery');
   if (page.url().includes('v2.appdeploy.ai')) throw new Error('PDS must not appear in Gongsil login navigation');
   const kakaoUrl = new URL(page.url());
   if (kakaoUrl.hostname === 'accounts.kakao.com') {
