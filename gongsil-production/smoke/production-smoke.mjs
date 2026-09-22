@@ -66,6 +66,7 @@ try {
   await page.locator('#authBtn').click();
   await page.getByText('카카오 로그인 후 공실헬퍼 내 계정으로 바로 연결됩니다.', { exact: false }).waitFor();
   await page.getByRole('button', { name: '카카오로 계속하기' }).click();
+  await page.waitForURL(url => !url.pathname.includes('/api/universe/auth/start-redirect'), { timeout: 10000 });
   await page.waitForURL(url => url.hostname === 'kauth.kakao.com' || url.hostname === 'accounts.kakao.com', { timeout: 30000 });
   if (!directLoginUrl) throw new Error('Direct PDS auth endpoint was not requested');
   const directUrl = new URL(directLoginUrl);
