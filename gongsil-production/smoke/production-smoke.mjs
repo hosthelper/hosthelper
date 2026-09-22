@@ -76,8 +76,9 @@ try {
     if (authorizeUrl.hostname !== 'kauth.kakao.com' || authorizeUrl.pathname !== '/oauth/authorize') throw new Error('Kakao login continue URL mismatch');
     if (authorizeUrl.searchParams.get('redirect_uri') !== 'https://pds-ai-company-zv30ms.v2.appdeploy.ai/api/auth/kakao/callback') throw new Error('Kakao redirect_uri mismatch');
     const scopes = new Set(String(authorizeUrl.searchParams.get('scope') || '').split(/\s+/).filter(Boolean));
-    for (const required of ['openid','profile_nickname','profile_image','account_email']) {
-      if (!scopes.has(required)) throw new Error('Kakao OpenID scope missing: ' + required);
+    if (!scopes.has('openid')) throw new Error('Kakao OpenID scope missing: openid');
+    for (const unnecessary of ['profile_nickname','profile_image','account_email']) {
+      if (scopes.has(unnecessary)) throw new Error('Unnecessary Kakao scope requested: ' + unnecessary);
     }
   }
   console.log('PASS Kakao authorize/login screen', page.url());
