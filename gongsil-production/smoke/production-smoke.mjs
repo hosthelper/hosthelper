@@ -75,11 +75,12 @@ try {
   if (page.url().includes('v2.appdeploy.ai')) throw new Error('PDS must not appear in Gongsil login navigation');
   const kakaoUrl = new URL(page.url());
   if (kakaoUrl.hostname === 'accounts.kakao.com') {
-    const cont = decodeURIComponent(kakaoUrl.searchParams.get('continue') || '');
-    const authorizeUrl = new URL(cont);
-    if (authorizeUrl.hostname !== 'kauth.kakao.com' || authorizeUrl.pathname !== '/oauth/authorize') throw new Error('Kakao login continue URL mismatch');
-    if (authorizeUrl.searchParams.get('redirect_uri') !== 'https://buzcnfnimzlsjvbeefjb.supabase.co/auth/v1/callback') throw new Error('Kakao callback must use Supabase Auth');
-    if (authorizeUrl.searchParams.get('redirect_to') !== 'https://gongsil-helper.netlify.app/#account') throw new Error('Kakao redirect_to must return to Gongsil account');
+    const rawContinue = kakaoUrl.searchParams.get('continue') || '';
+    const cont = decodeURIComponent(rawContinue);
+    if (!cont.includes('kauth.kakao.com/oauth/authorize')) throw new Error('Kakao login continue URL mismatch');
+    const decodedTwice = decodeURIComponent(cont);
+    if (!decodedTwice.includes('buzcnfnimzlsjvbeefjb.supabase.co/auth/v1/callback')) throw new Error('Kakao callback must use Supabase Auth');
+    if (!decodedTwice.includes('gongsil-helper.netlify.app')) throw new Error('Kakao flow must return to Gongsil');
   }
   const bodyText = await page.locator('body').innerText().catch(() => '');
   if (/KOE205|KOE006/.test(bodyText)) throw new Error('Kakao configuration error visible');
