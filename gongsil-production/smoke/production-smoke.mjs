@@ -14,8 +14,8 @@ try {
   const index = await page.request.get(base);
   if (!index.ok()) throw new Error('index HTTP ' + index.status());
   const indexHtml = await index.text();
-  if (!indexHtml.includes('user-v11-20260922')) throw new Error('latest asset version missing');
-  console.log('PASS asset version v11');
+  if (!indexHtml.includes('user-v12-20260922')) throw new Error('latest asset version missing');
+  console.log('PASS asset version v12');
 
   await route('#valuation', '무료 권리금 시세진단');
   await page.locator('input[name="revenue"]').fill('550만원');
@@ -60,20 +60,30 @@ try {
 
   await page.goto(base + '#home', { waitUntil: 'networkidle', timeout: 60000 });
   await page.locator('#authBtn').click();
-  await page.getByText('카카오 로그인 후 공실헬퍼 내 계정으로 바로 연결됩니다.', { exact: false }).waitFor();
-  const startResponsePromise = page.waitForResponse(res => res.url().includes('/api/universe/auth/kakao-start') && res.request().method() === 'POST', { timeout: 30000 });
+  await page.getByText('카카오 로그인 후 바로 공실헬퍼 내 계정으로 돌아옵니다.', { exact: false }).waitFor();
+  let supabaseAuthorizeUrl = '';
+  page.on('request', req => {
+    if (req.url().includes('buzcnfnimzlsjvbeefjb.supabase.co/auth/v1/authorize')) supabaseAuthorizeUrl = req.url();
+  });
   await page.getByRole('button', { name: '카카오로 계속하기' }).click();
-  const startResponse = await startResponsePromise;
-  if (!startResponse.ok()) throw new Error('Background PDS Kakao start failed: ' + startResponse.status());
-  const startJson = await startResponse.json();
-  const authorizeUrl = new URL(String(startJson.authorizeUrl || ''));
-  if (authorizeUrl.hostname !== 'kauth.kakao.com' || authorizeUrl.pathname !== '/oauth/authorize') throw new Error('Kakao authorize URL mismatch');
-  if (authorizeUrl.searchParams.get('redirect_uri') !== 'https://gongsil-helper.netlify.app/') throw new Error('Kakao redirect_uri must return directly to Gongsil');
-  const scopes = new Set(String(authorizeUrl.searchParams.get('scope') || '').split(/\s+/).filter(Boolean));
-  if (scopes.size !== 1 || !scopes.has('openid')) throw new Error('Kakao scope must be openid only');
   await page.waitForURL(url => url.hostname === 'kauth.kakao.com' || url.hostname === 'accounts.kakao.com', { timeout: 30000 });
-  if (page.url().includes('v2.appdeploy.ai')) throw new Error('PDS browser navigation must not occur');
-  console.log('PASS background PDS auth + direct Kakao handoff', authorizeUrl.toString());
+  if (!supabaseAuthorizeUrl) throw new Error('Supabase Kakao authorize endpoint was not requested');
+  const supabaseUrl = new URL(supabaseAuthorizeUrl);
+  if (supabaseUrl.searchParams.get('provider') !== 'kakao') throw new Error('Supabase OAuth provider must be kakao');
+  const redirectTo = supabaseUrl.searchParams.get('redirect_to') || '';
+  if (redirectTo !== 'https://gongsil-helper.netlify.app/#account') throw new Error('Supabase redirect_to must target Gongsil account');
+  if (page.url().includes('v2.appdeploy.ai')) throw new Error('PDS must not appear in Gongsil login navigation');
+  const kakaoUrl = new URL(page.url());
+  if (kakaoUrl.hostname === 'accounts.kakao.com') {
+    const cont = decodeURIComponent(kakaoUrl.searchParams.get('continue') || '');
+    const authorizeUrl = new URL(cont);
+    if (authorizeUrl.hostname !== 'kauth.kakao.com' || authorizeUrl.pathname !== '/oauth/authorize') throw new Error('Kakao login continue URL mismatch');
+    if (authorizeUrl.searchParams.get('redirect_uri') !== 'https://buzcnfnimzlsjvbeefjb.supabase.co/auth/v1/callback') throw new Error('Kakao callback must use Supabase Auth');
+    if (authorizeUrl.searchParams.get('redirect_to') !== 'https://gongsil-helper.netlify.app/#account') throw new Error('Kakao redirect_to must return to Gongsil account');
+  }
+  const bodyText = await page.locator('body').innerText().catch(() => '');
+  if (/KOE205|KOE006/.test(bodyText)) throw new Error('Kakao configuration error visible');
+  console.log('PASS direct Supabase Kakao login handoff', page.url());
 
   const cfg = await page.request.get(base + '.netlify/functions/portone-config');
   if (!cfg.ok()) throw new Error('portone-config HTTP ' + cfg.status());
