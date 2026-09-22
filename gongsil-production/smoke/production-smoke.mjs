@@ -33,7 +33,7 @@ try {
   await page.getByText('60일 열람권', { exact: false }).waitFor();
   const firstBuy = page.locator('[data-buy-plan]').first();
   await firstBuy.click();
-  await page.getByText('헬퍼유니버스 카카오 통합인증', { exact: false }).waitFor({ timeout: 10000 });
+  await page.getByText('카카오 로그인 후 공실헬퍼 내 계정으로 바로 연결됩니다.', { exact: false }).waitFor({ timeout: 10000 });
   console.log('PASS access pass login gate');
   await page.locator('#modalClose').click();
 
@@ -59,12 +59,22 @@ try {
   console.log('PASS exact unit permit check without spaces');
 
   await page.goto(base + '#home', { waitUntil: 'networkidle', timeout: 60000 });
+  let directLoginUrl = '';
+  page.on('request', req => {
+    if (req.url().includes('/api/universe/auth/direct')) directLoginUrl = req.url();
+  });
   await page.locator('#authBtn').click();
-  await page.getByText('헬퍼유니버스 카카오 통합인증', { exact: false }).waitFor();
+  await page.getByText('카카오 로그인 후 공실헬퍼 내 계정으로 바로 연결됩니다.', { exact: false }).waitFor();
   await page.getByRole('button', { name: '카카오로 계속하기' }).click();
   await page.waitForURL(url => url.hostname === 'kauth.kakao.com' || url.hostname === 'accounts.kakao.com', { timeout: 30000 });
+  if (!directLoginUrl) throw new Error('Direct PDS auth endpoint was not requested');
+  const directUrl = new URL(directLoginUrl);
+  if (directUrl.pathname !== '/api/universe/auth/direct') throw new Error('Unexpected auth start path');
+  if (directUrl.searchParams.get('service') !== 'gongsil') throw new Error('Direct auth service mismatch');
+  const directReturnTo = directUrl.searchParams.get('returnTo') || '';
+  if (!directReturnTo.startsWith('https://gongsil-helper.netlify.app/') || !directReturnTo.endsWith('#account')) throw new Error('Direct auth returnTo must target Gongsil account');
   if (page.url().includes('v2.appdeploy.ai/?')) throw new Error('PDS workspace UI should not render during Gongsil login');
-  console.log('PASS direct Kakao handoff without PDS workspace UI', page.url());
+  console.log('PASS direct Kakao handoff + account return target', directReturnTo);
   const kakaoUrl = new URL(page.url());
   if (kakaoUrl.hostname === 'accounts.kakao.com') {
     const cont = decodeURIComponent(kakaoUrl.searchParams.get('continue') || '');
