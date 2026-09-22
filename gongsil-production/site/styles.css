@@ -68,3 +68,11 @@
   .transaction-grid{grid-template-columns:1fr}
   .deal-action-form{flex-direction:column;align-items:stretch}
 }
+
+
+.recommendation-panel{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:18px 20px;margin:14px 0 18px;border:1px solid rgba(25,43,63,.12);border-radius:16px;background:#fbfcfe}
+.recommendation-panel h3{margin:4px 0 6px}
+.recommendation-panel p{margin:0;color:#667587}
+.recommendation-grid{margin-bottom:24px}
+.recommendation-card .listing-image span{background:rgba(17,28,40,.78)}
+@media(max-width:720px){.recommendation-panel{align-items:stretch;flex-direction:column}}
