@@ -112,6 +112,8 @@ async function renderListings(){
     <input id="premiumMax" inputmode="numeric" placeholder="권리금 상한 예: 3000만원">
     <select id="verificationFilter"><option value="all">전체 검증상태</option><option value="verified">검증 매물</option><option value="unverified">미검증/추가확인</option><option value="checking">확인 중</option></select>
   </div>
+  <div class="recommendation-panel"><div><span class="section-kicker">SMART MATCH</span><h3>내 조건으로 추천매물 보기</h3><p>지역·숙소유형·보증금·월세·권리금 조건을 조합해 공개매물 적합도를 계산합니다.</p></div><button id="recommendBtn" class="btn secondary" type="button">조건 추천 실행</button></div>
+  <div id="recommendationGrid" class="listing-grid recommendation-grid" style="display:none"></div>
   <div class="listing-meta"><span id="listingCount"></span><a href="#register" class="text-btn">내 매물 등록하기 →</a></div>
   <div id="listingGrid" class="listing-grid"></div>
   <div id="emptyState" class="empty-state"><strong>조건에 맞는 공개 매물이 없습니다.</strong><p>운영자 게시승인을 통과한 매물만 공개됩니다.</p><a class="btn primary" href="#register">무료 매물 등록</a></div>`;
@@ -141,9 +143,20 @@ async function renderListings(){
   $('#depositMax').oninput=e=>{depositMax=won(e.target.value);draw()};
   $('#rentMax').oninput=e=>{rentMax=won(e.target.value);draw()};
   $('#premiumMax').oninput=e=>{premiumMax=won(e.target.value);draw()};
+  $('#recommendBtn').onclick=async()=>{
+    const btn=$('#recommendBtn'),grid=$('#recommendationGrid');btn.disabled=true;btn.textContent='추천 계산 중…';
+    try{
+      const{data,error}=await supabase.rpc('gongsil_recommend_properties',{p_area:area||null,p_accommodation_type:type==='all'?null:type,p_deposit_max:depositMax||null,p_monthly_rent_max:rentMax||null,p_premium_max:premiumMax||null,p_limit:6});
+      if(error)throw error;
+      const list=data||[];grid.style.display='grid';grid.innerHTML=list.length?list.map(recommendationCardHtml).join(''):'<div class="mode-empty">현재 조건에 맞는 공개 추천매물이 없습니다.</div>';
+      $('[data-property]',grid).forEach(card=>card.onclick=()=>go('#property/'+card.dataset.property));
+    }catch(e){console.error(e);toast(String(e?.message||'추천매물을 계산하지 못했습니다.'))}
+    finally{btn.disabled=false;btn.textContent='조건 추천 실행'}
+  };
   draw();
 }
 function cardHtml(item){const img=item.images[0]||'';const saved=state.saved.includes(item.id);return `<article class="listing-card" data-property="${item.id}"><div class="listing-image" style="${img?`background-image:url('${img}')`:''}"><span>${esc(item.area||'공개매물')}</span><button class="heart" data-save="${item.id}" aria-label="관심 저장">${saved?'♥':'♡'}</button></div><div class="listing-body"><div class="card-badges"><small>${item.journey==='opening'?'신규오픈':'숙소인수'}</small><small>${verificationBadge(item)}</small>${item.valuationReady?'<small>가치진단</small>':''}</div><h3>${esc(item.title)}</h3><p class="card-type">${esc(item.type||'숙박 운영 후보')}</p><div class="metrics"><div><span>초기 필요자금</span><b>${money(item.capital)}</b></div><div><span>월세</span><b>${money(item.rent)}</b></div></div><p>${esc(item.verified)}</p></div></article>`}
+function recommendationCardHtml(item){const img=(item.public_image_paths||[])[0]?publicImage(item.public_image_paths[0]):'';return `<article class="listing-card recommendation-card" data-property="${item.property_id}"><div class="listing-image" style="${img?`background-image:url('${img}')`:''}"><span>추천 적합도 ${Number(item.match_score||0)}점</span></div><div class="listing-body"><div class="card-badges"><small>${esc(item.recommendation_mode||'rules_v1')}</small><small>자료 확인 매물</small></div><h3>${esc(item.title||'추천 매물')}</h3><p class="card-type">${esc(item.area||'')} · ${esc(item.accommodation_type||'')}</p><div class="metrics"><div><span>보증금</span><b>${money(item.deposit_amount)}</b></div><div><span>월세</span><b>${money(item.monthly_rent)}</b></div></div><p>희망 권리금 ${money(item.asking_premium)} · 입력한 조건과의 적합도를 기준으로 정렬했습니다.</p></div></article>`}
 async function saveCandidate(id,btn){if(!state.user){state.pending={type:'save',id};return openLogin()}try{const saved=state.saved.includes(id),{error}=await supabase.rpc('gongsil_set_saved',{p_property_id:id,p_saved:!saved});if(error)throw error;state.saved=saved?state.saved.filter(x=>x!==id):[...state.saved,id];if(btn)btn.textContent=saved?'♡':'♥';toast(saved?'관심에서 제거했습니다.':'관심 매물에 저장했습니다.')}catch(e){console.error(e);toast('저장 처리에 실패했습니다.')}}
 async function renderProperty(id){skeleton('매물 상세정보를 불러오는 중입니다.');try{const{data,error}=await supabase.rpc('gongsil_get_property_detail',{p_property_id:id});if(error)throw error;const p=data.public||{},d=data.detail||{},a=data.premium||null,imgs=(p.images||[]).map(publicImage),locked=!data.has_access;const checks=(p.verification_items||[]).map(v=>`<li><b>${esc(v.label)}</b><span class="status-pill ${v.status}">${v.status==='confirmed'?'확인':v.status==='host_provided'?'제출정보':v.status==='estimated'?'예상':'추가확인'}</span></li>`).join('');const gallery=imgs.length?`<div class="property-gallery">${imgs.slice(0,5).map((x,i)=>`<img src="${x}" alt="${esc(p.title||'매물')} 사진 ${i+1}">`).join('')}</div>`:'';
 const publicInfo=`${gallery}<div class="info-grid detail-public"><article><b>보증금</b><p>${money(p.deposit_amount)}</p></article><article><b>월세</b><p>${money(p.monthly_rent)}</p></article><article><b>희망 권리금</b><p>${p.asking_premium?money(p.asking_premium):'협의'}</p></article></div><h3 class="detail-subtitle">검증 상태</h3><ul class="verification-list">${checks||'<li>검증정보 정리 중</li>'}</ul>`;
