@@ -13,8 +13,8 @@ function cleanSsoParams(){
   ['hu_sso','hu_sso_code','hu_sso_service','code','state','error','error_description'].forEach(k=>url.searchParams.delete(k));
   history.replaceState({},'',url.pathname+url.search+url.hash);
 }
-async async function startUnifiedLogin(){
-  const redirectTo='https://gongsil-helper.netlify.app/#account';
+async function startUnifiedLogin(){
+  const redirectTo='https://gongsil-helper.netlify.app/';
   const{data,error}=await supabase.auth.signInWithOAuth({
     provider:'kakao',
     options:{redirectTo}
