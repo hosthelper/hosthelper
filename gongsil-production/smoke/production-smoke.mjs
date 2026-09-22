@@ -15,8 +15,8 @@ try {
   const index = await page.request.get(base);
   if (!index.ok()) throw new Error('index HTTP ' + index.status());
   const indexHtml = await index.text();
-  if (!indexHtml.includes('user-v12-20260922')) throw new Error('latest asset version missing');
-  console.log('PASS asset version v12');
+  if (!indexHtml.includes('user-v13-20260923')) throw new Error('latest asset version missing');
+  console.log('PASS asset version v13');
 
   await route('#valuation', '무료 권리금 시세진단');
   await page.locator('input[name="revenue"]').fill('550만원');
@@ -24,9 +24,18 @@ try {
   await page.locator('input[name="fixed"]').fill('120만원');
   await page.locator('input[name="months"]').fill('24개월');
   await page.locator('input[name="occupancy"]').fill('72');
+  await page.locator('input[name="accessibility"]').fill('82');
+  await page.locator('input[name="tourism"]').fill('78');
+  await page.getByText('관광지 인접도', { exact: false }).waitFor();
   await page.getByRole('button', { name: '예상 권리금 계산' }).click();
   await page.locator('#valuationPreview').getByText('권리금 기준값', { exact: false }).waitFor({ timeout: 30000 });
   console.log('PASS valuation quote');
+
+  await route('#listings', '특허 제5단계');
+  await page.locator('#areaFilter').waitFor();
+  await page.locator('#depositMax').waitFor();
+  await page.locator('#premiumMax').waitFor();
+  console.log('PASS patent search filters');
 
   await route('#passes', '프리미엄 열람권');
   await page.getByText('10일 열람권', { exact: false }).waitFor();
@@ -44,6 +53,9 @@ try {
 
   await route('#account', '카카오 인증이 필요합니다.');
   console.log('PASS account login gate');
+
+  await route('#broker', '공인중개사 파트너');
+  console.log('PASS broker patent claim login gate');
 
   await route('#verify', '관공서 자동대조');
   const verifyAddress = page.locator('input[name="address"]');
