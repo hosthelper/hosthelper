@@ -20,7 +20,7 @@ function startUnifiedLogin(){
   try{pending=JSON.parse(localStorage.getItem('gongsil.pending')||'null')}catch{}
   if(pending?.type==='route'&&pending.hash)target.hash=pending.hash;
   else if(!pending||pending.type==='route')target.hash='#account';
-  const direct=new URL(HELPER_UNIVERSE_AUTH_URL+'/api/universe/auth/direct');
+  const direct=new URL(HELPER_UNIVERSE_AUTH_URL+'/api/universe/auth/start-redirect');
   direct.searchParams.set('service','gongsil');
   direct.searchParams.set('returnTo',target.toString());
   location.assign(direct.toString());
