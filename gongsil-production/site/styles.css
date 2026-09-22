@@ -32,3 +32,39 @@
 .account-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.account-section-head h2{margin-bottom:4px}.account-section-head p{margin:0;color:var(--muted);font-size:11px}.account-properties{grid-column:1/-1}.property-account-card{align-items:stretch!important;flex-direction:column!important}.property-account-main{width:100%}.verification-progress{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:12px}.verification-step{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:9px;background:#faf7f4}.verification-step i{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:#ece5df;color:#786f69;font-style:normal;font-size:10px;font-weight:900;flex:0 0 auto}.verification-step strong,.verification-step span{display:block}.verification-step strong{font-size:10px}.verification-step span{font-size:9px;color:var(--muted);margin-top:2px}.verification-step.done{background:#f2faf4;border-color:#cfe6d5}.verification-step.done i{background:#2f7d48;color:#fff}.verification-step.ready{background:#fff8f2;border-color:#e7c5ad}.verification-step.ready i{background:var(--accent);color:#fff}.verification-step.issue{background:#fff4ef;border-color:#efc6b5}.verification-step.issue i{background:#b95b3b;color:#fff}.verification-action{align-self:flex-start}.verification-action.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 @media(max-width:760px){.account-section-head{flex-direction:column}.verification-progress{grid-template-columns:1fr 1fr}.verification-action{width:100%}}
 @media(max-width:480px){.verification-progress{grid-template-columns:1fr}}
+
+
+/* Patent Step 7: transaction room */
+.deal-layout{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.35fr);gap:18px;align-items:start}
+.transaction-stage{padding:18px;border:1px solid rgba(25,43,63,.12);border-radius:16px;background:#f7f9fb;margin:14px 0}
+.transaction-stage b{display:block;font-size:20px;margin-bottom:6px}
+.transaction-stage p{margin:0;color:#617083}
+.transaction-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+.transaction-grid>div,.transaction-box{padding:14px;border:1px solid rgba(25,43,63,.1);border-radius:14px;background:#fff}
+.transaction-grid span,.transaction-box small{display:block;color:#7a8795;font-size:12px;margin-bottom:4px}
+.transaction-grid b,.transaction-box b{font-size:14px}
+.transaction-box p{margin:6px 0}
+.deal-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.deal-action-form{display:flex;gap:10px;align-items:end;width:100%}
+.deal-action-form label{flex:1;display:grid;gap:6px;font-size:13px;color:#5e6c79}
+.deal-action-form input{width:100%;padding:11px 12px;border:1px solid rgba(25,43,63,.16);border-radius:10px;background:#fff}
+.deal-chat{min-height:520px}
+.deal-messages{display:flex;flex-direction:column;gap:10px;max-height:480px;overflow:auto;padding:4px 2px 14px}
+.deal-message{max-width:82%;padding:12px 14px;border-radius:14px;background:#f2f4f7;border:1px solid rgba(25,43,63,.08)}
+.deal-message.mine{margin-left:auto;background:#eef5ff}
+.deal-message.address{background:#fff7df;border-color:#ead18a}
+.deal-message small{display:block;color:#7a8795;font-size:11px;margin-bottom:5px}
+.deal-message p{margin:0;white-space:pre-wrap;word-break:break-word}
+.deal-message-form{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;border-top:1px solid rgba(25,43,63,.08);padding-top:14px}
+.deal-message-form textarea{min-height:82px;resize:vertical;padding:12px;border:1px solid rgba(25,43,63,.16);border-radius:12px;font:inherit}
+.outline-btn.danger{border-color:#d7a0a0;color:#9a3f3f}
+@media(max-width:860px){
+  .deal-layout{grid-template-columns:1fr}
+  .transaction-grid{grid-template-columns:1fr 1fr}
+  .deal-message{max-width:92%}
+  .deal-message-form{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .transaction-grid{grid-template-columns:1fr}
+  .deal-action-form{flex-direction:column;align-items:stretch}
+}
