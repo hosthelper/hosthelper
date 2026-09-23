@@ -91,3 +91,23 @@ https://gongsil-helper.netlify.app
 1. Netlify Production은 CLI 수동배포본이며 연결된 도구에 source upload API가 없어 프런트/Function 코드 파일을 직접 교체할 수 없음.
 2. 연결된 Remote Desktop은 offline, Opera Browser Connector는 disconnected.
 3. 실제 PortOne 서버 검증에는 과거 공유된 키를 재사용하지 않고 새 PORTONE_API_SECRET 발급·등록 필요.
+
+
+## 2026-09-23 특허 핵심 흐름 Production 보완
+
+특허 청구항의 1~7단계 기준으로 Production 연결부를 재점검하고 다음을 보완했다.
+
+- 제1단계: 최신 미러 Kakao OAuth를 helpecrm Supabase 기준으로 정상화하고 실제 Kakao 로그인 확인.
+- 제2단계: 담당자명/연락처를 UI와 서버 모두 필수화. 공개사진 3~10장 규칙을 DB 검증/게시 전환에서도 강제.
+- 제3단계: 기존 OCR + 관공서 자동대조 + 최종 제출 게이트 유지.
+- 제4단계: 등록 매물 권리금 산정을 구형 규칙 직접호출에서 `gongsil_request_premium_assessment`로 변경해 활성 XGBoost 모델을 우선 사용.
+- 제5단계: 비로그인 사용자의 공개 기본정보 열람 권한 유지. 위치/보증금/권리금 필터와 열람권 게이트 Production Smoke 통과.
+- 제6단계: 열람권 권한 보유 시 정확한 주소와 매도인이 입력한 운영정보, 최신 권리금 평가를 상세 응답에 포함.
+- 제7단계: 직거래/지정중개사 매칭 생성 시 연락처 열람권한 자동 발급. 구매자/매도인/중개사 알림 트리거의 smallint 타입 오류 수정.
+- 청구항 3: 공인중개사 신청/승인/지정매물/의뢰매물 등록 진입점 유지.
+- 청구항 2: 건수형(1/5/10건) 및 기간형(1일/1주/1개월/분기/반기/1년) 플랜 스키마와 사용 로직은 구현되어 있다. 현재 판매정책은 가격이 확정된 10/30/60일 플랜만 활성화한다.
+
+검증:
+- DB rollback QA: 상세주소 공개 → 직거래 매칭 → contact_access → 매도인 연락처 조회 → 양측 알림 = PASS.
+- Production Playwright Smoke: AI 권리금, 검색필터, 열람권, 매물등록 게이트, 중개사 Claim 3, 관공서 검증, Kakao OAuth, PortOne config = PASS.
+- 실제 QA 데이터는 rollback 처리하여 Production 데이터에 남기지 않음.
