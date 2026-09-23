@@ -18,7 +18,7 @@ try {
   if (!indexHtml.includes('user-v13-20260923')) throw new Error('latest asset version missing');
   console.log('PASS asset version v13');
 
-  await route('#valuation', '무료 권리금 시세진단');
+  await route('#valuation', '무료 AI 권리금 시세진단');
   await page.locator('input[name="revenue"]').fill('550만원');
   await page.locator('input[name="rent"]').fill('180만원');
   await page.locator('input[name="fixed"]').fill('120만원');
