@@ -254,8 +254,8 @@ begin
 end;
 $function$;
 
-revoke execute on function public.gongsil_get_property_detail(uuid) from public, anon;
-grant execute on function public.gongsil_get_property_detail(uuid) to authenticated;
+revoke execute on function public.gongsil_get_property_detail(uuid) from public;
+grant execute on function public.gongsil_get_property_detail(uuid) to anon, authenticated;
 
 revoke execute on function public.gongsil_request_match(uuid,text,text) from public, anon;
 grant execute on function public.gongsil_request_match(uuid,text,text) to authenticated;
