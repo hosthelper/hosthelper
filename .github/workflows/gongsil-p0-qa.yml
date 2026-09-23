@@ -30,6 +30,9 @@ jobs:
           grep -q "completeUnifiedLogin" gongsil-production/site/app.js
           grep -q "signInWithIdToken" gongsil-production/site/app.js
           grep -q "gongsil_create_access_order_idempotent" gongsil-production/site/app.js
+          grep -q "gongsil_request_premium_assessment" gongsil-production/site/app.js
+          grep -q 'name="contactName" required' gongsil-production/site/app.js
+          grep -q 'name="contactPhone" required' gongsil-production/site/app.js
           grep -q "gongsil-ml-http.onrender.com/v1/quote" gongsil-production/site/app.js
           grep -q "gongsil_get_portone_verification_contract_with_token" gongsil-production/site/netlify/functions/portone-verify.mjs
           grep -q "gongsil_ingest_portone_verified_event_with_token" gongsil-production/site/netlify/functions/portone-verify.mjs
