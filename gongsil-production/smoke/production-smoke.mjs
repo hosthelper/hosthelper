@@ -27,7 +27,7 @@ try {
   await page.locator('input[name="accessibility"]').fill('82');
   await page.locator('input[name="tourism"]').fill('78');
   await page.getByText('관광지 인접도', { exact: false }).waitFor();
-  await page.getByRole('button', { name: '예상 권리금 계산' }).click();
+  await page.getByRole('button', { name: 'AI 적정 권리금 계산' }).click();
   await page.locator('#valuationPreview').getByText('권리금 기준값', { exact: false }).waitFor({ timeout: 30000 });
   console.log('PASS valuation quote');
 
