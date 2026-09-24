@@ -86,6 +86,12 @@ try {
   });
   await page.getByRole('button', { name: '카카오로 계속하기' }).click();
   await page.waitForURL(url => url.hostname === 'kauth.kakao.com' || url.hostname === 'accounts.kakao.com', { timeout: 30000 });
+  const storage = await page.context().storageState();
+  const gongsilOrigin = storage.origins.find(o => o.origin === 'https://gongsil-helper.netlify.app');
+  const pendingEntry = gongsilOrigin?.localStorage?.find(x => x.name === 'gongsil.pending');
+  if (!pendingEntry) throw new Error('Gongsil account return target was not persisted before Kakao navigation');
+  const pending = JSON.parse(pendingEntry.value);
+  if (pending?.type !== 'route' || pending?.hash !== '#account') throw new Error('Kakao login must return to Gongsil #account');
   if (!supabaseAuthorizeUrl) throw new Error('Supabase Kakao authorize endpoint was not requested');
   const supabaseUrl = new URL(supabaseAuthorizeUrl);
   if (supabaseUrl.searchParams.get('provider') !== 'kakao') throw new Error('Supabase OAuth provider must be kakao');
