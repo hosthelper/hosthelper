@@ -15,8 +15,13 @@ try {
   const index = await page.request.get(base);
   if (!index.ok()) throw new Error('index HTTP ' + index.status());
   const indexHtml = await index.text();
-  if (!indexHtml.includes('user-v13-20260923')) throw new Error('latest asset version missing');
-  console.log('PASS asset version v13');
+  const appMatch = indexHtml.match(/<script[^>]+src=["']\.\/app\.js\?v=([^"']+)["']/i);
+  if (!appMatch?.[1]) throw new Error('versioned app.js asset missing');
+  const appRes = await page.request.get(base + 'app.js?v=' + encodeURIComponent(appMatch[1]));
+  if (!appRes.ok()) throw new Error('app.js HTTP ' + appRes.status());
+  const appJs = await appRes.text();
+  if (!appJs.includes('/api/universe/auth/start-redirect')) throw new Error('direct Kakao start route missing from live app.js');
+  console.log('PASS live versioned app asset', appMatch[1]);
 
   await route('#valuation', '무료 AI 권리금 시세진단');
   await page.locator('input[name="revenue"]').fill('550만원');
