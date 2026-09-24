@@ -5,7 +5,7 @@ const SERVICE_BY_DISTRICT={
   '성동구':'LOCALDATA_031104_SD','광진구':'LOCALDATA_031104_GJ','동대문구':'LOCALDATA_031104_DD',
   '중랑구':'LOCALDATA_031104_JR','성북구':'LOCALDATA_031104_SB','강북구':'LOCALDATA_031104_GB',
   '도봉구':'LOCALDATA_031104_DB','노원구':'LOCALDATA_031104_NW','은평구':'LOCALDATA_031104_EP',
-  '서대문구':'LOCALDATA_031104_SDM','마포구':'LOCALDATA_031104_MP','양천구':'LOCALDATA_031104_YC',
+  '서대문구':'LOCALDATA_031104_SM','마포구':'LOCALDATA_031104_MP','양천구':'LOCALDATA_031104_YC',
   '강서구':'LOCALDATA_031104_GS','구로구':'LOCALDATA_031104_GR','금천구':'LOCALDATA_031104_GC',
   '영등포구':'LOCALDATA_031104_YD','동작구':'LOCALDATA_031104_DJ','관악구':'LOCALDATA_031104_GA',
   '서초구':'LOCALDATA_031104_SC','강남구':'LOCALDATA_031104_GN','송파구':'LOCALDATA_031104_SP',
@@ -14,7 +14,39 @@ const SERVICE_BY_DISTRICT={
 
 const clean=v=>String(v||'').normalize('NFKC').replace(/\([^)]*\)/g,'').replace(/\s+/g,'').replace(/[^0-9A-Za-z가-힣-]/g,'').toLowerCase();
 function compactAddress(v){return clean(v)}
-function sameCompactAddress(a,b){const aa=compactAddress(a),bb=compactAddress(b);return !!aa&&!!bb&&(aa===bb||aa.includes(bb)||bb.includes(aa))}
+function normNum(v){const n=parseInt(String(v||'').replace(/\D/g,''),10);return Number.isFinite(n)?String(n):''}
+function unitIdentity(v){
+  const s=String(v||'').normalize('NFKC').toLowerCase();
+  const dong=s.match(/(\d{1,4})\s*동(?:\s|,|$)/i);
+  const basementFloor=s.match(/(?:b|비|지하)\s*(\d{1,2})\s*층/i);
+  const floor=!basementFloor?s.match(/(?:^|\s|,)(\d{1,2})\s*층/i):null;
+  const basementHo=s.match(/(?:b|비)\s*(\d{1,4})\s*호/i);
+  const ho=!basementHo?s.match(/(?:^|\s|,)(\d{1,4})\s*호/i):null;
+  return {
+    dong:dong?normNum(dong[1]):'',
+    floor:basementFloor?'b'+normNum(basementFloor[1]):floor?normNum(floor[1]):'',
+    ho:basementHo?'b'+normNum(basementHo[1]):ho?normNum(ho[1]):''
+  };
+}
+function sameUnitIdentity(a,b){
+  const aa=unitIdentity(a),bb=unitIdentity(b);
+  if(!aa.ho&&!aa.floor)return false;
+  if(!bb.ho&&!bb.floor)return false;
+  if(aa.ho!==bb.ho)return false;
+  if(aa.dong||bb.dong){if(aa.dong!==bb.dong)return false}
+  if(aa.floor&&bb.floor&&aa.floor!==bb.floor)return false;
+  return true;
+}
+function sameCompactAddress(a,b){
+  const aa=compactAddress(a),bb=compactAddress(b);
+  const baseHit=!!aa&&!!bb&&(aa===bb||aa.includes(bb)||bb.includes(aa));
+  return baseHit&&sameUnitIdentity(a,b);
+}
+async function sha256Hex(value){
+  const bytes=new TextEncoder().encode(String(value||''));
+  const digest=await crypto.subtle.digest('SHA-256',bytes);
+  return Array.from(new Uint8Array(digest)).map(x=>x.toString(16).padStart(2,'0')).join('');
+}
 
 const unitPattern=/(?:,?\s*(?:b\s*\d+|비\s*\d+\s*층|지하\s*\d+\s*층|\d+\s*층|\d+\s*호|[a-z]?\d{3,4}\s*호?))(?:\s|$)/ig;
 function baseAddress(v){return clean(String(v||'').replace(unitPattern,' ').replace(/,.*$/,''))}
@@ -45,17 +77,36 @@ function compactEvidence(row){
   }
 }
 
+async function fetchApiPage(key,service,start,end){
+  const url='http://openapi.seoul.go.kr:8088/'+encodeURIComponent(key)+'/json/'+encodeURIComponent(service)+'/'+start+'/'+end+'/';
+  const res=await fetch(url,{signal:AbortSignal.timeout(12000)});
+  if(!res.ok)throw new Error('http_'+res.status);
+  const data=await res.json(),block=data?.[service]||data?.[Object.keys(data).find(k=>data?.[k]?.row)];
+  const apiCode=String(block?.RESULT?.CODE||data?.RESULT?.CODE||'');
+  if(apiCode&&apiCode!=='INFO-000'&&apiCode!=='INFO-200')throw new Error(apiCode);
+  return {
+    rows:Array.isArray(block?.row)?block.row:[],
+    total:Number(block?.list_total_count||0)||0,
+    apiCode:apiCode||'INFO-000'
+  };
+}
 async function fetchDistrictRows(key,district,service){
   try{
-    const url='http://openapi.seoul.go.kr:8088/'+encodeURIComponent(key)+'/json/'+encodeURIComponent(service)+'/1/1000/';
-    const res=await fetch(url,{signal:AbortSignal.timeout(12000)});
-    if(!res.ok)return{district,service,rows:[],error:'http_'+res.status};
-    const data=await res.json(),block=data?.[service]||data?.[Object.keys(data).find(k=>data?.[k]?.row)];
-    const apiCode=String(block?.RESULT?.CODE||data?.RESULT?.CODE||'');
-    if(apiCode&&apiCode!=='INFO-000')return{district,service,rows:[],error:apiCode};
-    return{district,service,rows:Array.isArray(block?.row)?block.row:[]};
+    const first=await fetchApiPage(key,service,1,1000);
+    const rows=[...first.rows];
+    const total=Math.max(first.total,rows.length);
+    const maxRows=Math.min(total,10000);
+    let pagesFetched=1;
+    for(let start=1001;start<=maxRows;start+=1000){
+      const end=Math.min(start+999,maxRows);
+      const page=await fetchApiPage(key,service,start,end);
+      rows.push(...page.rows);
+      pagesFetched++;
+      if(!page.rows.length)break;
+    }
+    return{district,service,rows,totalCount:total,pagesFetched,truncated:total>10000};
   }catch(error){
-    return{district,service,rows:[],error:String(error?.message||error)};
+    return{district,service,rows:[],totalCount:0,pagesFetched:0,truncated:false,error:String(error?.message||error)};
   }
 }
 
@@ -73,6 +124,13 @@ async function seoulLookup(address){
 
   const settled=await Promise.all(targets.map(([district,service])=>fetchDistrictRows(key,district,service)));
   const candidates=[];
+  const sourceMeta={
+    searchedDistricts:targets.length,
+    failedDistricts:settled.filter(x=>x.error).length,
+    totalRowsScanned:settled.reduce((sum,x)=>sum+(x.rows?.length||0),0),
+    pagesFetched:settled.reduce((sum,x)=>sum+(x.pagesFetched||0),0),
+    truncatedDistricts:settled.filter(x=>x.truncated).map(x=>x.district)
+  };
 
   for(const result of settled){
     for(const row of result.rows||[]){
@@ -91,8 +149,7 @@ async function seoulLookup(address){
         status:'unavailable',
         message:'서울 열린데이터 API 응답을 받지 못했습니다. 잠시 후 다시 조회해 주세요.',
         matches:[],
-        searchedDistricts:targets.length,
-        failedDistricts:failures.length
+        ...sourceMeta
       };
     }
     return{
@@ -101,8 +158,7 @@ async function seoulLookup(address){
         ?'해당 주소에서 외국인관광 도시민박업 인허가를 찾지 못했습니다.'
         :'서울 25개 자치구 인허가 DB를 검색했지만 입력 주소와 일치하는 항목을 찾지 못했습니다.',
       matches:[],
-      searchedDistricts:targets.length,
-      failedDistricts:failures.length
+      ...sourceMeta
     };
   }
 
@@ -114,7 +170,7 @@ async function seoulLookup(address){
   const first=(exactActive[0]||active[0]||inactive[0]||candidates[0]);
 
   if(exactActive.length){
-    return{status:'confirmed',message:'입력한 호수와 일치하는 외국인관광 도시민박업 인허가가 영업/정상 상태입니다.',matches:pack(exactActive),service:first.service,district:first.district,matchLevel:'unit'};
+    return{status:'confirmed',message:'입력한 호수와 일치하는 외국인관광 도시민박업 인허가가 영업/정상 상태입니다.',matches:pack(exactActive),service:first.service,district:first.district,matchLevel:'unit',...sourceMeta};
   }
   if(active.length){
     return{
@@ -125,10 +181,11 @@ async function seoulLookup(address){
       matches:pack(active),
       service:first.service,
       district:first.district,
-      matchLevel:'building'
+      matchLevel:'building',
+      ...sourceMeta
     };
   }
-  return{status:'inactive',message:'같은 주소의 인허가 기록은 있으나 현재 영업/정상 상태로 확인되지 않습니다.',matches:pack(inactive),service:first.service,district:first.district,matchLevel:'building'};
+  return{status:'inactive',message:'같은 주소의 인허가 기록은 있으나 현재 영업/정상 상태로 확인되지 않습니다.',matches:pack(inactive),service:first.service,district:first.district,matchLevel:'building',...sourceMeta};
 }
 
 export default async function(req){
@@ -163,5 +220,29 @@ export default async function(req){
           ?'입력 주소에서 외국인관광 도시민박업 인허가를 확인하지 못했습니다.'
           :'공공데이터 조회가 완료되지 않았습니다. 원천데이터 확인이 필요합니다.';
 
-  return reply({ok:true,overallStatus,summary,region,sources,permitMatches:seoul.matches||[],matchLevel:seoul.matchLevel||null,service:seoul.service||null,building:apiUse?{useName:apiUse}:null,disclaimer:'서울 열린데이터광장 지방행정 인허가 데이터를 기준으로 한 자동대조이며 데이터는 최대 수일의 시차가 있을 수 있습니다. 최종 계약·영업 가능 여부는 관할기관 원본 확인이 필요합니다.'});
+  const checkedAt=new Date().toISOString();
+  const evidenceFingerprint=await sha256Hex(JSON.stringify({
+    normalizedAddress:compactAddress(address),
+    unit:unitIdentity(address),
+    overallStatus,
+    service:seoul.service||null,
+    matches:(seoul.matches||[]).map(x=>({managementNo:x.managementNo,status:x.tradeStatus||x.detailStatus,lastModified:x.lastModified,roadAddress:x.roadAddress}))
+  }));
+  return reply({
+    ok:true,overallStatus,summary,region,sources,
+    permitMatches:seoul.matches||[],
+    matchLevel:seoul.matchLevel||null,
+    service:seoul.service||null,
+    checkedAt,
+    evidenceFingerprint,
+    sourceMeta:{
+      searchedDistricts:seoul.searchedDistricts||0,
+      failedDistricts:seoul.failedDistricts||0,
+      totalRowsScanned:seoul.totalRowsScanned||0,
+      pagesFetched:seoul.pagesFetched||0,
+      truncatedDistricts:seoul.truncatedDistricts||[]
+    },
+    building:apiUse?{useName:apiUse}:null,
+    disclaimer:'서울 열린데이터광장 지방행정 인허가 데이터를 기준으로 한 자동대조이며 데이터는 최대 수일의 시차가 있을 수 있습니다. 최종 계약·영업 가능 여부는 관할기관 원본 확인이 필요합니다.'
+  });
 }
