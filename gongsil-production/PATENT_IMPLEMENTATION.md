@@ -1,276 +1,331 @@
 # 공실헬퍼 특허 구현 맵
 
-> 목적: 공실헬퍼의 특허 관련 기술 흐름을 실제 운영 코드·DB 구조와 연결해 추적하기 위한 내부 구현 문서입니다.
-> 이 문서는 법률의견이나 특허 등록 가능성 판단이 아니라, 현재 시스템의 기술 구현 사실을 정리합니다.
+> 기준: 라이브러리의 `09월16일-특허-거래서비스플랫폼.pdf` 청구항 1~4와 현재 Production 구현을 대조한 내부 기술 문서입니다.
+> 법률의견·등록가능성 판단이 아니라, 출원서의 기술구성을 실제 코드/DB와 추적하기 위한 문서입니다.
 
-## 전체 흐름
+## 청구항 1 · 제1~7단계 Core Flow
 
-1. 이용자 인증
-2. 매물·증빙 수집
-3. OCR 및 자동 검증
-4. 공공데이터 대조·검증등급
-5. 공개 매물 Gate
-6. 유료 상세정보 열람
-7. 직접 거래 또는 지정중개사 연결
+### 제1단계 · 소셜 회원가입·로그인
 
-핵심 원칙은 **제출정보 → 원본증빙 → OCR → 정부DB 대조 → 서버 Gate → 운영자 검수 → 공개 → 유료 상세 → 연락처 연결** 순서입니다.
+**출원 흐름**
+- 미가입 사용자는 소셜 계정으로 회원가입·로그인
+- 가입 사용자는 소셜 계정으로 인증
 
----
-
-## 1단계 · 이용자 인증
-
-### 목적
-매도/매수/중개 요청 주체를 식별하고 공실헬퍼 서비스 사용자 권한을 연결합니다.
-
-### 구현
-- 카카오 로그인 기반 사용자 인증
-- Supabase Auth 세션
-- Helper ID/서비스 사용자 연결
-- 매물등록·열람·매칭 RPC는 인증된 사용자만 실행
-
-### 주요 코드
-- `gongsil-production/site/app.js`
+**Production 구현**
+- 카카오 OAuth / Supabase Auth
+- 로그인 세션 생성 후 공실헬퍼 계정 화면 복귀
 - `gongsil_bootstrap_profile`
 - `hu_sync_gongsil_kakao`
 - `hu_ensure_service_user`
+- 매물등록·열람·매칭 핵심 RPC는 인증 사용자 기준
 
 ---
 
-## 2단계 · 매물·증빙 수집
+### 제2단계 · 매도인 상세매물·증빙 등록
 
-### 목적
-판매자가 매물 기본정보, 정확주소, 연락처, 공개사진, 검증서류를 제출합니다.
+**출원 흐름**
+- 지역·주소
+- 보증금·월세·권리금
+- 월매출·가동률·월고정비·관리비·운영연수
+- 담당자·특징
+- 매물사진 3~10장
+- 외국인관광 도시민박업 사업자등록증
+- 임대차계약서
+- 임대인 동의서
+- 전입세대 열람원
 
-### 서버 불변조건
-- 판매자 연락처 필수
-- 공개사진 3장 이상 10장 이하
-- 공개사진과 증빙원본은 별도 Storage bucket 사용
-- 증빙문서는 소유자/운영자 범위로 제한
-- 정확주소는 공개목록에서 바로 노출하지 않음
-
-### 주요 코드/DB
-- `gongsil-production/db/20260923_patent_stage2_photo_contact.sql`
+**Production 구현**
 - `public.gongsil_submit_property(jsonb)`
 - `public.gongsil_add_property_document(...)`
-- Storage:
-  - `gongsil-property-images`
-  - `gongsil-verification-docs`
+- `gongsil.property_takeover_data`
+- `gongsil.property_private`
+- `gongsil.property_documents`
+- 공개사진 3~10장 서버 검증
+- 실제 Storage 경로와 DB 문서 메타데이터 결합
+- 정확주소·연락처·원본증빙은 공개목록에서 분리
+
+**주요 SQL**
+- `gongsil-production/db/20260923_patent_stage2_photo_contact.sql`
 
 ---
 
-## 3단계 · OCR 자동 검증
+### 제3단계 · OCR + 관공서 DB 대조 + 검증/미검증 판정
 
-### 목적
-증빙문서에서 주소 등 검증용 정보를 추출하고, 사용자가 입력한 상세주소와 대조합니다.
+**출원 흐름**
+증빙 이미지 → OCR 텍스트 추출 → 관공서 DB 비교·대조 → 합법성 검증 → 검증 매물 / 미검증 매물 분류
 
-### 외국인관광 도시민박업
-- 최신 사업자등록증을 서버 OCR 대상으로 사용
-- OCR 주소와 매물 상세주소 일치 여부 저장
-- 최신 OCR PASS 이력이 있어야 다음 Gate 통과 가능
+**Production 구현**
+1. 사업자등록증/전대동의서 등 private Storage 업로드
+2. Cloud OCR Queue Worker
+3. OCR 주소와 등록 상세주소 비교
+4. 서울시 외국인관광 도시민박업 인허가 원천데이터 조회
+5. 도로명·동·층·호수 정규화
+6. 정확 호실 + 영업/정상일 때만 `confirmed`
+7. 불일치·부분일치·비활성·조회불가 상태를 분리
+8. 검증 이력과 원천응답을 DB에 저장
 
-### 전대형
-- 최신 전대동의서를 OCR
-- 주소, 임대인, 임차인, 전대허용 문구, 작성일, 서명·날인의 6개 항목 확인
-
-### 주요 구성
-- Cloud OCR Queue Worker
-- `gongsil.verification_runs`
-- `gongsil.verification_items`
-- `public.gongsil_start_property_verification(...)`
-
----
-
-## 4단계 · 공공데이터 대조 및 검증등급
-
-### 목적
-사용자가 입력한 주소/호실과 서울시 외국인관광 도시민박업 인허가 원천데이터를 비교합니다.
-
-### 현재 판정
+**현재 인허가 판정**
 - `confirmed`: 정확 호실 일치 + 영업/정상
 - `partial`: 같은 건물의 활성 인허가는 있으나 호실 불일치
-- `inactive`: 같은 주소 기록은 있으나 활성 영업 아님
+- `inactive`: 주소 기록은 있으나 활성 영업 아님
 - `not_found`: 해당 주소 인허가 미확인
-- `unavailable`: 원천 API 조회 실패
+- `unavailable`: 원천 API 장애/조회 실패
 
-### 주소 판정
-- 띄어쓰기 무시
-- 도로명 기반
-- 동·층·호수 별도 정규화
-- 호수는 정확 일치 필수
-- 동 정보가 양쪽에 있으면 동도 정확 일치
-- 층 정보가 양쪽에 있으면 층도 정확 일치
-
-### 원천 조회
-- 서울 25개 자치구별 서비스
-- API `list_total_count` 기반 페이지네이션
-- 1회 1,000건 단위
-- 안전상한 10,000건
-- 조회 실패와 실제 미등록을 구분
-
-### 감사 증거
-응답에 다음을 포함:
-- `checkedAt`
-- `service`
-- `matchLevel`
-- `sourceMeta`
+**원천 추적**
+- 서울 25개 자치구별 Open API 서비스
+- `list_total_count` 기반 1,000건 단위 페이지네이션
+- 조회시각 `checkedAt`
+- 원천 서비스명
+- 조회 건수/페이지/실패 자치구
 - SHA-256 `evidenceFingerprint`
 
-### 주요 코드
-- `gongsil-production/site/netlify/functions/lodging-check.mjs`
-- `gongsil_private.process_auto_verification_jobs()`
-
----
-
-## 5단계 · 공개 매물 Gate
-
-### 목적
-클라이언트 화면의 상태값만으로는 공개할 수 없게 하고, 서버가 검증이력을 재확인합니다.
-
-### 중앙 Gate
+**서버 Gate**
 `gongsil_private.patent_verification_gate(property_id)`
 
-외국인관광 도시민박업 매물은 모두 필요:
-- 공개사진 3~10장
-- 필수 검증서류 4종
-- 인허가 verification item confirmed
-- OCR 주소 verification item confirmed
-- 최근 30일 이내 정부DB PASS
-- 정부DB 결과 `matchLevel=unit`
-- 유효한 SHA-256 증거지문
-- 최신 사업자등록증에 대한 최근 30일 이내 OCR PASS
+외도민 매물은 다음이 모두 필요:
+- 사진 3~10장
+- 필수 증빙 4종
+- 인허가 item confirmed
+- OCR 주소 item confirmed
+- 최근 30일 정부DB PASS
+- `matchLevel=unit`
+- 64자리 SHA-256 검증지문
+- 최신 사업자등록증의 최근 30일 OCR PASS
 
-전대형 매물은:
-- 공개사진 3~10장
-- 전대동의서
-- OCR 6개 항목 confirmed
-- 최신 전대동의서에 대한 최근 30일 이내 OCR PASS
-
-### 제출 Gate
-`public.gongsil_finalize_property(property_id)`
-- 중앙 Gate 통과 전에는 `submitted` 불가
-
-### 운영자 게시 Gate
-`public.gongsil_admin_review_property(...)`
-- 중앙 Gate 재확인
-- 실제 업로드된 공개사진 Storage 경로만 허용
-- 제출 후 생성되는 운영자 현장검수 체크리스트까지 완료해야 `published`
-
-### 운영자 최종 체크
-- 현장 사진·시설 상태
-- 영업신고·인허가·소방
-- 최근 매출·예약률 근거 또는 임대조건
-- 양도자산·계약승계 조건 또는 신규오픈 비용근거
-
-### 주요 SQL
+**주요 코드**
+- `gongsil-production/site/netlify/functions/lodging-check.mjs`
+- `gongsil_private.process_auto_verification_jobs()`
 - `gongsil-production/db/20260924_patent_stage3_5_verification_gate.sql`
 
 ---
 
-## 6단계 · 유료 상세정보 열람
+### 제4단계 · AI 권리금 산정
 
-### 목적
-공개 탐색에서는 기본정보만 표시하고, 권한을 얻은 사용자에게만 민감 상세정보를 제공합니다.
+**출원 흐름**
+등록매물의 금액·수익정보와 리뷰·예약현황·접근성·관광지 인접성 등을 AI/ML로 수치화하여 권리금을 산출
 
-### 공개
-- 지역
-- 숙소 유형
-- 공개사진
-- 보증금/월세/권리금 등 공개범위
-- 검증상태
+**Production 입력 특징**
+- operating_months
+- deposit_amount
+- monthly_rent
+- avg_monthly_revenue
+- avg_daily_rate
+- fixed_cost
+- management_fee
+- occupancy_rate
+- asset_reuse_pct
+- facility_investment
+- review_score
+- reservation_forward_rate
+- accessibility_score
+- tourism_proximity_score
+- area
+- accommodation_type
 
-### 열람권 이후
+**Production ML**
+- 활성 모델: `premium-xgb-20260918015612`
+- 엔진: `xgboost_residual_v1`
+- Queue: `gongsil.valuation_inference_jobs`
+- Worker: `gongsil-ml-http`
+- 요청: `public.gongsil_request_premium_assessment(property_id)`
+- 완료: `public.gongsil_complete_ml_inference_job(...)`
+- 결과: `gongsil.premium_assessments`
+
+**제4단계 공개 Gate**
+`gongsil_private.patent_premium_gate(property_id)`
+
+숙소인수 매물의 제5단계 공개 전:
+- 실제 ML 모델 평가가 있어야 함
+- `components.engine = ml_worker`
+- 권리금 min ≤ recommended ≤ max
+- confidence > 0
+- 평가의 `input_snapshot`이 현재 매물 ML 특징과 완전히 일치해야 함
+- 매출/가동률 등 입력값이 바뀌면 기존 평가는 자동으로 Gate 실패
+
+**운영 E2E 확인**
+임시 QA 매물로 실제 XGBoost 추론 → `premium_assessments` 저장 → Stage 4 Gate PASS를 확인함.
+QA 데이터는 테스트 후 삭제.
+
+---
+
+### 제5단계 · 기본 매물검색 + 선택형 열람권
+
+**출원 흐름**
+매수자에게 위치·금액·사진 등 기본 매물정보를 검색 가능하게 보여주고, 상세정보 열람권을 선택적으로 구매 가능하게 제공
+
+**Production 구현**
+- 검색/필터 공개 UI
+- 공개 대상은 운영자 승인 완료 `published` 매물
+- 공개 전 제3단계 검증 Gate 재확인
+- 숙소인수 매물은 제4단계 ML 권리금 Gate 재확인
+- 실제 업로드된 3~10장 공개사진 경로만 승인
+- 운영자 최종 체크리스트 완료 후 공개
+
+**운영자 최종검수**
+- 현장 사진·시설 상태
+- 영업신고·인허가·소방
+- 최근 매출·예약률 근거
+- 양도자산·계약승계 조건
+
+**열람권 데이터 모델**
+`gongsil.access_pass_plans`
+- 건수형: 1건 / 5건 / 10건
+- 기간형: 1일 / 7일 / 30일 / 90일 / 180일 / 365일
+- 현재 실제 판매상품은 별도 활성 플랜으로 운영 가능
+
+**건수형/기간형 권한 처리**
+- `public.gongsil_create_access_order_idempotent(...)`
+- `public.gongsil_unlock_property(...)`
+- 건수형은 `access_pass_usage`로 사용 건수 차감
+- 기간형은 `valid_until`로 유효기간 검사
+
+---
+
+### 제6단계 · 구매자 상세정보 제공
+
+**출원 흐름**
+열람권 구매가 확인되면 매도인 등록정보와 제4단계에서 산출된 권리금을 포함한 상세정보 제공
+
+**Production 구현**
+`public.gongsil_get_property_detail(property_id)`
+
+권한 보유 사용자에게만:
 - 정확주소
 - 운영기간
-- 매출/예약률
-- 운영비
-- 권리금 진단 상세
-- 양도조건 등
+- 월매출
+- 평균객단가
+- 고정비/관리비
+- 가동률
+- 리뷰
+- 예약선행률
+- 접근성
+- 관광지 인접성
+- 시설투자
+- 포함자산
+- 양도사유
+- AI 권리금 최소/최대/추천
+- 모델버전·신뢰도·산정시각
 
-### 주요 SQL
-- `gongsil-production/db/20260923_patent_stage6_7_access_contact.sql`
-- `public.gongsil_get_property_detail(property_id)`
+권한이 없는 공개검색에서는 위 민감 상세정보와 AI 권리금 상세가 잠김.
 
 ---
 
-## 7단계 · 거래 연결
+### 제7단계 · 직거래 / 지정중개사 매칭
 
-### 목적
-상세정보 확인 이후 실제 거래 당사자 또는 지정 공인중개사와 연결합니다.
+**출원 흐름**
+상세정보 확인 후 매칭 요청을 받으면:
+- 직거래: 매도인·매수인 연락처 상호 통지
+- 중개거래: 매매 당사자와 사전 지정 공인중개사 연락처 통지
 
-### 모드
-- 직거래: 승인된 매수자에게 판매자/호스트 연락처 연결
-- 중개사 연결: 해당 매물에 지정된 활성 공인중개사 연결
-
-### Gate
-- 카카오 인증 사용자
-- 상세정보 열람권 보유
-- published 상태의 매물
-- 중개모드일 경우 지정중개사 1명 명확히 존재
-- 연락처 권한 별도 entitlement 생성
-
-### 주요 SQL
-- `gongsil-production/db/20260923_patent_stage6_7_access_contact.sql`
+**Production 구현**
 - `public.gongsil_request_match(...)`
 - `public.gongsil_get_match_contact(...)`
+- 카카오 인증 사용자
+- 상세 열람 entitlement
+- published 매물
+- 지정중개 모드일 경우 활성 지정중개사 확인
+- 연락처 공개 권한 별도 생성
+
+**주요 SQL**
+- `gongsil-production/db/20260923_patent_stage6_7_access_contact.sql`
 
 ---
 
-## 검증 이력과 개인정보 경계
+## 청구항 2 · 열람권 형태
 
-### 내부에 보관
-- 정확주소
-- 제출 증빙 경로
-- OCR 추출 메타데이터
-- 정부DB 원천 응답
-- 조회시각
-- 원천 서비스명
-- 검증 증거지문
-- 운영자 검토 이력
+출원 구성:
+- 검색 매물 1~10건당 건수형
+- 하루·일주일·한 달·분기·반기·1년 기간형
 
-### 공개하지 않는 정보
-- 증빙 원본
-- 정확주소(권한 획득 전)
-- 판매자 연락처(매칭/연락처 권한 전)
-- OCR 원문 전체
+현재 DB 모델:
+- `count_1`
+- `count_5`
+- `count_10`
+- `day_1`
+- `week_1`
+- `month_1`
+- `quarter_1`
+- `half_1`
+- `year_1`
 
-### 사용자 우회 방지
-- 핵심 공개 Gate는 DB 서버 함수에서 실행
-- private Gate는 anon/authenticated 직접 EXECUTE 불가
-- 최종 제출은 소유자 확인
-- 게시승인은 관리자 권한 재확인
-- 검증이력은 소유자/관리자 SELECT 범위이며 사용자 직접 수정 경로를 제공하지 않음
+실제 판매정책은 `active`와 가격 설정으로 별도 운영 가능.
 
 ---
 
-## 현재 자동 QA 고정 항목
+## 청구항 3 · 매도인에 공인중개사 포함
 
-Production Smoke에서 최소 다음을 검증합니다.
+공인중개사 파트너/배정 매물 구조가 존재하며, 지정중개사 모드에서 중개인 연락처를 제7단계에 연결.
 
+관련 UI/RPC:
+- `#broker`
+- `gongsil_submit_broker_application_v2`
+- `gongsil_broker_assigned_properties_v1`
+
+---
+
+## 청구항 4 · 시스템 청구항
+
+위 제1~7단계 서버 흐름을 웹/모바일 브라우저에서 동일하게 사용할 수 있도록 클라이언트, API, DB, Worker로 구성.
+
+---
+
+## 기술적 추가 안전장치
+
+출원서의 단계 구현 외에 Production에서 추가한 보호장치:
+
+- 정확 호실이 아니면 외도민 검증 PASS 금지
+- 띄어쓰기 없는 주소도 정규화
+- 정부DB 장애와 실제 미등록 구분
+- API 페이지네이션
+- SHA-256 검증 증거지문
+- 검증 데이터 최근 30일 freshness
+- 최신 OCR 문서 기준
+- ML 입력 스냅샷과 현재 매물값 불일치 시 Stage 4 Gate 실패
+- 실제 Storage에 등록된 사진만 공개 승인
+- submitted 이후 운영자 수동 체크리스트
+- private Gate를 anon/authenticated가 직접 실행하지 못하도록 차단
+- 공개 전 서버에서 제3·4단계 Gate 재검증
+
+---
+
+## Production 자동 QA
+
+현재 Smoke QA에서:
 - 호실 없는 주소 차단
-- 띄어쓰기 없는 정확 B101호 조회 성공
-- 정확 호실은 `confirmed + unit`
-- SHA-256 증거지문 존재
-- 잘못된 B102호는 exact confirmed 금지
-- 서대문구 공식 서비스 정상 응답
-- 카카오 인증 Gate
-- 매물등록 Gate
-- 열람권 Gate
-- PortOne 공개 설정
+- 띄어쓰기 없는 B101호 정확 조회
+- exact unit = confirmed
+- SHA-256 evidence fingerprint
+- B102호 오입력 exact-confirmed 차단
+- 서대문구 공식 Open API 정상
+- 특허 제5단계 검색 화면
+- 열람권 로그인 Gate
+- 매물등록 로그인 Gate
+- 공인중개사 로그인 Gate
+- 카카오 로그인 handoff
+- PortOne 설정
+
+서버 DB QA에서:
+- 상태값만 confirmed인 매물 차단
+- 정부검증만 PASS인 매물 차단
+- 정부검증 + OCR + fingerprint + 사진/서류가 모두 맞을 때 submitted
+- XGBoost 실제 추론 완료
+- 매물 입력 변경 시 과거 ML 평가 무효화
+- 제3단계 검증 + 제4단계 ML 완료 + 운영자 검수 후에만 published
+- 테스트 데이터 즉시 삭제
 
 ---
 
-## 운영 QA에서 확인한 실제 사례
+## 기준 테스트 주소
 
-검증 주소:
 `서울특별시 동대문구 전농로37길 68-4, B101호`
 
-자동대조 확인값:
+테스트 시 확인한 공공데이터:
 - 사업장명: 지-안
 - 인허가 상태: 영업/정상
 - 허가일자: 2024-02-07
 - 관리번호: CDFI2262212024000004
 - 건축물 용도: 단독주택
-- 정확 B101호 → confirmed
+- B101호 → confirmed / unit
 - B102호 → partial / building
 
-이 사례는 테스트용 기준점이며, 공개 매물 등록을 의미하지 않습니다.
+이 주소는 검증기술 QA 기준점이며 공실헬퍼 판매매물로 등록됐다는 의미가 아닙니다.
