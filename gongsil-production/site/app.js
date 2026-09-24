@@ -56,8 +56,8 @@ function routeName(){const raw=(location.hash||'#home').slice(1);const [name,id]
 function page(title,kicker,body,actions=''){return `<section class="route-page"><div class="route-head"><div><span class="section-kicker">${kicker}</span><h1>${title}</h1></div>${actions}</div>${body}</section>`}
 function skeleton(label='불러오는 중'){root.innerHTML=`<section class="route-loading"><div class="route-spinner"></div><p>${label}</p></section>`}
 function bindNav(){
-  $('#authBtn').onclick=()=>state.user?go('#account'):openLogin();
-  $('#mobileAuthBtn').onclick=()=>state.user?go('#account'):openLogin();
+  $('#authBtn').onclick=()=>state.user?go('#account'):(state.pending={type:'route',hash:'#account'},openLogin());
+  $('#mobileAuthBtn').onclick=()=>state.user?go('#account'):(state.pending={type:'route',hash:'#account'},openLogin());
   $('#mobileMenuBtn').onclick=()=>$('#mobileNav').classList.toggle('open');
   $$('#mobileNav a').forEach(a=>a.onclick=()=>$('#mobileNav').classList.remove('open'));
   $$('[data-legal]').forEach(b=>b.onclick=()=>openLegal(b.dataset.legal));
