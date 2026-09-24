@@ -372,6 +372,81 @@ begin
 end;
 $function$;
 
+create or replace function gongsil_private.patent_premium_gate(p_property_id uuid)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $function$
+declare
+  v_journey text;
+  v_features jsonb;
+  r record;
+  v_ready boolean:=false;
+begin
+  select journey into v_journey
+  from gongsil.properties
+  where id=p_property_id;
+
+  if v_journey is null then
+    return jsonb_build_object('ready',false,'reason','property_not_found');
+  end if;
+
+  if v_journey<>'takeover' then
+    return jsonb_build_object('ready',true,'not_applicable',true,'journey',v_journey);
+  end if;
+
+  v_features:=gongsil_private.current_property_ml_features(p_property_id);
+
+  select
+    a.id,a.model_version,a.premium_min,a.premium_max,a.premium_recommended,
+    a.confidence,a.components,a.input_snapshot,a.assessed_at,
+    m.metrics,m.status as model_status
+  into r
+  from gongsil.premium_assessments a
+  join gongsil.valuation_model_registry m
+    on m.model_version=a.model_version
+   and m.model_kind='ml'
+  where a.property_id=p_property_id
+    and a.input_snapshot=v_features
+    and a.premium_min>=0
+    and a.premium_min<=a.premium_recommended
+    and a.premium_recommended<=a.premium_max
+    and a.confidence>0
+    and coalesce(a.components->>'engine','')='ml_worker'
+  order by a.assessed_at desc
+  limit 1;
+
+  v_ready:=found;
+
+  if not v_ready then
+    return jsonb_build_object(
+      'ready',false,
+      'journey',v_journey,
+      'reason','current_ml_premium_assessment_required'
+    );
+  end if;
+
+  return jsonb_build_object(
+    'ready',true,
+    'journey',v_journey,
+    'assessment_id',r.id,
+    'model_version',r.model_version,
+    'model_status',r.model_status,
+    'engine',coalesce(r.components->'metadata'->>'engine',r.components->>'engine'),
+    'training_source',coalesce(r.components->>'training_source',r.metrics->>'training_source','unknown'),
+    'premium_min',r.premium_min,
+    'premium_max',r.premium_max,
+    'premium_recommended',r.premium_recommended,
+    'confidence',r.confidence,
+    'assessed_at',r.assessed_at
+  );
+end;
+$function$;
+
+revoke all on function gongsil_private.patent_premium_gate(uuid) from public, anon, authenticated;
+
 create or replace function public.gongsil_admin_review_property(
   p_property_id uuid,
   p_status text,
@@ -392,6 +467,7 @@ declare
   v_estimated int:=0;
   v_admin uuid:=(select auth.uid());
   v_gate jsonb;
+  v_premium_gate jsonb;
   v_image_count int:=coalesce(cardinality(p_public_image_paths),0);
 begin
   if not gongsil_private.is_admin() then raise exception 'admin_required'; end if;
@@ -444,6 +520,12 @@ begin
           array(select jsonb_array_elements_text(coalesce(v_gate->'reasons','[]'::jsonb))),
           ','
         );
+    end if;
+
+    v_premium_gate:=gongsil_private.patent_premium_gate(p_property_id);
+    if coalesce((v_premium_gate->>'ready')::boolean,false) is not true then
+      raise exception 'patent_stage4_premium_gate_failed:%',
+        coalesce(v_premium_gate->>'reason','current_ml_premium_assessment_required');
     end if;
 
     select count(*) filter(where status='needs_check'),
