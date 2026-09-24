@@ -423,8 +423,16 @@ begin
     end if;
 
     if exists(
-      select 1 from unnest(p_public_image_paths) path
-      where path not like p_property_id::text || '/%'
+      select 1
+      from unnest(p_public_image_paths) path
+      where not exists(
+        select 1
+        from gongsil.property_documents d
+        where d.property_id=p_property_id
+          and d.document_type='public_image_candidate'
+          and d.storage_bucket='gongsil-property-images'
+          and d.storage_path=path
+      )
     ) then
       raise exception 'invalid_public_image_path';
     end if;
