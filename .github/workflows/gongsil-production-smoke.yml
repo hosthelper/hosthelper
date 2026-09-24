@@ -4,6 +4,7 @@ on:
     branches:
       - gongsil/p0-auth-payment-brand-20260919
     paths:
+      - 'gongsil-production/site/**'
       - 'gongsil-production/smoke/**'
       - '.github/workflows/gongsil-production-smoke.yml'
   workflow_dispatch:
