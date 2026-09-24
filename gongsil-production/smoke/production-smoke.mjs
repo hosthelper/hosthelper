@@ -78,6 +78,46 @@ try {
   await page.locator('#verifyResult').getByText('지-안', { exact: false }).first().waitFor({ timeout: 30000 });
   console.log('PASS exact unit permit check without spaces');
 
+  const exactApi = await page.request.post(base + '.netlify/functions/lodging-check', {
+    data: { address: '서울특별시동대문구전농로37길68-4B101호', businessNo: '', buildingUse: 'unknown' }
+  });
+  if (!exactApi.ok()) throw new Error('exact permit API HTTP ' + exactApi.status());
+  const exactJson = await exactApi.json();
+  if (exactJson.overallStatus !== 'confirmed' || exactJson.matchLevel !== 'unit') {
+    throw new Error('exact unit must be confirmed at unit level');
+  }
+  if (!/^[0-9a-f]{64}$/.test(String(exactJson.evidenceFingerprint || ''))) {
+    throw new Error('patent evidence fingerprint missing');
+  }
+  if (!exactJson.checkedAt || Number(exactJson.sourceMeta?.failedDistricts || 0) !== 0) {
+    throw new Error('patent source audit metadata invalid');
+  }
+  console.log('PASS patent evidence fingerprint + source audit');
+
+  const wrongUnitApi = await page.request.post(base + '.netlify/functions/lodging-check', {
+    data: { address: '서울특별시동대문구전농로37길68-4B102호', businessNo: '', buildingUse: 'unknown' }
+  });
+  if (!wrongUnitApi.ok()) throw new Error('wrong-unit permit API HTTP ' + wrongUnitApi.status());
+  const wrongUnitJson = await wrongUnitApi.json();
+  if (wrongUnitJson.overallStatus === 'confirmed' || wrongUnitJson.matchLevel !== 'building') {
+    throw new Error('wrong unit must not pass exact-unit verification');
+  }
+  console.log('PASS wrong-unit rejection');
+
+  const seodaemunApi = await page.request.post(base + '.netlify/functions/lodging-check', {
+    data: { address: '서울특별시 서대문구 테스트로 1 101호', businessNo: '', buildingUse: 'unknown' }
+  });
+  if (!seodaemunApi.ok()) throw new Error('Seodaemun permit API HTTP ' + seodaemunApi.status());
+  const seodaemunJson = await seodaemunApi.json();
+  if (seodaemunJson.overallStatus === 'unavailable') {
+    throw new Error('Seodaemun official permit service unavailable');
+  }
+  if (Number(seodaemunJson.sourceMeta?.failedDistricts || 0) !== 0) {
+    throw new Error('Seodaemun official permit service failed');
+  }
+  console.log('PASS Seodaemun official permit API service');
+
+
   await page.goto(base + '#home', { waitUntil: 'networkidle', timeout: 60000 });
   await page.locator('#authBtn').click();
   await page.getByText('카카오 로그인 후 바로 공실헬퍼 내 계정으로 돌아옵니다.', { exact: false }).waitFor();
