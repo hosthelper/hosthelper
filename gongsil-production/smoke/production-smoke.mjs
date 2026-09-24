@@ -20,7 +20,8 @@ try {
   const appRes = await page.request.get(base + 'app.js?v=' + encodeURIComponent(appMatch[1]));
   if (!appRes.ok()) throw new Error('app.js HTTP ' + appRes.status());
   const appJs = await appRes.text();
-  if (!appJs.includes('/api/universe/auth/start-redirect')) throw new Error('direct Kakao start route missing from live app.js');
+  if (!appJs.includes("supabase.auth.signInWithOAuth") || !appJs.includes("provider:'kakao'")) throw new Error('direct Supabase Kakao OAuth flow missing from live app.js');
+  if (appJs.includes("/api/universe/auth/start-redirect")) throw new Error('legacy PDS start-redirect must not be used by live Gongsil app');
   console.log('PASS live versioned app asset', appMatch[1]);
 
   await route('#valuation', '무료 AI 권리금 시세진단');
