@@ -1,7 +1,7 @@
 {
   "version": 4,
   "initialized": true,
-  "updatedAt": "2026-09-28T05:31:34.893Z",
+  "updatedAt": "2026-09-28T06:37:46.031Z",
   "knownRooms": [
     "401호 천호",
     "A311",
@@ -86,6 +86,15 @@
       "uid": "1418fb94e984-b9f2d8e7c08887303a4fa6e76dbcd440@airbnb.com",
       "checkinDate": "2026-10-26",
       "checkoutDate": "2026-11-15"
+    },
+    "A705:1418fb94e984-8c0717bf6a4a9064126b35da954a6ecd@airbnb.com": {
+      "key": "A705:1418fb94e984-8c0717bf6a4a9064126b35da954a6ecd@airbnb.com",
+      "roomName": "A705",
+      "source": "airbnb",
+      "feedKey": "airbnb:A705",
+      "uid": "1418fb94e984-8c0717bf6a4a9064126b35da954a6ecd@airbnb.com",
+      "checkinDate": "2026-11-20",
+      "checkoutDate": "2026-11-24"
     },
     "A311:1418fb94e984-84ec4123402c76adc4d0aaec84edf764@airbnb.com": {
       "key": "A311:1418fb94e984-84ec4123402c76adc4d0aaec84edf764@airbnb.com",
