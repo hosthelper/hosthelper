@@ -1,0 +1,37 @@
+/* Life Helper V2 visual system - 2026-09-07 */
+:root{--lh-blue:#0868ed;--lh-blue2:#0554c9;--lh-ink:#10213c;--lh-soft:#eef6ff;--lh-line:#d6e5f6;--lh-bg:#f7fbff;--lh-shadow:0 14px 34px rgba(20,73,135,.09)}
+body{background:linear-gradient(180deg,#fff 0,#f9fcff 46%,#f4f9ff 100%);color:var(--lh-ink)}
+.topbar{height:72px;border-bottom:1px solid #dce9f6;box-shadow:0 2px 14px rgba(22,67,118,.04)}
+.brandIcon{background:linear-gradient(145deg,#1e83ff,#0754c9);box-shadow:0 8px 18px rgba(8,104,237,.22)}
+.navBtn{font-size:13px;padding:10px 14px}.navBtn.active{background:#e9f3ff;color:#075bcc;box-shadow:inset 0 0 0 1px #cce1fb}
+.loginBtn{background:linear-gradient(135deg,var(--lh-blue),var(--lh-blue2));box-shadow:0 8px 18px rgba(8,104,237,.18)}
+.hero{max-width:1500px;border:1px solid #e1ebf6;border-top:0;border-radius:0 0 24px 24px;overflow:hidden;box-shadow:0 12px 30px rgba(24,73,124,.05)}
+.heroCopy{padding:58px 48px 48px}.hero h1{font-size:clamp(42px,4.6vw,64px);margin-top:12px}.hero .lead{font-size:16px;max-width:650px}.heroPhoto{min-height:430px;border-radius:22px;margin:14px 14px 14px 0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.45)}
+.heroWall{background:linear-gradient(135deg,rgba(3,36,74,.16),rgba(0,0,0,.14));padding:18px 20px;border-radius:16px;backdrop-filter:blur(2px)}
+.modeStripWrap{max-width:1384px;margin:18px auto 0;padding:0 28px}
+.modeStripHead{padding:18px 22px;border:1px solid var(--lh-line);border-radius:18px 18px 0 0;background:linear-gradient(100deg,#fff 0,#f2f8ff 55%,#e8f3ff 100%)}
+.modeStripHead h2{font-size:28px;letter-spacing:-.045em;margin:4px 0 2px}.modeStripHead p{margin:0;color:#52647d;font-size:13px}
+.modeStrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));border:1px solid var(--lh-line);border-top:0;border-radius:0 0 18px 18px;overflow:hidden;background:#fff;box-shadow:var(--lh-shadow)}
+.modeStep{display:flex;gap:12px;align-items:flex-start;min-height:100px;padding:18px;border-right:1px solid #e6eef8}.modeStep:last-child{border-right:0}
+.modeStep i{flex:0 0 34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#1b80ff,#0757cf);color:#fff;font-style:normal;font-weight:900;box-shadow:0 7px 14px rgba(8,104,237,.18)}
+.modeStep b{display:block;font-size:14px;margin-bottom:5px}.modeStep span{display:block;color:#66758a;font-size:11px;line-height:1.55}
+.purposeBar,.journey,.section,.dashboard,.trustStrip{max-width:1384px}.purposeCard{border-color:#dbe8f6;box-shadow:0 5px 14px rgba(35,83,135,.03)}
+.purposeCard:hover,.purposeCard.active{box-shadow:0 10px 24px rgba(20,79,150,.10);border-color:#8abcf5;background:linear-gradient(180deg,#f6fbff,#eaf4ff)}
+.journeyBox{box-shadow:0 8px 22px rgba(32,80,134,.05);border-color:#d7e6f6}.journeyStep i{background:linear-gradient(145deg,#1b80ff,#0757cf)}
+.requestBuilder{gap:16px}.formPanel,.resultPanel,.panel{border-color:#d7e5f4;box-shadow:0 10px 26px rgba(26,74,126,.055)}
+.formPanel,.resultPanel,.panel{border-radius:18px}.field input,.field select,.field textarea{border-color:#cfe0f1;background:#fbfdff}.field input:focus,.field select:focus,.field textarea:focus{background:#fff}
+.spaceCard{border-color:#d8e5f3;box-shadow:0 6px 18px rgba(28,77,128,.045);transition:.18s}.spaceCard:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(23,77,140,.09)}
+.dashboard{max-width:1460px;margin-top:18px}.dashHero{position:relative;overflow:hidden;min-height:230px;border:1px solid #d6e5f5;border-radius:22px;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(244,249,255,.94) 54%,rgba(230,242,255,.74) 100%),url('https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1800&q=88') center/cover no-repeat;box-shadow:var(--lh-shadow)}
+.dashIntro{border:0;background:transparent;display:flex;flex-direction:column;justify-content:center;padding:32px 34px}.dashIntro h1{font-size:38px;letter-spacing:-.05em;max-width:720px}.dashIntro p{font-size:15px;max-width:720px;line-height:1.7}
+.roleBox{margin:18px;border-radius:18px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(145deg,rgba(8,104,237,.95),rgba(4,73,174,.96));box-shadow:0 18px 34px rgba(5,84,190,.22)}
+.roleBox b{font-size:24px}.statGrid{grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.stat{min-height:94px;border-color:#d9e6f4;background:linear-gradient(180deg,#fff,#fbfdff);box-shadow:0 7px 18px rgba(29,77,130,.04)}
+.stat b{font-size:26px;color:#10213c}.dashGrid{gap:14px}.panelHead h2{font-size:20px;letter-spacing:-.04em}.panelHead h3{font-size:17px}
+.table{font-size:11px}.table th{background:#f6faff;color:#53677f;font-weight:800}.table th,.table td{padding:10px 8px}.table tbody tr:hover{background:#fbfdff}
+.supplierLayout{gap:14px}.flowStep{background:linear-gradient(180deg,#fff,#f8fbff);border-color:#d7e5f4;box-shadow:0 6px 16px rgba(29,77,130,.04)}
+.trustBox{background:linear-gradient(90deg,#f2f8ff,#edf6ff);border-color:#d4e5f8;box-shadow:0 8px 20px rgba(31,80,135,.04)}
+.footer{background:linear-gradient(90deg,#0759ce,#0871f4);box-shadow:0 -8px 24px rgba(11,91,200,.08)}
+@media(min-width:1200px){.dashboard .dashGrid{grid-template-columns:1fr 1fr}.dashboard .panel.span2{grid-column:1/-1}.supplierLayout>.panel{min-height:620px}.requestBuilder{grid-template-columns:.88fr 1.12fr}}
+@media(max-width:1100px){.modeStripWrap{padding:0 18px}.modeStrip{grid-template-columns:repeat(2,1fr)}.modeStep:nth-child(2){border-right:0}.dashHero{grid-template-columns:1fr}.roleBox{margin-top:0}.heroPhoto{margin:0 18px 18px}}
+@media(max-width:760px){.modeStripWrap{padding:0 16px;margin-top:12px}.modeStripHead{padding:15px}.modeStripHead h2{font-size:23px}.modeStrip{grid-template-columns:1fr}.modeStep{min-height:auto;border-right:0;border-bottom:1px solid #e5eef8;padding:15px}.modeStep:last-child{border-bottom:0}.dashHero{min-height:auto}.dashIntro{padding:25px 22px}.dashIntro h1{font-size:31px}.roleBox{margin:0 14px 14px}.heroCopy{padding:38px 22px 28px}.hero h1{font-size:40px}.heroPhoto{min-height:300px}.statGrid{grid-template-columns:repeat(2,1fr)}.panelHead h2{font-size:18px}}
+@media(max-width:430px){.statGrid{grid-template-columns:1fr}.modeStripHead h2{font-size:21px}.topbar{box-shadow:none}.navBtn{font-size:12px}}
+.dashHero{background:linear-gradient(90deg,rgba(255,255,255,.96) 0%,rgba(244,249,255,.84) 48%,rgba(223,238,255,.34) 100%),url('https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1800&q=88') center/cover no-repeat}
