@@ -1,0 +1,44 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b63e5">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏠</text></svg>">
+<title>라이프헬퍼 | 목적형 숙박 수요 플랫폼</title>
+<meta name="description" content="한국 방문 목적과 일정에 맞는 검증 숙소를 연결하는 라이프헬퍼">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1000&q=88" fetchpriority="high">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=20260907-2110">
+<link rel="stylesheet" href="visual-v2.css?v=20260907-2110">
+<link rel="stylesheet" href="role-approval.css?v=20260907-2110">
+<link rel="stylesheet" href="legacy-strengths.css?v=20260907-2110">
+</head>
+<body>
+<div id="app">
+<header class="topbar">
+<a class="brand" href="#user-home" aria-label="라이프헬퍼 홈"><span class="brandIcon">⌂</span><span><b>라이프헬퍼</b><small>LIFE HELPER</small></span></a>
+<nav class="nav publicNav" aria-label="주요 메뉴">
+<a href="#user-search" class="navBtn">숙소 찾기</a>
+<button id="publicB2BNav" class="navBtn">단체·기업 문의</button>
+</nav>
+<div class="topActions"><button id="roleSwitchBtn" class="roleSwitchBtn" hidden></button><button id="langToggle" class="ghostBtn">KO</button><button id="loginBtn" class="loginBtn">로그인</button><button id="mobileMenu" class="mobileMenu">☰</button></div>
+</header><main id="main"></main>
+</div>
+<div id="modal" class="modal" aria-hidden="true"><div class="modalCard"><button id="modalClose" class="modalClose">×</button><div id="modalBody"></div></div></div>
+<div id="toast" class="toast" role="status"></div>
+<template id="loginTemplate">
+<div class="loginPanel"><span class="eyebrow">HELPER ID</span><h2>라이프헬퍼 로그인</h2><p>현재 실제 연결된 로그인 방식만 제공합니다.</p><button data-provider="kakao" class="oauth kakao">카카오로 계속</button><button data-provider="google" class="oauth google">Google로 계속</button><small>로그인은 Helper ID와 서비스 이용 이력을 연결하기 위한 수단이며 예약·결제 권한을 자동으로 부여하지 않습니다.</small></div>
+</template>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://js.tosspayments.com/v2/standard"></script>
+<script src="app.js?v=20260908-0035"></script>
+<script src="role-approval.js?v=20260907-2110"></script>
+<script src="legacy-strengths.js?v=20260907-2110"></script>
+<script src="ui-v2.js?v=20260907-2110"></script>
+</body>
+</html>
