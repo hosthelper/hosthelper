@@ -280,3 +280,14 @@ begin
   return true;
 end;
 $function$;
+
+
+-- API privilege hardening: these SECURITY DEFINER RPCs are authenticated-only.
+revoke all on function public.gongsil_request_match(uuid,text,text) from public,anon;
+grant execute on function public.gongsil_request_match(uuid,text,text) to authenticated;
+
+revoke all on function public.gongsil_admin_approve_match(uuid,uuid) from public,anon;
+grant execute on function public.gongsil_admin_approve_match(uuid,uuid) to authenticated;
+
+revoke all on function public.gongsil_admin_reassign_match_broker(uuid,uuid) from public,anon;
+grant execute on function public.gongsil_admin_reassign_match_broker(uuid,uuid) to authenticated;
