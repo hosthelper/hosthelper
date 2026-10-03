@@ -271,6 +271,12 @@ function renderValuation(){
     <label>월세 *<input name="rent" required placeholder="예: 180만원"></label>
     <label>월 고정비 *<input name="fixed" required placeholder="예: 120만원"></label>
     <label>관리비<input name="management" placeholder="예: 30만원"></label>
+    <label>월 공과금<input name="utilities" placeholder="예: 40만원"></label>
+    <label>월 OTA·결제 수수료<input name="platformFee" placeholder="예: 45만원"></label>
+    <label>월 인건비·청소비<input name="labor" placeholder="예: 80만원"></label>
+    <label>월 기타비용<input name="otherCost" placeholder="예: 20만원"></label>
+    <label>검토 중인 권리금/양수가<input name="askingPremium" placeholder="예: 3000만원"></label>
+    <label>목표 연수익률<input name="targetRoi" placeholder="예: 20 (%)"></label>
     <label>운영기간 *<input name="months" required placeholder="예: 24개월"></label>
     <label>평균 가동률 *<input name="occupancy" required placeholder="예: 72"></label>
     <label>평균 객단가<input name="adr" placeholder="예: 12만원"></label>
@@ -290,7 +296,8 @@ async function calculateValuation(e){
   const fd=new FormData(e.currentTarget);
   const area=String(fd.get('area')||'').trim(),accommodationType=String(fd.get('accommodationType')||'').trim();
   const deposit=won(fd.get('deposit')),revenue=won(fd.get('revenue')),rent=won(fd.get('rent')),fixed=won(fd.get('fixed')),
-    management=won(fd.get('management')),operating=months(fd.get('months')),occ=num(fd.get('occupancy'))||60,
+    management=won(fd.get('management')),utilities=won(fd.get('utilities')),platformFee=won(fd.get('platformFee')),labor=won(fd.get('labor')),otherCost=won(fd.get('otherCost')),
+    askingPremium=won(fd.get('askingPremium')),targetRoi=num(fd.get('targetRoi'))||0,operating=months(fd.get('months')),occ=num(fd.get('occupancy'))||60,
     adr=won(fd.get('adr')),facility=won(fd.get('facility')),reuse=num(fd.get('reuse'))||Math.max(20,100-operating/0.6),
     review=num(fd.get('review'))||4,forward=num(fd.get('forward'))||occ,access=num(fd.get('accessibility'))||50,tourism=num(fd.get('tourism'))||50;
   const preview=$('#valuationPreview');
@@ -298,7 +305,7 @@ async function calculateValuation(e){
   const features={operating_months:operating,deposit_amount:deposit,monthly_rent:rent,avg_monthly_revenue:revenue,avg_daily_rate:adr,fixed_cost:fixed,management_fee:management,occupancy_rate:occ,asset_reuse_pct:reuse,facility_investment:facility,review_score:review,reservation_forward_rate:forward,accessibility_score:access,tourism_proximity_score:tourism,area,accommodation_type:accommodationType};
   const completeness=Object.entries(features).filter(([k,v])=>!['area','accommodation_type'].includes(k)?Number(v)!==0:String(v||'').trim()!=='').length;
   const local=()=>{
-    const profit=Math.max(revenue-rent-fixed-management,0);
+    const profit=Math.max(revenue-rent-fixed-management-utilities-platformFee-labor-otherCost,0);
     const quality=1+Math.max(-.08,Math.min(.12,(occ-60)/400))+Math.max(-.04,Math.min(.06,(review-4)/20))+Math.max(-.04,Math.min(.06,(forward-60)/500))+Math.max(-.03,Math.min(.05,(access-50)/1000))+Math.max(-.03,Math.min(.05,(tourism-50)/1000));
     const facilityValue=facility*Math.min(1,Math.max(0,reuse/100));
     const business=profit*Math.max(6,Math.min(18,8+operating/6))*quality;
@@ -314,15 +321,32 @@ async function calculateValuation(e){
   }catch(err){console.warn('ML valuation fallback',err);result=local()}
   const mode=result.mode==='ml'?'XGBoost AI 모델':result.mode==='rules_fallback'?'AI 기준모델':'간이 기준모델';
   const confidence=Math.round(Number(result.confidence||55));
+  const monthlyCost=rent+fixed+management+utilities+platformFee+labor+otherCost;
+  const monthlyProfit=revenue-monthlyCost;
+  const annualProfit=monthlyProfit*12;
+  const premiumForRoi=askingPremium||Number(result.premium_recommended||0);
+  const totalCapital=deposit+premiumForRoi;
+  const annualRoi=totalCapital>0?(annualProfit/totalCapital)*100:0;
+  const paybackMonths=monthlyProfit>0&&premiumForRoi>0?premiumForRoi/monthlyProfit:null;
+  const maxTotalCapital=targetRoi>0&&annualProfit>0?annualProfit/(targetRoi/100):null;
+  const maxPremium=maxTotalCapital!=null?Math.max(0,maxTotalCapital-deposit):null;
   preview.innerHTML=`<span class="section-kicker">${esc(mode)} · 신뢰도 ${confidence}%</span><h2>${money(result.premium_min)} ~ ${money(result.premium_max)}</h2>
   <div class="result-breakdown">
-    <div><span>권리금 기준값</span><b>${money(result.premium_recommended)}</b></div>
+    <div><span>AI 권리금 기준값</span><b>${money(result.premium_recommended)}</b></div>
+    <div><span>월 총비용</span><b>${money(monthlyCost)}</b></div>
+    <div><span>예상 월 순수익</span><b>${money(monthlyProfit)}</b></div>
+    <div><span>예상 연 순수익</span><b>${money(annualProfit)}</b></div>
+    <div><span>총 필요자금</span><b>${money(totalCapital)}</b></div>
+    <div><span>총투입자금 기준 연수익률</span><b>${annualRoi.toFixed(1)}%</b></div>
+    <div><span>권리금 회수기간</span><b>${paybackMonths==null?'산정 불가':paybackMonths.toFixed(1)+'개월'}</b></div>
+    ${targetRoi>0?`<div><span>목표 ${targetRoi}% 기준 권리금 상한</span><b>${money(maxPremium)}</b></div>`:''}
     <div><span>분석 방식</span><b>${esc(mode)}</b></div>
     <div><span>모델 버전</span><b>${esc(result.model_version||'valuation-v1')}</b></div>
     <div><span>입력 완성도</span><b>${completeness}/${Object.keys(features).length}</b></div>
   </div>
-  <p>반영요소: 매출·비용·가동률·리뷰·예약현황·접근성·관광지 인접성·지역·숙소유형.</p>
-  <p>AI 분석값은 거래 판단을 위한 참고 정보이며 실제 계약가·수익을 보장하지 않습니다.</p><a href="#register" class="btn primary">이 숙소 등록하기</a>`;
+  <p>총 필요자금은 보증금 + 입력한 권리금/양수가를 기준으로 계산하며, 미입력 시 AI 권리금 기준값을 사용합니다.</p>
+  <p>반영비용: 월세·고정비·관리비·공과금·OTA/결제 수수료·인건비/청소비·기타비용.</p>
+  <p>AI 분석값과 수익률은 거래 판단을 위한 참고 정보이며 실제 계약가·수익을 보장하지 않습니다.</p><a href="#register" class="btn primary">이 숙소 등록하기</a>`;
 }
 async function renderPasses(){skeleton('열람권 상품을 불러오는 중입니다.');let plans=[];try{const{data,error}=await supabase.from('gongsil_access_plans_v1').select('*').order('display_order');if(error)throw error;plans=data||[]}catch(e){console.error(e)}const cards=plans.length?`<div class="plan-grid user-plan-grid">${plans.map(p=>`<article><small>${p.plan_kind==='count'?'건수형':'기간형'}</small><h3>${esc(p.label)}</h3><b>${money(p.price_krw)}</b><p>${p.plan_kind==='count'?`${p.property_limit}개 매물 상세열람`:`${p.valid_days}일 동안 프리미엄 상세정보 열람`}</p><button class="btn primary" data-buy-plan="${p.plan_code}">PortOne으로 구매</button></article>`).join('')}</div>`:'<div class="mode-empty"><b>현재 판매 중인 열람권이 없습니다.</b><p>운영정책 확정 후 다시 열립니다.</p></div>';root.innerHTML=page('프리미엄 열람권','ACCESS PASS',`<div class="route-card"><p class="mode-lead">공개정보는 무료입니다. 정확한 주소·운영수치·권리금 분석 등 보호가 필요한 정보만 열람권으로 엽니다.</p>${cards}<div class="notice-card"><b>결제 안전장치</b><p>PortOne 결제 완료 후 서버가 결제상태와 금액을 다시 확인해야 열람권이 활성화됩니다.</p></div></div>`,'<a class="outline-btn" href="#account">내 열람권</a>');$$('[data-buy-plan]').forEach(b=>b.onclick=()=>buyPlan(b.dataset.buyPlan,plans.find(p=>p.plan_code===b.dataset.buyPlan)))}
 async function buyPlan(planCode,plan){if(!state.user){state.pending={type:'route',hash:'#passes'};return openLogin()}if(!plan?.price_krw)return toast('판매가격이 설정되지 않은 상품입니다.');try{toast('결제 주문을 만들고 있습니다.');let idem=sessionStorage.getItem('gongsil.payment.idempotency.'+planCode);if(!idem){idem=crypto.randomUUID();sessionStorage.setItem('gongsil.payment.idempotency.'+planCode,idem)}const{data:orderId,error}=await supabase.rpc('gongsil_create_access_order_idempotent',{p_plan_code:planCode,p_idempotency_key:idem});if(error)throw error;sessionStorage.setItem('gongsil.payment.orderId',String(orderId));sessionStorage.setItem('gongsil.payment.planCode',planCode);const cfgRes=await fetch('/.netlify/functions/portone-config',{cache:'no-store'}),cfg=await cfgRes.json();if(!cfgRes.ok||!cfg.storeId||!cfg.channelKey)throw new Error(cfg.error||'PortOne 설정을 불러오지 못했습니다.');const PortOne=await import('https://esm.sh/@portone/browser-sdk@0.1.5/v2');const paymentId=`GSP-${crypto.randomUUID()}`;sessionStorage.setItem('gongsil.payment.paymentId',paymentId);const redirectUrl=`${location.origin}${location.pathname}?orderId=${encodeURIComponent(orderId)}#passes`;const response=await PortOne.requestPayment({storeId:cfg.storeId,channelKey:cfg.channelKey,paymentId,orderName:`공실헬퍼 ${plan.label}`,totalAmount:Number(plan.price_krw),currency:'CURRENCY_KRW',payMethod:'CARD',customer:{customerId:state.user.id,fullName:state.user.user_metadata?.nickname||state.user.user_metadata?.name||'공실헬퍼 회원',email:state.user.email||undefined},redirectUrl});if(response?.code)throw new Error(response.message||'결제가 취소되었습니다.');if(response?.paymentId)await settlePortOne(orderId,response.paymentId)}catch(e){console.error(e);toast(String(e?.message||'결제를 시작하지 못했습니다.'))}}
