@@ -1,4 +1,4 @@
-import json,base64,hashlib,time,zlib,os,urllib.request,urllib.error
+import json,base64,hashlib,time,zlib,os,urllib.request,urllib.error,threading
 from http.server import BaseHTTPRequestHandler,HTTPServer
 import numpy as np
 import xgboost as xgb
@@ -183,6 +183,42 @@ def quote_rate_allowed(headers,client_address):
         if k[1] < bucket-1: RATE.pop(k,None)
     return RATE[key] <= RATE_LIMIT
 
+
+def rpc_worker(name,payload):
+    supa=os.environ.get('SUPABASE_URL','').rstrip('/')
+    key=os.environ.get('SUPABASE_PUBLISHABLE_KEY','')
+    token=os.environ.get('GONGSIL_ML_WORKER_TOKEN','')
+    if not supa or not key or not token: raise RuntimeError('ml_queue_not_configured')
+    body=dict(payload or {}); body['p_worker_token']=token
+    req=urllib.request.Request(supa+'/rest/v1/rpc/'+name,data=json.dumps(body,separators=(',',':')).encode(),headers={'apikey':key,'Content-Type':'application/json'},method='POST')
+    with urllib.request.urlopen(req,timeout=30) as resp:
+        raw=resp.read().decode()
+        return json.loads(raw) if raw else None
+
+def queue_loop():
+    worker_id=os.environ.get('WORKER_ID','render-ml-http-queue')
+    poll=max(5,int(os.environ.get('POLL_SECONDS','15')))
+    while True:
+        try:
+            job=rpc_worker('gongsil_worker_claim_ml_training_job',{'p_worker_id':worker_id})
+            if job:
+                try:
+                    result=train(job)
+                    done=rpc_worker('gongsil_worker_complete_ml_training_job',{
+                        'p_job_id':job['job_id'],'p_worker_id':worker_id,'p_claim_token':job['claim_token'],
+                        'p_model_version':result['model_version'],'p_artifact_uri':result['artifact_uri'],'p_metrics':result['metrics']
+                    })
+                    if done and done.get('eligible_for_promotion'):
+                        try: rpc_worker('gongsil_worker_promote_ml_candidate',{'p_model_version':result['model_version']})
+                        except Exception as e: print('promotion blocked',e,flush=True)
+                except Exception as e:
+                    print('queue training error',e,flush=True)
+                    try: rpc_worker('gongsil_worker_fail_ml_training_job',{'p_job_id':job['job_id'],'p_worker_id':worker_id,'p_claim_token':job['claim_token'],'p_error':str(e)[:1800],'p_retry':False})
+                    except Exception: pass
+        except Exception as e:
+            print('queue loop error',e,flush=True)
+        time.sleep(poll)
+
 class H(BaseHTTPRequestHandler):
     def _send(self,code,obj):
         b=json.dumps(obj,separators=(',',':')).encode(); self.send_response(code); self.send_header('Content-Type','application/json'); self.send_header('Content-Length',str(len(b)))
@@ -217,4 +253,5 @@ class H(BaseHTTPRequestHandler):
             return self._send(400,{'ok':False,'error':str(e)[:500]})
     def log_message(self,fmt,*args): pass
 
+threading.Thread(target=queue_loop,daemon=True).start()
 HTTPServer(('0.0.0.0',int(__import__('os').environ.get('PORT','10000'))),H).serve_forever()
