@@ -127,7 +127,7 @@ def fetch_active_model():
     token=os.environ.get('GONGSIL_ML_PROXY_SECRET','')
     if not supa or not key or not token: raise ValueError('ml_proxy_not_configured')
     body=json.dumps({'p_proxy_token':token}).encode()
-    req=urllib.request.Request(supa+'/rest/v1/rpc/gongsil_get_active_valuation_model_with_token',data=body,headers={'apikey':key,'Content-Type':'application/json'},method='POST')
+    req=urllib.request.Request(supa+'/rest/v1/rpc/gongsil_get_active_valuation_model_with_token',data=body,headers={'apikey':key,'Authorization':'Bearer '+key,'Content-Type':'application/json'},method='POST')
     with urllib.request.urlopen(req,timeout=6) as resp:
         return json.loads(resp.read().decode())
 
