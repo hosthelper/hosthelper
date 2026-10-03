@@ -155,3 +155,130 @@ left join gongsil.property_listing_mandates m on m.property_id=p.id
 left join gongsil.broker_applications b on b.id=m.broker_application_id;
 
 grant select on public.gongsil_my_properties_v1 to authenticated;
+
+
+-- Auto-designate the approved registering broker for each seller-mandated property.
+create or replace function gongsil_private.notify_broker_assignment()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare
+  v_title text;
+begin
+  if not new.active then return new; end if;
+
+  if new.inquiry_id is not null then
+    select p.title into v_title
+    from gongsil.inquiries i
+    join gongsil.properties p on p.id=i.property_id
+    where i.id=new.inquiry_id;
+
+    perform gongsil_private.notify_once(
+      new.broker_user_id,
+      'broker-inquiry-assignment:'||new.id::text,
+      'broker_assignment',
+      '새 문의가 배정되었습니다.',
+      coalesce(v_title,'매물 문의'),
+      'inquiry',
+      new.inquiry_id,
+      2::smallint,
+      jsonb_build_object('assignment_id',new.id)
+    );
+  elsif new.property_id is not null then
+    select p.title into v_title
+    from gongsil.properties p
+    where p.id=new.property_id;
+
+    perform gongsil_private.notify_once(
+      new.broker_user_id,
+      'broker-property-assignment:'||new.id::text,
+      'broker_property_assignment',
+      '지정중개사 매물이 연결되었습니다.',
+      coalesce(v_title,'등록 매물')||'의 지정중개사로 연결되었습니다.',
+      'property',
+      new.property_id,
+      2::smallint,
+      jsonb_build_object('assignment_id',new.id)
+    );
+  end if;
+
+  return new;
+end;
+$$;
+
+revoke all on function gongsil_private.notify_broker_assignment() from public,anon,authenticated;
+
+create or replace function public.gongsil_submit_broker_mandated_property(
+  p_payload jsonb,
+  p_seller_name text,
+  p_seller_phone text,
+  p_mandate_confirmed boolean,
+  p_mandate_note text default null
+)
+returns uuid
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare
+  v_uid uuid := (select auth.uid());
+  v_property_id uuid;
+  v_broker_application_id uuid;
+begin
+  if v_uid is null then raise exception 'authentication_required'; end if;
+
+  if not exists(
+    select 1
+    from gongsil.user_roles r
+    where r.user_id=v_uid
+      and r.role='broker'
+      and r.status='active'
+  ) then
+    raise exception 'approved_broker_required';
+  end if;
+
+  select b.id
+    into v_broker_application_id
+  from gongsil.broker_applications b
+  where b.user_id=v_uid
+    and b.status='approved'
+  order by b.updated_at desc
+  limit 1;
+
+  if v_broker_application_id is null then
+    raise exception 'approved_broker_application_required';
+  end if;
+  if p_mandate_confirmed is not true then
+    raise exception 'seller_mandate_confirmation_required';
+  end if;
+  if length(trim(coalesce(p_seller_name,'')))<2 then
+    raise exception 'seller_name_required';
+  end if;
+  if length(regexp_replace(coalesce(p_seller_phone,''),'[^0-9]','','g'))<9 then
+    raise exception 'seller_phone_required';
+  end if;
+
+  v_property_id:=public.gongsil_submit_property(p_payload);
+
+  insert into gongsil.property_listing_mandates(
+    property_id,broker_user_id,broker_application_id,seller_name,seller_phone,
+    mandate_confirmed,mandate_note,confirmed_at
+  )
+  values(
+    v_property_id,v_uid,v_broker_application_id,trim(p_seller_name),trim(p_seller_phone),
+    true,nullif(trim(coalesce(p_mandate_note,'')),''),now()
+  );
+
+  insert into gongsil.broker_assignments(
+    property_id,broker_user_id,assigned_by,active
+  )
+  values(v_property_id,v_uid,v_uid,true);
+
+  return v_property_id;
+end;
+$$;
+
+revoke all on function public.gongsil_submit_broker_mandated_property(jsonb,text,text,boolean,text) from public,anon;
+grant execute on function public.gongsil_submit_broker_mandated_property(jsonb,text,text,boolean,text) to authenticated;
