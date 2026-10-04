@@ -203,9 +203,11 @@ def queue_loop():
     worker_id=os.environ.get('WORKER_ID','render-ml-http-queue')
     poll=max(5,int(os.environ.get('POLL_SECONDS','15')))
     while True:
+        did_work=False
         try:
             job=rpc_worker('gongsil_worker_claim_ml_training_job',{'p_worker_id':worker_id})
             if job:
+                did_work=True
                 try:
                     result=train(job)
                     done=rpc_worker('gongsil_worker_complete_ml_training_job',{
@@ -220,8 +222,27 @@ def queue_loop():
                     try: rpc_worker('gongsil_worker_fail_ml_training_job',{'p_job_id':job['job_id'],'p_worker_id':worker_id,'p_claim_token':job['claim_token'],'p_error':str(e)[:1800],'p_retry':False})
                     except Exception: pass
         except Exception as e:
-            print('queue loop error',e,flush=True)
-        time.sleep(poll)
+            print('queue training claim error',e,flush=True)
+
+        try:
+            infer_job=rpc_worker('gongsil_worker_claim_ml_inference_job',{'p_worker_id':worker_id})
+            if infer_job:
+                did_work=True
+                try:
+                    out=infer(infer_job)
+                    rpc_worker('gongsil_worker_complete_ml_inference_job',{
+                        'p_job_id':infer_job['job_id'],'p_worker_id':worker_id,'p_claim_token':infer_job['claim_token'],
+                        'p_prediction':out['prediction'],'p_min':out['premium_min'],'p_max':out['premium_max'],
+                        'p_confidence':out['confidence'],'p_metadata':out.get('metadata') or {}
+                    })
+                except Exception as e:
+                    print('queue inference error',e,flush=True)
+                    try: rpc_worker('gongsil_worker_fail_ml_inference_job',{'p_job_id':infer_job['job_id'],'p_worker_id':worker_id,'p_claim_token':infer_job['claim_token'],'p_error':str(e)[:1800],'p_retry':False})
+                    except Exception: pass
+        except Exception as e:
+            print('queue inference claim error',e,flush=True)
+
+        time.sleep(1 if did_work else poll)
 
 class H(BaseHTTPRequestHandler):
     def _send(self,code,obj):
