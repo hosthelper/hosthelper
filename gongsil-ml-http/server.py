@@ -187,7 +187,7 @@ def quote_rate_allowed(headers,client_address):
 def rpc_worker(name,payload):
     supa=os.environ.get('SUPABASE_URL','').rstrip('/')
     key=os.environ.get('SUPABASE_PUBLISHABLE_KEY','')
-    token=os.environ.get('GONGSIL_ML_PROXY_SECRET','') or os.environ.get('GONGSIL_ML_WORKER_TOKEN','')
+    token=os.environ.get('GONGSIL_ML_WORKER_TOKEN','') or os.environ.get('GONGSIL_ML_PROXY_SECRET','')
     if not supa or not key or not token: raise RuntimeError('ml_queue_not_configured')
     body=dict(payload or {}); body['p_worker_token']=token
     req=urllib.request.Request(supa+'/rest/v1/rpc/'+name,data=json.dumps(body,separators=(',',':')).encode(),headers={'apikey':key,'Content-Type':'application/json'},method='POST')
