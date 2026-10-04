@@ -191,9 +191,13 @@ def rpc_worker(name,payload):
     if not supa or not key or not token: raise RuntimeError('ml_queue_not_configured')
     body=dict(payload or {}); body['p_worker_token']=token
     req=urllib.request.Request(supa+'/rest/v1/rpc/'+name,data=json.dumps(body,separators=(',',':')).encode(),headers={'apikey':key,'Content-Type':'application/json'},method='POST')
-    with urllib.request.urlopen(req,timeout=30) as resp:
-        raw=resp.read().decode()
-        return json.loads(raw) if raw else None
+    try:
+        with urllib.request.urlopen(req,timeout=30) as resp:
+            raw=resp.read().decode()
+            return json.loads(raw) if raw else None
+    except urllib.error.HTTPError as e:
+        raw=e.read().decode(errors='ignore')
+        raise RuntimeError(f'{name}:{e.code}:{raw[:800]}')
 
 def queue_loop():
     worker_id=os.environ.get('WORKER_ID','render-ml-http-queue')
