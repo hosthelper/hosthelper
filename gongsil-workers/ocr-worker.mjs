@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { createHash } from 'node:crypto';
 import { createWorker } from 'tesseract.js';
 import { createCanvas, DOMMatrix, ImageData, Path2D } from '@napi-rs/canvas';
 
@@ -30,6 +31,10 @@ function extractFields(text,baseConfidence,documentType=''){
   const clean=String(text||'').replace(/\r/g,'');
   const lines=clean.split('\n').map(v=>v.trim()).filter(Boolean);
   const pick=(re)=>lines.find(l=>re.test(l))||'';
+  const labelValue=(labels,max=80)=>{
+    const re=new RegExp('(?:'+labels+')\\s*[:：]?\\s*([^\\n]{2,'+max+'})','i');
+    const m=clean.match(re); return (m?.[1]||'').trim().replace(/\\s{2,}.*/,'').slice(0,max);
+  };
   const addressLine=pick(/(서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충청|전라|경상|제주).{2,}(로|길|동|읍|면|리|번지|호)/);
   const landlordMatch=clean.match(/(?:임\s*대\s*인|소\s*유\s*자|lessor)\s*[:：]?\s*([가-힣A-Za-z0-9]{2,30})/i);
   const tenantRe=documentType==='resident_register'
@@ -43,9 +48,18 @@ function extractFields(text,baseConfidence,documentType=''){
   const dateMatch=moveInMatch||clean.match(/(20\d{2}|19\d{2}|\d{2})\s*[.년\-/]\s*(\d{1,2})\s*[.월\-/]\s*(\d{1,2})\s*일?/);
   const dateValue=dateMatch?`${dateMatch[1]}-${String(dateMatch[2]).padStart(2,'0')}-${String(dateMatch[3]).padStart(2,'0')}`:'';
   const sigFound=/(서명|날인|서명\s*\/\s*인|\(\s*인\s*\)|도장)/.test(clean);
+  const businessMatch=clean.match(/(?:사업자\s*등록\s*번호|등록번호)\s*[:：]?\s*(\d{3})[-\s]?(\d{2})[-\s]?(\d{5})/i)
+    || clean.match(/\b(\d{3})[-\s](\d{2})[-\s](\d{5})\b/);
+  const businessNo=businessMatch?`${businessMatch[1]}-${businessMatch[2]}-${businessMatch[3]}`:'';
+  const businessName=documentType==='business_registration'?labelValue('상\\s*호(?:\\s*\\(법인명\\))?|법\\s*인\\s*명|사\\s*업\\s*체\\s*명',100):'';
+  const representativeName=documentType==='business_registration'?labelValue('대\\s*표\\s*자(?:\\s*성명)?|성\\s*명\\s*\\(대표자\\)',60):'';
+  const identityNumberPresent=/\b\d{6}\s*-\s*[1-8]\d{6}\b/.test(clean);
   const base=Math.max(0,Math.min(1,Number(baseConfidence||0)));
   return {
     address:addressLine.slice(0,300),
+    business_registration_number:businessNo,
+    business_name:businessName,
+    representative_name:representativeName,
     landlord:(landlordMatch?.[1]||'').slice(0,100),
     tenant:(tenantMatch?.[1]||'').slice(0,100),
     resident_name:documentType==='resident_register'?(tenantMatch?.[1]||'').slice(0,100):'',
@@ -53,13 +67,18 @@ function extractFields(text,baseConfidence,documentType=''){
     document_date:dateValue,
     move_in_date:documentType==='resident_register'?dateValue:'',
     signature_present:sigFound,
+    identity_number_present:identityNumberPresent,
     confidence:{
       address:conf(Boolean(addressLine),base),
+      business_number:conf(Boolean(businessNo),base),
+      business_name:conf(Boolean(businessName),base),
+      representative:conf(Boolean(representativeName),base),
       landlord:conf(Boolean(landlordMatch),base),
       tenant:conf(Boolean(tenantMatch),base),
       consent:conf(Boolean(consentLine),base),
       date:conf(Boolean(dateMatch),base),
-      signature:sigFound?Math.max(0.71,Math.min(0.90,base)):0
+      signature:sigFound?Math.max(0.71,Math.min(0.90,base)):0,
+      identity_presence:Math.max(0.71,Math.min(0.95,base||0.71))
     }
   };
 }
@@ -97,7 +116,8 @@ async function processOne(){
     const bytes=Buffer.from(await response.arrayBuffer()); if(bytes.length>8*1024*1024) throw new Error('document_too_large');
     const contentType=(job.content_type||response.headers.get('content-type')||'').split(';')[0];
     const {text,confidence}=await ocrDocument(bytes,contentType); const fields=extractFields(text,confidence,job.document_type||'');
-    await rpc('gongsil_worker_settle_sublet_ocr_result',{p_worker_token:WORKER_TOKEN,p_run_id:job.run_id,p_worker_id:WORKER_ID,p_claim_token:job.claim_token,p_fields:fields,p_raw_text:text.slice(0,20000),p_provider:'render_tesseract_v1',p_payload:{engine:'tesseract.js',languages:['kor','eng'],content_type:contentType,mean_confidence:confidence,document_type:job.document_type||null,required_fields:job.required_fields||[]}});
+    const textSha256=createHash('sha256').update(text,'utf8').digest('hex');
+    await rpc('gongsil_worker_settle_sublet_ocr_result',{p_worker_token:WORKER_TOKEN,p_run_id:job.run_id,p_worker_id:WORKER_ID,p_claim_token:job.claim_token,p_fields:fields,p_raw_text:null,p_provider:'render_tesseract_v2',p_payload:{engine:'tesseract.js',engine_version:'server-v2',languages:['kor','eng'],content_type:contentType,mean_confidence:confidence,document_type:job.document_type||null,required_fields:job.required_fields||[],text_sha256:textSha256,text_length:text.length,raw_text_stored:false,identity_number_policy:'presence_only'}});
     return true;
   }catch(err){
     try{await rpc('gongsil_worker_fail_sublet_ocr_job',{p_worker_token:WORKER_TOKEN,p_run_id:job.run_id,p_worker_id:WORKER_ID,p_claim_token:job.claim_token,p_error:String(err?.message||err).slice(0,1800),p_retry:true});}catch{}
