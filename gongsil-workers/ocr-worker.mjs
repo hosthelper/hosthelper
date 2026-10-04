@@ -80,11 +80,20 @@ async function ocrDocument(bytes,contentType){
 }
 
 async function heartbeat(){ return rpc('gongsil_worker_heartbeat',{p_worker_token:WORKER_TOKEN,p_worker_id:WORKER_ID,p_kind:'ocr'}); }
+async function getDocumentUrl(job){
+  const r=await fetch(`${SUPABASE_URL}/functions/v1/gongsil-ocr-document`,{method:'POST',headers:{'content-type':'application/json','x-worker-token':WORKER_TOKEN},body:JSON.stringify({run_id:job.run_id,worker_id:WORKER_ID,claim_token:job.claim_token})});
+  const text=await r.text();
+  if(!r.ok) throw new Error(`ocr_document_access_${r.status}:${text.slice(0,500)}`);
+  const data=text?JSON.parse(text):{};
+  if(!data?.signed_url) throw new Error('ocr_document_url_missing');
+  return data.signed_url;
+}
 async function processOne(){
   const job=await rpc('gongsil_worker_claim_sublet_ocr_job',{p_worker_token:WORKER_TOKEN,p_worker_id:WORKER_ID});
   if(!job) return false;
   try{
-    const response=await fetch(job.signed_url); if(!response.ok) throw new Error(`document_download_${response.status}`);
+    const signedUrl=await getDocumentUrl(job);
+    const response=await fetch(signedUrl); if(!response.ok) throw new Error(`document_download_${response.status}`);
     const bytes=Buffer.from(await response.arrayBuffer()); if(bytes.length>8*1024*1024) throw new Error('document_too_large');
     const contentType=(job.content_type||response.headers.get('content-type')||'').split(';')[0];
     const {text,confidence}=await ocrDocument(bytes,contentType); const fields=extractFields(text,confidence,job.document_type||'');
