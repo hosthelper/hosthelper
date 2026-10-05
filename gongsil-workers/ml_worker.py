@@ -2,14 +2,14 @@ import os,json,time,base64,hashlib,threading,urllib.request,urllib.error
 from http.server import BaseHTTPRequestHandler,HTTPServer
 import numpy as np
 SUPABASE_URL=os.environ['SUPABASE_URL'].rstrip('/')
-SUPABASE_KEY=os.environ['SUPABASE_PUBLISHABLE_KEY']
 WORKER_TOKEN=os.environ['GONGSIL_WORKER_TOKEN']
 WORKER_ID=os.environ.get('WORKER_ID','render-ml-01')
 PORT=int(os.environ.get('PORT','10000'))
 POLL_SECONDS=int(os.environ.get('POLL_SECONDS','20'))
 FEATURE_NAMES=['operating_months','deposit_amount','monthly_rent','avg_monthly_revenue','avg_daily_rate','fixed_cost','management_fee','occupancy_rate','asset_reuse_pct','facility_investment','review_score','reservation_forward_rate','accessibility_score','tourism_proximity_score','area','accommodation_type']
 def rpc(name,payload):
-    req=urllib.request.Request(f'{SUPABASE_URL}/rest/v1/rpc/{name}',data=json.dumps(payload,separators=(',',':')).encode(),headers={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':f'Bearer {SUPABASE_KEY}'},method='POST')
+    body=json.dumps({'rpc':name,'params':payload},separators=(',',':')).encode()
+    req=urllib.request.Request(SUPABASE_URL+'/functions/v1/gongsil-worker-rpc',data=body,headers={'Content-Type':'application/json','X-Worker-Token':WORKER_TOKEN},method='POST')
     try:
         with urllib.request.urlopen(req,timeout=30) as r:
             d=r.read().decode(); return json.loads(d) if d else None
