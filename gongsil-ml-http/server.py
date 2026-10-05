@@ -170,10 +170,34 @@ def infer(payload):
     label_mean=float(metrics.get('label_mean') or max(pred,1.0)); conf=max(55.0,min(95.0,100.0*(1.0-mae/(abs(label_mean)+mae))))
     return {'ok':True,'prediction':pred,'premium_min':max(0,pred-spread),'premium_max':pred+spread,'confidence':conf,'metadata':{'engine':engine,'baseline_prediction':baseline_from_features(features)}}
 
-def worker_authorized(headers):
+def validate_job_claim(payload,job_kind):
+    try:
+        meta=(payload.get('features') or {}) if job_kind=='inference' else (payload.get('feature_schema') or {})
+        job_id=str(meta.get('_ml_job_id') or '')
+        claim_token=str(meta.get('_ml_claim_token') or '')
+        if len(job_id)!=36 or len(claim_token)!=36:
+            return False
+        supa=os.environ.get('SUPABASE_URL','').rstrip('/')
+        key=os.environ.get('SUPABASE_PUBLISHABLE_KEY','')
+        if not supa:
+            return False
+        body=json.dumps({'job_kind':job_kind,'job_id':job_id,'claim_token':claim_token},separators=(',',':')).encode()
+        headers={'Content-Type':'application/json'}
+        if key:
+            headers['apikey']=key
+        req=urllib.request.Request(supa+'/functions/v1/gongsil-ml-claim-validate',data=body,headers=headers,method='POST')
+        with urllib.request.urlopen(req,timeout=6) as resp:
+            out=json.loads(resp.read().decode() or '{}')
+            return bool(out.get('ok')) and bool(out.get('valid'))
+    except Exception:
+        return False
+
+def worker_authorized(headers,payload,job_kind):
     expected=os.environ.get('GONGSIL_ML_WORKER_TOKEN','')
     provided=headers.get('X-Gongsil-Worker-Token','')
-    return bool(expected) and bool(provided) and hashlib.sha256(provided.encode()).digest()==hashlib.sha256(expected.encode()).digest()
+    if bool(expected) and bool(provided) and hashlib.sha256(provided.encode()).digest()==hashlib.sha256(expected.encode()).digest():
+        return True
+    return validate_job_claim(payload,job_kind)
 
 def quote_rate_allowed(headers,client_address):
     forwarded=(headers.get('X-Forwarded-For','').split(',')[0].strip() or (client_address[0] if client_address else 'unknown'))
@@ -258,17 +282,17 @@ class H(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin',origin); self.send_header('Vary','Origin')
         self.send_header('Access-Control-Allow-Headers','Content-Type'); self.send_header('Access-Control-Allow-Methods','POST,OPTIONS'); self.end_headers()
     def do_GET(self):
-        self._send(200,{'ok':True,'service':'gongsil-ml-http','version':'2.2.0','engine':'xgboost_residual_v1','features':len(FEATURES),'public_quote':True}) if self.path=='/health' else self._send(404,{'ok':False})
+        self._send(200,{'ok':True,'service':'gongsil-ml-http','version':'2.3.0','engine':'xgboost_residual_v1','features':len(FEATURES),'public_quote':True}) if self.path=='/health' else self._send(404,{'ok':False})
     def do_POST(self):
         try:
             size=int(self.headers.get('Content-Length','0'))
             if size<=0 or size>MAX_BODY: return self._send(413,{'ok':False,'error':'invalid_body_size'})
             payload=json.loads(self.rfile.read(size))
             if self.path=='/v1/train':
-                if not worker_authorized(self.headers): return self._send(401,{'ok':False,'error':'worker_auth_required'})
+                if not worker_authorized(self.headers,payload,'training'): return self._send(401,{'ok':False,'error':'worker_auth_required'})
                 return self._send(200,train(payload))
             if self.path=='/v1/infer':
-                if not worker_authorized(self.headers): return self._send(401,{'ok':False,'error':'worker_auth_required'})
+                if not worker_authorized(self.headers,payload,'inference'): return self._send(401,{'ok':False,'error':'worker_auth_required'})
                 return self._send(200,infer(payload))
             if self.path=='/v1/quote':
                 if not quote_rate_allowed(self.headers,self.client_address): return self._send(429,{'ok':False,'error':'rate_limited'})
