@@ -123,11 +123,10 @@ def train(payload):
 
 def fetch_active_model():
     supa=os.environ.get('SUPABASE_URL','').rstrip('/')
-    key=os.environ.get('SUPABASE_PUBLISHABLE_KEY','')
     token=os.environ.get('GONGSIL_ML_PROXY_SECRET','')
-    if not supa or not key or not token: raise ValueError('ml_proxy_not_configured')
-    body=json.dumps({'p_proxy_token':token}).encode()
-    req=urllib.request.Request(supa+'/rest/v1/rpc/gongsil_get_active_valuation_model_with_token',data=body,headers={'apikey':key,'Authorization':'Bearer '+key,'Content-Type':'application/json'},method='POST')
+    if not supa or not token: raise ValueError('ml_proxy_not_configured')
+    body=json.dumps({'rpc':'gongsil_get_active_valuation_model_with_token','params':{}},separators=(',',':')).encode()
+    req=urllib.request.Request(supa+'/functions/v1/gongsil-worker-rpc',data=body,headers={'Content-Type':'application/json','X-Worker-Token':token},method='POST')
     with urllib.request.urlopen(req,timeout=6) as resp:
         return json.loads(resp.read().decode())
 
@@ -210,11 +209,10 @@ def quote_rate_allowed(headers,client_address):
 
 def rpc_worker(name,payload):
     supa=os.environ.get('SUPABASE_URL','').rstrip('/')
-    key=os.environ.get('SUPABASE_PUBLISHABLE_KEY','')
     token=os.environ.get('GONGSIL_ML_WORKER_TOKEN','') or os.environ.get('GONGSIL_ML_PROXY_SECRET','')
-    if not supa or not key or not token: raise RuntimeError('ml_queue_not_configured')
-    body=dict(payload or {}); body['p_worker_token']=token
-    req=urllib.request.Request(supa+'/rest/v1/rpc/'+name,data=json.dumps(body,separators=(',',':')).encode(),headers={'apikey':key,'Authorization':'Bearer '+key,'Content-Type':'application/json'},method='POST')
+    if not supa or not token: raise RuntimeError('ml_queue_not_configured')
+    body=json.dumps({'rpc':name,'params':payload or {}},separators=(',',':')).encode()
+    req=urllib.request.Request(supa+'/functions/v1/gongsil-worker-rpc',data=body,headers={'Content-Type':'application/json','X-Worker-Token':token},method='POST')
     try:
         with urllib.request.urlopen(req,timeout=30) as resp:
             raw=resp.read().decode()
