@@ -8,16 +8,19 @@ globalThis.ImageData ??= ImageData;
 globalThis.Path2D ??= Path2D;
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
 const WORKER_TOKEN = process.env.GONGSIL_WORKER_TOKEN;
 const WORKER_ID = process.env.WORKER_ID || 'render-ocr-01';
 const PORT = Number(process.env.PORT || 10000);
 const POLL_MS = Number(process.env.POLL_MS || 20000);
 
-if (!SUPABASE_URL || !SUPABASE_KEY || !WORKER_TOKEN) throw new Error('Missing required environment');
+if (!SUPABASE_URL || !WORKER_TOKEN) throw new Error('Missing required environment');
 
 async function rpc(name, body) {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, { method:'POST', headers:{'content-type':'application/json',apikey:SUPABASE_KEY,authorization:`Bearer ${SUPABASE_KEY}`}, body:JSON.stringify(body) });
+  const r = await fetch(`${SUPABASE_URL}/functions/v1/gongsil-worker-rpc`, {
+    method:'POST',
+    headers:{'content-type':'application/json','x-worker-token':WORKER_TOKEN},
+    body:JSON.stringify({rpc:name,params:body})
+  });
   const text = await r.text();
   if (!r.ok) throw new Error(`${name}:${r.status}:${text.slice(0,500)}`);
   return text ? JSON.parse(text) : null;
