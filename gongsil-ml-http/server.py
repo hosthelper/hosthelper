@@ -302,5 +302,6 @@ class H(BaseHTTPRequestHandler):
             return self._send(400,{'ok':False,'error':str(e)[:500]})
     def log_message(self,fmt,*args): pass
 
-threading.Thread(target=queue_loop,daemon=True).start()
+if os.environ.get('ENABLE_DIRECT_QUEUE','false').strip().lower()=='true':
+    threading.Thread(target=queue_loop,daemon=True).start()
 HTTPServer(('0.0.0.0',int(__import__('os').environ.get('PORT','10000'))),H).serve_forever()
