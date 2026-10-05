@@ -173,8 +173,8 @@ def infer(payload):
 def validate_job_claim(payload,job_kind):
     try:
         meta=(payload.get('features') or {}) if job_kind=='inference' else (payload.get('feature_schema') or {})
-        job_id=str(meta.get('_ml_job_id') or '')
-        claim_token=str(meta.get('_ml_claim_token') or '')
+        job_id=str(payload.get('job_id') or meta.get('_ml_job_id') or '')
+        claim_token=str(payload.get('claim_token') or meta.get('_ml_claim_token') or '')
         if len(job_id)!=36 or len(claim_token)!=36:
             return False
         supa=os.environ.get('SUPABASE_URL','').rstrip('/')
@@ -282,7 +282,7 @@ class H(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin',origin); self.send_header('Vary','Origin')
         self.send_header('Access-Control-Allow-Headers','Content-Type'); self.send_header('Access-Control-Allow-Methods','POST,OPTIONS'); self.end_headers()
     def do_GET(self):
-        self._send(200,{'ok':True,'service':'gongsil-ml-http','version':'2.3.0','engine':'xgboost_residual_v1','features':len(FEATURES),'public_quote':True}) if self.path=='/health' else self._send(404,{'ok':False})
+        self._send(200,{'ok':True,'service':'gongsil-ml-http','version':'2.4.0','engine':'xgboost_residual_v1','features':len(FEATURES),'public_quote':True}) if self.path=='/health' else self._send(404,{'ok':False})
     def do_POST(self):
         try:
             size=int(self.headers.get('Content-Length','0'))
