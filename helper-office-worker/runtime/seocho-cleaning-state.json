@@ -1,7 +1,7 @@
 {
   "version": 4,
   "initialized": true,
-  "updatedAt": "2026-10-06T00:59:16.171Z",
+  "updatedAt": "2026-10-06T03:29:39.031Z",
   "knownRooms": [
     "401호 천호",
     "A311",
@@ -123,6 +123,15 @@
       "checkinDate": "2026-10-25",
       "checkoutDate": "2026-11-12"
     },
+    "A311:1418fb94e984-57003c2cd1fe07bb9a449fbefb89bd72@airbnb.com": {
+      "key": "A311:1418fb94e984-57003c2cd1fe07bb9a449fbefb89bd72@airbnb.com",
+      "roomName": "A311",
+      "source": "airbnb",
+      "feedKey": "airbnb:A311",
+      "uid": "1418fb94e984-57003c2cd1fe07bb9a449fbefb89bd72@airbnb.com",
+      "checkinDate": "2026-12-19",
+      "checkoutDate": "2027-01-04"
+    },
     "A506:1418fb94e984-01549f2cbea86564a4810578505e9d94@airbnb.com": {
       "key": "A506:1418fb94e984-01549f2cbea86564a4810578505e9d94@airbnb.com",
       "roomName": "A506",
@@ -167,6 +176,15 @@
       "uid": "1418fb94e984-01f7480d8fe477442c570741d3ce5c38@airbnb.com",
       "checkinDate": "2026-10-11",
       "checkoutDate": "2026-10-18"
+    },
+    "A805:1418fb94e984-bb0305812d442a23f19f6d4eda0057cb@airbnb.com": {
+      "key": "A805:1418fb94e984-bb0305812d442a23f19f6d4eda0057cb@airbnb.com",
+      "roomName": "A805",
+      "source": "airbnb",
+      "feedKey": "airbnb:A805",
+      "uid": "1418fb94e984-bb0305812d442a23f19f6d4eda0057cb@airbnb.com",
+      "checkinDate": "2026-10-21",
+      "checkoutDate": "2026-10-31"
     },
     "401호 천호:1418fb94e984-c5d8650e8cf6c3043b7533beeb8e3b6e@airbnb.com": {
       "key": "401호 천호:1418fb94e984-c5d8650e8cf6c3043b7533beeb8e3b6e@airbnb.com",
