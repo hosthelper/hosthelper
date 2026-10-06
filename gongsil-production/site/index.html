@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>공실헬퍼 | 숙박 매물 거래 플랫폼</title>
+  <meta name="description" content="기존 호스트와 예비·현직 호스트를 연결하고 숙박 매물의 사업성을 판단할 수 있게 돕는 숙박 매물 거래 플랫폼">
+  <link rel="stylesheet" href="./styles.css?v=user-v15-20260924">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#home" aria-label="공실헬퍼 홈"><span class="brand-mark">⌂</span><span><b>공실헬퍼</b><small>숙박 매물 거래 플랫폼</small></span></a>
+    <nav class="nav" aria-label="주요 메뉴">
+      <a href="#listings">매물찾기</a>
+      <a href="#valuation">권리금진단</a>
+      <a href="#passes">열람권</a>
+      <a href="#register">매물등록</a>
+      <a href="#verify">자동검증</a>
+    </nav>
+    <button id="authBtn" class="auth-btn">● 카카오로 시작</button>
+    <button id="mobileMenuBtn" class="mobile-menu" aria-label="메뉴">☰</button>
+  </div>
+  <div id="mobileNav" class="mobile-nav">
+    <a href="#listings">매물찾기</a><a href="#valuation">권리금진단</a>
+    <a href="#passes">열람권</a><a href="#register">매물등록</a>
+    <a href="#verify">자동검증</a><button id="mobileAuthBtn" class="mobile-auth">카카오로 시작</button>
+  </div>
+</header>
+<main id="appRoot" class="app-shell" aria-live="polite">
+  <section class="route-loading"><div class="route-spinner"></div><p>공실헬퍼를 불러오는 중입니다.</p></section>
+</main>
+<footer>
+  <div class="footer-inner">
+    <a class="brand" href="#home"><span class="brand-mark">⌂</span><span><b>공실헬퍼</b><small>확인 가능한 정보부터</small></span></a>
+    <div class="footer-links">
+      <button data-legal="service">이용약관</button><button data-legal="privacy">개인정보처리방침</button><a href="#verify">검증정책</a><a href="#broker">공인중개사</a>
+    </div>
+    <p>공실헬퍼의 진단·검증 표시는 참고정보이며 실제 인허가·계약·수익을 보장하지 않습니다.</p>
+  </div>
+</footer>
+<div id="toast" class="toast" role="status"></div>
+<div id="modal" class="modal" aria-hidden="true"><div class="modal-card"><button id="modalClose" class="modal-close" aria-label="닫기">×</button><div id="modalBody"></div></div></div>
+<script type="module" src="./app.js?v=user-v15-20260924"></script>
+</body>
+</html>
