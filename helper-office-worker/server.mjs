@@ -267,6 +267,11 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && url.pathname === '/internal/seocho-cleaning-trigger') {
     try {
       const result = await runCleaningOnce();
+      if (result?.ok === false) {
+        console.error('CLEANING_SYNC_FAILED', JSON.stringify(result));
+        return json(res, 503, { ok: false, result });
+      }
+      console.log('CLEANING_SYNC_RESULT', JSON.stringify({ at: new Date().toISOString(), activeBookings: result?.activeBookings ?? null, events: result?.events?.length ?? 0, failures: result?.failures ?? [], skipped: result?.skipped === true }));
       return json(res, 200, { ok: true, result });
     } catch (error) {
       return json(res, Number(error.status) || 502, {
