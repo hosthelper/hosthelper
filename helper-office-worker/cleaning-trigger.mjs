@@ -271,6 +271,29 @@ function buildAlert(type, booking) {
   ].join('\n');
 }
 
+async function sendTelegramToRecipients(message) {
+  const token = String(process.env.TELEGRAM_BOT_TOKEN || '').trim();
+  const personal = String(process.env.TELEGRAM_CHAT_ID_PERSONAL || '').trim();
+  const group = String(process.env.TELEGRAM_CHAT_ID_GROUP || '').trim();
+  if (!token || !personal || !group) throw new Error('TELEGRAM_RECIPIENTS_NOT_CONFIGURED');
+  const recipients = [...new Set([personal, group])];
+  const results = [];
+  for (const chatId of recipients) {
+    const response = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text: message }),
+      signal: AbortSignal.timeout(20000),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data.ok !== true) {
+      throw new Error('TELEGRAM_SEND_FAILED_' + response.status + ':' + String(data.description || 'unknown').slice(0, 100));
+    }
+    results.push({ delivered: true, messageId: data.result?.message_id || null });
+  }
+  return results;
+}
+
 async function sendKakao(text) {
   const response = await fetch(KAKAO_SEND_ENDPOINT, {
     method: 'POST',
@@ -371,7 +394,9 @@ export async function triggerSeochoCleaning() {
     const signature = `${event.type}:${event.booking.roomName}:${event.booking.checkoutDate}`;
     if (dedupe.has(signature)) continue;
     dedupe.add(signature);
-    const result = await sendKakao(buildAlert(event.type, event.booking));
+    const message = buildAlert(event.type, event.booking);
+    const telegramEnabled = Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID_PERSONAL && process.env.TELEGRAM_CHAT_ID_GROUP);
+    const result = telegramEnabled ? await sendTelegramToRecipients(message) : await sendKakao(message);
     sent.push({ type: event.type, roomName: event.booking.roomName, checkoutDate: event.booking.checkoutDate, source: event.booking.source || 'airbnb', result });
   }
 
