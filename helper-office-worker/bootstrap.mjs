@@ -123,3 +123,48 @@ if (process.env.RUN_ONE_TIME_NOTICE_ON_START === 'true') {
     .then((result) => console.log('ONE_TIME_NOTICE_SEND_OK', JSON.stringify(result)))
     .catch((error) => console.error('ONE_TIME_NOTICE_SEND_FAILED', String(error?.message || error)));
 }
+
+async function telegramDeliverySelfTest() {
+  const token = String(process.env.TELEGRAM_BOT_TOKEN || '').trim();
+  const personal = String(process.env.TELEGRAM_CHAT_ID_PERSONAL || '').trim();
+  const group = String(process.env.TELEGRAM_CHAT_ID_GROUP || '').trim();
+  if (!token || !personal || !group) {
+    console.error('TELEGRAM_TEST_CONFIG_MISSING', JSON.stringify({
+      tokenConfigured: Boolean(token), personalConfigured: Boolean(personal), groupConfigured: Boolean(group),
+    }));
+    return;
+  }
+  async function call(method, data = {}) {
+    const response = await fetch('https://api.telegram.org/bot' + token + '/' + method, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(data),
+      signal: AbortSignal.timeout(20000),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || result.ok !== true) {
+      throw new Error(method + '_HTTP_' + response.status + ':' + String(result.description || 'unknown').slice(0, 100));
+    }
+    return result.result;
+  }
+  const me = await call('getMe');
+  if (String(me.username || '').toLowerCase() !== 'gongsil_alert_bot') throw new Error('TELEGRAM_WRONG_BOT');
+  for (const [name, id, expectedType] of [['personal', personal, 'private'], ['group', group, 'group']]) {
+    try {
+      const chat = await call('getChat', { chat_id: id });
+      if (expectedType === 'private' && chat.type !== 'private') throw new Error('EXPECTED_PRIVATE_CHAT');
+      if (expectedType === 'group' && !['group', 'supergroup'].includes(chat.type)) throw new Error('EXPECTED_GROUP_CHAT');
+      const sent = await call('sendMessage', {
+        chat_id: id,
+        text: '[서초 지젤 청소 알림] ' + name + ' 채팅 수신 테스트입니다. 신규·변경·취소 일정 알림 연결 확인용 메시지입니다.',
+      });
+      console.log('TELEGRAM_TEST_OK', JSON.stringify({ recipient: name, chatType: chat.type, messageId: sent.message_id }));
+    } catch (error) {
+      console.error('TELEGRAM_TEST_FAILED', JSON.stringify({ recipient: name, error: String(error.message || error) }));
+    }
+  }
+}
+
+if (process.env.RUN_TELEGRAM_DELIVERY_TEST_ON_START === 'true') {
+  void telegramDeliverySelfTest().catch((error) => console.error('TELEGRAM_TEST_FAILED', String(error.message || error)));
+}
