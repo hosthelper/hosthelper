@@ -7,9 +7,6 @@ on:
     # Monthly full cleaning summary: 09:27 KST on the 1st (00:27 UTC).
     - cron: '27 0 1 * *'
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/cleaning-automation.yml'
 
 permissions:
   contents: read
@@ -67,9 +64,23 @@ jobs:
             "$WORKER_BASE/internal/seocho-cleaning-trigger?source=github-actions" \
             | tee /tmp/result.json
           grep -q '"ok":true' /tmp/result.json
+          # Fail loudly when the persistent baseline is not advancing.
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H 'Accept: application/vnd.github+json' \
+            'https://api.github.com/repos/hosthelper/hosthelper/contents/helper-office-worker/runtime/seocho-cleaning-state.json?ref=runtime/seocho-cleaning-state-v2' \
+            | jq -r '.content' | base64 -d > /tmp/cleaning-state.json
+          python3 - <<'PY'
+          import json, datetime
+          s=json.load(open('/tmp/cleaning-state.json'))
+          ts=datetime.datetime.fromisoformat(s['updatedAt'].replace('Z','+00:00'))
+          age=(datetime.datetime.now(datetime.timezone.utc)-ts).total_seconds()
+          print('cleaning_state_age_hours=',round(age/3600,2))
+          if age>6*3600: raise SystemExit('STALE_CLEANING_STATE: last successful sync exceeds 6 hours')
+          PY
 
   monthly-summary:
-    if: (github.event_name == 'schedule' && github.event.schedule == '27 0 1 * *') || github.event_name == 'push'
+    if: (github.event_name == 'schedule' && github.event.schedule == '27 0 1 * *')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
