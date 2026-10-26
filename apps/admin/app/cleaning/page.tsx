@@ -77,8 +77,6 @@ export default function SuyuCleaningPage() {
     setNotice(room+'호 청소 일정이 이 브라우저에 저장되었습니다.');
   };
   const copySchedule = async () => {
-    const msg=['디하이브 수유 청소 일정 ('+(viewAll?date.slice(0,7):date)+')',
-      ...visible.map(t=>t.date+' / '+t.room+'호 / '+roomType(t.room)==='QUEEN' ? '' : '')];
     const body = ['디하이브 수유 청소 일정 ('+(viewAll?date.slice(0,7):date)+')',
       ...visible.map(t=>t.date+' | '+t.room+'호 | '+(roomType(t.room)==='QUEEN'?'퀸 1개':'슈퍼싱글 2개')+' | 생수 '+waterCount(t.room)+'개 | '+t.status+' | 담당 '+(t.assignee||'미배정')),
       '청소 시 1층 집기실 마스터키 수령·반납 및 완료 사진 5장 제출을 확인해 주세요.'].join('\n');
