@@ -20,7 +20,7 @@ const checklist = (room:string) => [
   {section:'비품 세팅',label:'수건 · 휴지 · 샴푸 · 린스 · 바디워시 보충'},
   {section:'비품 세팅',label:'생수 '+water(room)+'개 냉장고 비치'},
   {section:'시설 점검',label:'에어컨 · 리모컨 · 조명 · 냉장고 · 온수 · 도어락 점검'},
-  {section:'퇴실 마무리',label:'객실 문 잠금 및 마스터키 집기실 반납'},
+  {section:'퇴실 마무리',label:'객실 문 잠금 확인 (마스터키는 모든 객실 청소 후 집기실에 반납)'},
 ];
 const btn: React.CSSProperties = {minHeight:46,padding:'12px 16px',borderRadius:12,border:'1px solid #d5d9e0',background:'#fff',cursor:'pointer',fontWeight:700,fontSize:14};
 const card: React.CSSProperties = {border:'1px solid #e5e7eb',borderRadius:16,background:'#fff',padding:16,marginBottom:12};
@@ -139,7 +139,7 @@ export default function HousekeeperMobile() {
         <p style={{color:'#64748b',fontSize:12,lineHeight:1.5}}>선택된 사진 {photos.length}장 · 실제 서버 업로드 및 보관 기능은 아직 연결되지 않았습니다.</p>
         <label style={{display:'block',fontSize:14,fontWeight:700,margin:'18px 0 8px'}}>특이사항 / 시설 고장</label>
         <textarea value={selected.note} disabled={!canEdit} onChange={e=>update({note:e.target.value})} placeholder="파손, 오염, 재고 부족, 분실물 등을 작성해 주세요." style={{width:'100%',minHeight:100,borderRadius:10,border:'1px solid #cbd5e1',padding:10,boxSizing:'border-box',fontSize:14}} />
-        <p style={{fontSize:12,color:'#64748b',margin:'12px 0'}}>필수 체크: 퇴실 확인, 마스터키 수령·반납, 도어락 잠금, 비품 보충</p>
+        <p style={{fontSize:12,color:'#64748b',margin:'12px 0'}}>필수 체크: 퇴실 확인, 마스터키 보유, 도어락 잠금, 비품 보충. 마스터키 반납은 근무 종료 시 1회 확인합니다.</p>
         <button style={{...btn,width:'100%',background:'#111827',color:'white'}} onClick={submit} disabled={!canEdit||selected.status==='예정'}>청소 완료 요청 (시연)</button>
         {selected.status==='확인요청'&&<p style={{color:'#0369a1',fontSize:13}}>관리자 확인 요청 상태입니다. 정식 서버 통보는 이루어지지 않았습니다.</p>}
       </section>
