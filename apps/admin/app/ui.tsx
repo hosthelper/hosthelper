@@ -4,6 +4,7 @@ import type { CSSProperties, ReactNode } from 'react';
 // admin 전용 경량 디자인(인라인 스타일) — @hosthelper/ui에 의존하지 않고 일관된 운영자 콘솔 룩 제공.
 
 const NAV = [
+  { href: '/cleaning', label: '수유 청소' },
   { href: '/', label: '콘솔' },
   { href: '/live', label: '실시간' },
   { href: '/kyc', label: 'KYC 승인' },
