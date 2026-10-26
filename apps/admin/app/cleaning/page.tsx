@@ -28,7 +28,7 @@ const template = (room: string) => {
     '냉장고 청소 및 생수 ' + waterCount(room) + '개 비치',
     '수건 보충, 에어컨·냉장고·조명·온수·도어락 점검',
     '침구·객실·화장실·냉장고 등 완료 사진 5장 제출 확인',
-    '객실 문 잠금 확인 및 마스터키 집기실 반납',
+    '객실 문 잠금 확인 (마스터키는 모든 객실 청소 종료 후 집기실 반납)',
   ];
 };
 const todayKST = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
@@ -136,7 +136,7 @@ export default function SuyuCleaningPage() {
         }}/> <span>{item}</span>
       </label>)}
       <div style={{display:'flex',gap:8,justifyContent:'space-between',alignItems:'center',marginTop:10,flexWrap:'wrap'}}>
-        <small style={{color:'#6b7280'}}>체크인 16:00 이전 청소·잠금·마스터키 반납 확인</small>
+        <small style={{color:'#6b7280'}}>체크인 16:00 이전 청소·잠금 확인 · 마스터키는 업무 종료 시 반납</small>
         <button style={{...button,color:'#991b1b'}} onClick={()=>{if(window.confirm(t.room+'호 '+t.date+' 청소 일정을 삭제할까요?'))setTasks(old=>old.filter(x=>x.id!==t.id))}}>일정 삭제</button>
       </div>
     </article>)}
