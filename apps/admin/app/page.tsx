@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Shell, StatCard, statGrid, card } from './ui';
 
 const sections = [
+  { href: '/keeper', title: '호스트키퍼 모바일 시안', desc: '청소 담당자 전용 오늘 일정·체크리스트·완료 보고 (시연용)' },
   { href: '/cleaning', title: '디하이브 수유 청소관리', desc: '14개 객실 청소 일정·침구·생수·마스터키 체크 및 공유' },
   { href: '/live', title: '실시간 모니터링', desc: '예약·결제·매칭·분쟁 활동을 실시간 스트림으로' },
   { href: '/kyc', title: '청소사 KYC 승인', desc: '신규 청소 매니저 신원확인 검토·승인' },
