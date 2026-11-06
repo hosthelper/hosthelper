@@ -35,8 +35,14 @@ Build command 비움 → Branch(main 또는 작업 브랜치). netlify.toml 자�
 
 ## 콘텐츠 발행
 
-- **자동(권장)**: `.github/workflows/changup-content.yml` (5시간). `scripts/README.md` 참고.
-- **수동**: `posts/`에 기사 파일 추가 + `posts/index.html`의 `<!--FEED:START-->`, `index.html`의
-  `<!--HOMEFEED:START-->` 마커 사이에 카드 추가(홈은 최신 3편 유지). 생성기가 이 마커를 사용합니다.
+라이브 기사는 **`app.html`의 `var ARTICLES=[...]`가 원본**입니다. `index.html`은 그 사본입니다.
+`posts/`의 개별 기사 페이지 구조는 2026-07-16에 동결된 레거시이며 더 이상 쓰지 않습니다.
+
+- **에이전트(현재 방식)**: `.claude/agents/hu-marketing.md`(마케팅팀)를 불러 주제와 근거를 받고,
+  사람이 검토해 `app.html`의 ARTICLES에 추가합니다.
+- **스크립트(수동 실행)**: `.github/workflows/changup-content.yml`을 `workflow_dispatch`로 실행.
+  스케줄은 제거됐고 폐기 예정입니다. `scripts/README.md` 참고.
+- 생성기는 마커가 아니라 `var ARTICLES=[` · `var SOURCES={` 앵커에 문자열을 삽입합니다.
+  (`posts/index.html`의 `<!--FEED:START-->`는 레거시 아카이브에만 남아 있습니다.)
 
 **분리 매각 가치**: 순수 정적 HTML(런타임 빌드 0) + 독립 생성기(@hosthelper/ai 미의존). 디렉토리 하나로 완결.
