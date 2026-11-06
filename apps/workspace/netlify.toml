@@ -1,0 +1,10 @@
+# 내부 전용 워크스페이스 — 별도 Netlify 사이트로 배포
+# Import from Git → Base directory: apps/workspace → Publish: apps/workspace → Build command 비움
+# ⚠️ 배포 시 Netlify의 Password protection(사이트 비밀번호)을 반드시 켤 것 (내부 전용)
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

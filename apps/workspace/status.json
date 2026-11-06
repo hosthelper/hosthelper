@@ -1,0 +1,251 @@
+{
+ "updatedAt": "2026-08-11T18:06:51Z",
+ "repo": "hosthelper/hosthelper",
+ "source": "수동 seed — PR #24 머지 후 GitHub Actions 가 자동 갱신 (LLM 미사용 · 크레딧 0)",
+ "counts": {
+  "working": 1,
+  "todo": 7,
+  "blocked": 2,
+  "prsOpen": 9,
+  "doneRecent": 0
+ },
+ "tasks": [
+  {
+   "number": 76,
+   "title": "작업 현황 자동 집계 시스템 — 크레딧 0으로 5분마다 갱신",
+   "url": "https://github.com/hosthelper/hosthelper/issues/76",
+   "state": "working",
+   "biz": "본부",
+   "labels": [
+    "사업:본부",
+    "상태:작업중"
+   ],
+   "assignee": null,
+   "createdAt": "2026-08-11T16:19:18Z",
+   "updatedAt": "2026-08-11T16:19:18Z"
+  },
+  {
+   "number": 75,
+   "title": "소모임 220명 → 첫 중개사·투자자 전환 (유일한 실제 청중)",
+   "url": "https://github.com/hosthelper/hosthelper/issues/75",
+   "state": "todo",
+   "biz": "경매헬퍼",
+   "labels": [
+    "사업:경매헬퍼"
+   ],
+   "assignee": null,
+   "createdAt": "2026-08-11T16:19:02Z",
+   "updatedAt": "2026-08-11T16:19:02Z"
+  },
+  {
+   "number": 74,
+   "title": "창업이지 폐쇄 정리 — 무엇을 버리고 무엇을 경매헬퍼로 옮길지",
+   "url": "https://github.com/hosthelper/hosthelper/issues/74",
+   "state": "todo",
+   "biz": "창업이지",
+   "labels": [
+    "사업:창업이지"
+   ],
+   "assignee": null,
+   "createdAt": "2026-08-11T16:18:50Z",
+   "updatedAt": "2026-08-11T16:18:50Z"
+  },
+  {
+   "number": 73,
+   "title": "중개사 모집 랜딩 + \"이 물건 숙박 수익 얼마\" 계산 미끼",
+   "url": "https://github.com/hosthelper/hosthelper/issues/73",
+   "state": "todo",
+   "biz": "경매헬퍼",
+   "labels": [
+    "사업:경매헬퍼"
+   ],
+   "assignee": null,
+   "createdAt": "2026-08-11T16:18:35Z",
+   "updatedAt": "2026-08-11T16:18:35Z"
+  },
+  {
+   "number": 72,
+   "title": "경매헬퍼 포지셔닝 확정 — \"새 사업\"이 아니라 라이프헬퍼 호실 공급 엔진",
+   "url": "https://github.com/hosthelper/hosthelper/issues/72",
+   "state": "todo",
+   "biz": "경매헬퍼",
+   "labels": [
+    "사업:경매헬퍼"
+   ],
+   "assignee": null,
+   "createdAt": "2026-08-11T16:18:18Z",
+   "updatedAt": "2026-08-11T16:18:18Z"
+  },
+  {
+   "number": 71,
+   "title": "K-컬처 체험 상품화 — 한림예고 19명 사례를 반복 가능한 패키지로",
+   "url": "https://github.com/hosthelper/hosthelper/issues/71",
+   "state": "todo",
+   "biz": "라이프헬퍼",
+   "labels": [
+    "사업:라이프헬퍼"
+   ],
+   "assignee": null,
+   "createdAt": "2026-08-11T16:18:03Z",
+   "updatedAt": "2026-08-11T16:18:03Z"
+  },
+  {
+   "number": 70,
+   "title": "대표 부재 시에도 도는 운영 매뉴얼 — 단일 인물 리스크 해소",
+   "url": "https://github.com/hosthelper/hosthelper/issues/70",
+   "state": "todo",
+   "biz": "라이프헬퍼",
+   "labels": [
+    "사업:라이프헬퍼"
+   ],
+   "assignee": null,
+   "createdAt": "2026-08-11T16:17:48Z",
+   "updatedAt": "2026-08-11T16:17:48Z"
+  },
+  {
+   "number": 69,
+   "title": "라이프헬퍼 호실별 손익(P&L) 확정 — 2200만원의 정체 파악",
+   "url": "https://github.com/hosthelper/hosthelper/issues/69",
+   "state": "todo",
+   "biz": "라이프헬퍼",
+   "labels": [
+    "사업:라이프헬퍼"
+   ],
+   "assignee": null,
+   "createdAt": "2026-08-11T16:17:36Z",
+   "updatedAt": "2026-08-11T16:17:36Z"
+  },
+  {
+   "number": 68,
+   "title": "[막힘] PR 9건 결정 대기 — 최장 51일, 머지 이력 0건",
+   "url": "https://github.com/hosthelper/hosthelper/issues/68",
+   "state": "blocked",
+   "biz": "본부",
+   "labels": [
+    "상태:막힘",
+    "사업:본부"
+   ],
+   "assignee": null,
+   "createdAt": "2026-08-11T16:17:24Z",
+   "updatedAt": "2026-08-11T16:17:24Z"
+  },
+  {
+   "number": 67,
+   "title": "[막힘] 워크스페이스 Netlify 배포 — 보드가 안 보이는 근본 원인",
+   "url": "https://github.com/hosthelper/hosthelper/issues/67",
+   "state": "blocked",
+   "biz": "본부",
+   "labels": [
+    "상태:막힘",
+    "사업:본부"
+   ],
+   "assignee": null,
+   "createdAt": "2026-08-11T16:17:09Z",
+   "updatedAt": "2026-08-11T16:17:09Z"
+  }
+ ],
+ "done": [],
+ "prs": [
+  {
+   "number": 66,
+   "title": "fix(changup-site): 설문 리드 유실 방지 — 3중 안전장치",
+   "url": "https://github.com/hosthelper/hosthelper/pull/66",
+   "isDraft": true,
+   "mergeable": null,
+   "createdAt": "2026-08-11T11:47:41Z",
+   "updatedAt": "2026-08-11T11:48:12Z",
+   "size": null,
+   "files": null
+  },
+  {
+   "number": 65,
+   "title": "feat(changup-site): 기사별 정적 SEO 페이지 + 전체 sitemap — 검색 유입 복구",
+   "url": "https://github.com/hosthelper/hosthelper/pull/65",
+   "isDraft": true,
+   "mergeable": null,
+   "createdAt": "2026-08-08T11:28:03Z",
+   "updatedAt": "2026-08-08T11:32:57Z",
+   "size": null,
+   "files": null
+  },
+  {
+   "number": 64,
+   "title": "feat(company-os): AI 회사 OS — 운영 체계 · 프롬프트팩 · AI 직원 7명 · 브랜드 메모리",
+   "url": "https://github.com/hosthelper/hosthelper/pull/64",
+   "isDraft": true,
+   "mergeable": null,
+   "createdAt": "2026-08-07T02:34:02Z",
+   "updatedAt": "2026-08-09T03:10:01Z",
+   "size": 1841,
+   "files": 28
+  },
+  {
+   "number": 63,
+   "title": "content(docs): 한복 K-문화 체험 기획 + 링크 전환 플레이북",
+   "url": "https://github.com/hosthelper/hosthelper/pull/63",
+   "isDraft": true,
+   "mergeable": null,
+   "createdAt": "2026-08-02T17:18:31Z",
+   "updatedAt": "2026-08-04T01:12:24Z",
+   "size": 199,
+   "files": 3
+  },
+  {
+   "number": 35,
+   "title": "fix(changup-content): 매일 자동 발행 복구 — 모델 고정 + 스케줄 신뢰도",
+   "url": "https://github.com/hosthelper/hosthelper/pull/35",
+   "isDraft": true,
+   "mergeable": null,
+   "createdAt": "2026-07-23T00:49:56Z",
+   "updatedAt": "2026-07-23T00:50:12Z",
+   "size": null,
+   "files": null
+  },
+  {
+   "number": 24,
+   "title": "feat(ai-team): AI 직원 조직 + 크레딧 0 작업 현황 자동 집계 시스템",
+   "url": "https://github.com/hosthelper/hosthelper/pull/24",
+   "isDraft": true,
+   "mergeable": null,
+   "createdAt": "2026-07-22T03:25:47Z",
+   "updatedAt": "2026-08-11T16:21:20Z",
+   "size": null,
+   "files": null
+  },
+  {
+   "number": 23,
+   "title": "infra(brev): NVIDIA AI Workbench 워크샵 노드 부트스트랩 스크립트 추가",
+   "url": "https://github.com/hosthelper/hosthelper/pull/23",
+   "isDraft": true,
+   "mergeable": null,
+   "createdAt": "2026-07-22T03:07:54Z",
+   "updatedAt": "2026-07-22T03:08:07Z",
+   "size": null,
+   "files": 2
+  },
+  {
+   "number": 8,
+   "title": "거래 루프 완결: 스케줄 등록·오퍼 수락·작업 승인·정산 생성 + 사업 문서",
+   "url": "https://github.com/hosthelper/hosthelper/pull/8",
+   "isDraft": true,
+   "mergeable": null,
+   "createdAt": "2026-07-02T04:02:42Z",
+   "updatedAt": "2026-07-02T05:47:10Z",
+   "size": 1668,
+   "files": 35
+  },
+  {
+   "number": 7,
+   "title": "feat(video): 영상 링크 요약·분석 기능",
+   "url": "https://github.com/hosthelper/hosthelper/pull/7",
+   "isDraft": true,
+   "mergeable": null,
+   "createdAt": "2026-06-21T20:45:18Z",
+   "updatedAt": "2026-06-22T05:48:03Z",
+   "size": 2144,
+   "files": 37
+  }
+ ],
+ "commits": [],
+ "runs": []
+}
