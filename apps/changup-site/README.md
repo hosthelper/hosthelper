@@ -40,3 +40,16 @@ Build command 비움 → Branch(main 또는 작업 브랜치). netlify.toml 자�
   `<!--HOMEFEED:START-->` 마커 사이에 카드 추가(홈은 최신 3편 유지). 생성기가 이 마커를 사용합니다.
 
 **분리 매각 가치**: 순수 정적 HTML(런타임 빌드 0) + 독립 생성기(@hosthelper/ai 미의존). 디렉토리 하나로 완결.
+
+## SEO — 기사별 정적 페이지 (자동 생성)
+
+기사는 SPA 해시 URL(`/#post/<slug>`)이라 검색엔진이 개별 기사를 색인하지 못한다.
+그래서 `scripts/build-seo-pages.mjs`가 `app.html`의 `ARTICLES`를 읽어
+**기사마다 정적 페이지 `p/<slug>.html`** (title·description·canonical·OG·JSON-LD Article·본문)을
+만들고 **`sitemap.xml`에 전 기사 URL**을 기록한다.
+
+```bash
+node apps/changup-site/scripts/build-seo-pages.mjs   # 기사 발행 후 1회 실행
+```
+
+새 기사를 발행했으면 이 명령을 실행해 `p/`와 `sitemap.xml`을 갱신한 뒤 커밋한다.
