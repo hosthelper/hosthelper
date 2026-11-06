@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Shell, StatCard, statGrid, card } from './ui';
 
 const sections = [
+  { href: '/content-ops', title: '콘텐츠 운영실', desc: 'AI 제작 → SNS OAuth → 자동 게시 → Evidence → 72시간 캠페인 KPI 관제' },
   { href: '/live', title: '실시간 모니터링', desc: '예약·결제·매칭·분쟁 활동을 실시간 스트림으로' },
   { href: '/kyc', title: '청소사 KYC 승인', desc: '신규 청소 매니저 신원확인 검토·승인' },
   { href: '/disputes', title: '분쟁 처리', desc: 'AI 1차 판정 검토 및 최종 결정' },
@@ -11,7 +12,7 @@ const sections = [
 
 export default function AdminHome() {
   return (
-    <Shell title="운영자 콘솔">
+    <Shell title="Helper Office 운영자 콘솔">
       <section style={statGrid}>
         <StatCard label="진행 중 잡" value="12" />
         <StatCard label="대기 오퍼" value="5" />
