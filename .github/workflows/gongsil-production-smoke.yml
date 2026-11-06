@@ -1,0 +1,29 @@
+name: Gongsil Production Smoke
+on:
+  push:
+    branches:
+      - gongsil/p0-auth-payment-brand-20260919
+    paths:
+      - 'gongsil-production/site/**'
+      - 'gongsil-production/smoke/**'
+      - '.github/workflows/gongsil-production-smoke.yml'
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install browser runner
+        run: |
+          cd gongsil-production/smoke
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Production browser smoke
+        run: node gongsil-production/smoke/production-smoke.mjs
+
+# patent-v13-production-verification
