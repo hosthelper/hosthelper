@@ -4,7 +4,8 @@
 // Slack app must subscribe to message.groups in the PRIVATE channel and be invited.
 const CHANNEL_ID = 'C0CKGEYUABA';
 const OWNER_USER_ID = 'U0B9136DE0P';
-const ROOMS = new Set(['101','201','202','203','204','301','302','303','304','401','402','403','404','501']);
+const SUYU_ROOMS = new Set(['101','201','202','203','204','301','302','303','304','401','402','403','404','501']);
+const CHANGCHEON_ROOMS = new Set(['103','105','203','205','301','302']);
 const te = new TextEncoder();
 const json = (data: unknown, status = 200) => new Response(JSON.stringify(data), {
   status, headers: {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'}
@@ -49,9 +50,22 @@ function reportFromMessage(payload: any) {
     .filter((f:any)=>/^image\//.test(String(f?.mimetype||''))&&/^F[A-Za-z0-9]{5,}$/.test(String(f.id||'')))
     .map((f:any)=>String(f.id)))].slice(0,12);
   const isCleaning = /청소|완료|재청소|객실|linen|cleaning|supplies|비품|파손|고장|누수|악취/i.test(text);
+  // Informational notices and multi-room schedules are never individual cleaning reports.
+  if (/(?:청소팀\s*안내|객실\s*목록|전체\s*객실|보고\s*양식|청소\s*보고\s*예시)/i.test(text)) return null;
   if (!isCleaning && fileIds.length===0) return null;
-  const roomMatch = text.match(/(?:^|[^0-9])(101|201|202|203|204|301|302|303|304|401|402|403|404|501)(?:\s*호)?(?=$|[^0-9])/);
-  const room = roomMatch?.[1] && ROOMS.has(roomMatch[1]) ? roomMatch[1] : null;
+  // Require explicit property identity; room 203/301/302 exists in BOTH properties.
+  // Ambiguous messages are ignored, not incorrectly recorded under Suyu.
+  const hasSuyu = /수유\s*스테이|디하이브\s*수유|suyu/i.test(text);
+  const hasChangcheon = /창천(?:동)?\s*321|창천동|changcheon/i.test(text);
+  if (hasSuyu === hasChangcheon) return null;
+  const propertyId = hasSuyu ? 'suyu' : 'changcheon321';
+  const allowedRooms = hasSuyu ? SUYU_ROOMS : CHANGCHEON_ROOMS;
+  const matchedRooms = [...text.matchAll(/(?:^|[^0-9])(\d{3})(?:\s*호)?(?=$|[^0-9])/g)]
+    .map(m => m[1]).filter(room => allowedRooms.has(room));
+  const distinctRooms = [...new Set(matchedRooms)];
+  // Prevent bulk announcements from falsely marking the first room.
+  if (distinctRooms.length !== 1) return null;
+  const room = distinctRooms[0];
   const issue = /파손|누수|고장|오염|악취|곰팡이|분실|부족|위험|불량|broken|damaged|issue|shortage/i.test(text);
   // Only a strict completion claim with two photos is eligible for manual review.
   // Test messages, explicit negations and any reported issues can never mark it completed.
@@ -64,7 +78,7 @@ function reportFromMessage(payload: any) {
     channel_id: CHANNEL_ID,
     reporter_user_id:String(ev.user).slice(0,50),
     event_ts: String(ev.event_ts||ev.ts||'').slice(0,50),
-    property_id: 'suyu',
+    property_id: propertyId,
     room, photo_file_ids: fileIds,
     cleaning_reported_completed: completionClaim,
     potential_issue: issue,
