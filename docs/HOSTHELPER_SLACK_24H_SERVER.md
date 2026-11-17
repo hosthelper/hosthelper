@@ -16,7 +16,7 @@
 
 1. https://api.slack.com/apps 에서 별도의 Slack 앱(예: HostHelper Ops)을 만든다. ChatGPT의 Slack 연결과는 별도 앱이다.
 2. Slack 앱 Basic Information > App Credentials > Signing Secret 값을 복사해 Supabase 프로젝트 Edge Function Secrets에 이름 HH_SLACK_SIGNING_SECRET로 **직접 등록**한다. 채팅/깃허브/Slack 메시지에 절대 공유하지 않는다.
-   - https://supabase.com/dashboard/project/buzcnfnimzlsjvbeefjb/settings/functions
+   - https://supabase.com/dashboard/project/buzcnfnimzlsjvbeefjb/functions/secrets
    - UI 항목명이 바뀌면 Edge Functions > Secrets 또는 Settings > Edge Function Secrets에서 등록.
 3. Slack 앱 OAuth & Permissions > Bot Token Scopes에 groups:history 를 추가한다.
 4. Slack 앱 Event Subscriptions > Enable Events 켜고 Request URL에 위 서버 요청 URL을 등록. URL 인증이 통과해야 한다.
