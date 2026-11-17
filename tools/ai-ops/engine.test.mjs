@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createHmac} from 'node:crypto';
+import {eventKey,verifySlackSignature,actionPolicy,earlyCheckInIntent,purchaseIntent} from './engine.mjs';
+const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const good=()=>({booking:{propertyId:'suyu',room:'201',reservationCode:'TEST-001',status:'confirmed',source:'approved_pms_api',sourceVerifiedAt:new Date().toISOString(),checkIn:today(),roomMappingVerified:true,conflict:false,earlyCheckInApproved:true},cleaning:{status:'completed',afterPhotoRefs:['private/a','private/b'],inspection:'approved',hasIssue:false},channel:{officialMessagingAuthorized:true},audit:{alreadyNotified:false}});
+test('dedup key stable and different per event',()=>{const x={propertyId:'suyu',room:'201',reservationCode:'TEST',eventType:'cleaned'};assert.equal(eventKey(x),eventKey(x));assert.notEqual(eventKey(x),eventKey({...x,eventType:'notified'}))});
+test('early check-in intent never sends',()=>{const r=earlyCheckInIntent(good());assert.equal(r.status,'ready_for_authorized_executor');assert.equal(r.externalSend,false)});
+test('no photos block notice',()=>{const x=good();x.cleaning.afterPhotoRefs=[];assert.equal(earlyCheckInIntent(x).status,'blocked')});
+test('untrusted or stale source blocks notice',()=>{const x=good();x.booking.source='google_sheet';x.booking.sourceVerifiedAt='2026-01-01T00:00:00Z';assert.ok(earlyCheckInIntent(x).reasons.includes('booking_snapshot_stale'))});
+test('duplicate guest notice blocked',()=>{const x=good();x.audit.alreadyNotified=true;assert.ok(earlyCheckInIntent(x).reasons.includes('already_notified'))});
+test('purchase is proposal only',()=>{const r=purchaseIntent({product:{sku:'TEST',vendorVerified:true,unitPriceKrw:12000},request:{quantity:3,stockEvidence:true},audit:{duplicateOpenOrder:false}});assert.equal(r.status,'operator_approval_required');assert.equal(r.paymentAttempted,false)});
+test('duplicate order blocked',()=>{const r=purchaseIntent({product:{sku:'TEST',vendorVerified:true,unitPriceKrw:12000},request:{quantity:3,stockEvidence:true},audit:{duplicateOpenOrder:true}});assert.equal(r.status,'blocked')});
+test('financial and security actions require approval',()=>{assert.equal(actionPolicy('refund'),'operator_approval');assert.equal(actionPolicy('door_code_send'),'operator_approval')});
+test('Slack signature verified, replay rejected',()=>{const timestamp=String(Math.floor(Date.now()/1000)),rawBody='hello',signingSecret='test-secret';const signature='v0='+createHmac('sha256',signingSecret).update('v0:'+timestamp+':'+rawBody).digest('hex');assert.equal(verifySlackSignature({timestamp,rawBody,signature,signingSecret}),true);assert.equal(verifySlackSignature({timestamp,rawBody:'changed',signature,signingSecret}),false);assert.equal(verifySlackSignature({timestamp,rawBody,signature,signingSecret,nowSeconds:Number(timestamp)+301}),false)});
