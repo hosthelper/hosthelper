@@ -53,6 +53,11 @@ function reportFromMessage(payload: any) {
   const roomMatch = text.match(/(?:^|[^0-9])(101|201|202|203|204|301|302|303|304|401|402|403|404|501)(?:\s*호)?(?=$|[^0-9])/);
   const room = roomMatch?.[1] && ROOMS.has(roomMatch[1]) ? roomMatch[1] : null;
   const issue = /파손|누수|고장|오염|악취|곰팡이|분실|부족|위험|불량|broken|damaged|issue|shortage/i.test(text);
+  // Only a strict completion claim with two photos is eligible for manual review.
+  // Test messages, explicit negations and any reported issues can never mark it completed.
+  const completionClaim = Boolean(room) && fileIds.length >= 2 && !issue &&
+    !/(?:테스트|검증|점검|실험|훈련|가상|예시|미완료|미\s*완료|아니|아님|완료\s*전|예정|아직|취소|못함|not\s*(?:done|complete)|\btest\b|\bdummy\b)/i.test(text) &&
+    /(?:^|[\s#])(?:청소\s*완료|cleaning\s*(?:complete|done))(?=$|[\s.,!?])/i.test(text);
   return {
     event_id: payload.event_id,
     team_id: String(payload.team_id||'').slice(0,40),
@@ -61,7 +66,7 @@ function reportFromMessage(payload: any) {
     event_ts: String(ev.event_ts||ev.ts||'').slice(0,50),
     property_id: 'suyu',
     room, photo_file_ids: fileIds,
-    cleaning_reported_completed: /청소\s*완료|cleaning\s*(?:complete|done)/i.test(text),
+    cleaning_reported_completed: completionClaim,
     potential_issue: issue,
     review_status: room ? 'pending_review' : 'needs_room_link'
   };
