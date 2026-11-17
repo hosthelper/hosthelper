@@ -1,0 +1,20 @@
+name: AI Ops safety checks
+on:
+  pull_request:
+    paths:
+      - 'tools/ai-ops/**'
+      - '.github/workflows/ai-ops-safety.yml'
+      - 'docs/HOSTHELPER_AI_OPS_2026-11-18.md'
+  workflow_dispatch:
+jobs:
+  safety-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Node version
+        run: node --version
+      - name: Run side-effect-free tests
+        run: node --test tools/ai-ops/*.test.mjs
