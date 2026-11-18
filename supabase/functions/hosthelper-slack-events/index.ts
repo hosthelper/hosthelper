@@ -98,34 +98,9 @@ async function persistReport(report:any): Promise<{ok:boolean;http:number}> {
   return {ok:res.ok,http:res.status};
 }
 
-const BOT_TARGETS = [
-  {id:'C0CJP9UTZK4', label:'수유스테이'},
-  {id:'C0CJH8L2FSP', label:'창천동321'}
-];
 function availableBotToken(): string {
   return Deno.env.get('HH_SLACK_BOT_TOKEN') || '';
 }
-async function sendPushProbe(target:{id:string,label:string}): Promise<{channel:string;ok:boolean;error?:string}> {
-  const token = availableBotToken();
-  if (!token) return {channel:target.label,ok:false,error:'bot_token_not_configured'};
-  const message = '[HostHelper Ops 봇 푸시 테스트 | '+target.label+']\n'+
-    '<@'+OWNER_USER_ID+'> 봇 명의로 보낸 실제 알림 테스트입니다.\n'+
-    '휴대폰 잠금화면/알림창과 Slack 앱 아이콘 숫자 배지를 확인해 주세요.\n'+
-    '실제 신규 예약, 청소 일정 변경, 정산 변경은 없습니다.';
-  try {
-    const response=await fetch('https://slack.com/api/chat.postMessage',{
-      method:'POST',
-      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json;charset=utf-8'},
-      body:JSON.stringify({channel:target.id,text:message,unfurl_links:false,unfurl_media:false}),
-      signal:AbortSignal.timeout(5000)
-    });
-    const data=await response.json();
-    return {channel:target.label,ok:response.ok && data?.ok===true,
-      ...(data?.ok===true?{}:{error:String(data?.error||'slack_http_'+response.status).slice(0,100)})};
-  } catch {return {channel:target.label,ok:false,error:'slack_delivery_exception'};}
-}
-
-
 const BOT_RELAY_TARGETS:Record<string,{id:string,label:string,property:string}> = {
   HHBOT_SEND_SUYU_V1:{id:'C0CJP9UTZK4',label:'수유스테이',property:'suyu'},
   HHBOT_SEND_CHANGCHEON_V1:{id:'C0CJH8L2FSP',label:'창천동321',property:'changcheon321'}
@@ -211,7 +186,7 @@ async function relayOwnerCleaningSchedule(payload:any,ev:any):Promise<Response|n
   // Owner confirmation is sent from the bot as well, rather than the operator's own account.
   // The bot's event cannot re-enter this branch because its user is not OWNER_USER_ID.
   const permalink=await botPermalink(target.id,String(posted.ts||''));
-  const receipt='<@'+OWNER_USER_ID+'>\n[청소일정 Slack 봇 발송 완료]\n'+target.label+' 전용 채널로 '+(body.includes('테스트')?'연동 테스트 메시지':'갱신된 청소 예정표')+'를 발송했습니다.\n'+
+  const receipt='<@'+OWNER_USER_ID+'>\n[청소일정 Slack 봇 발송 완료]\n'+target.label+' 전용 채널로 요청된 메시지를 발송했습니다.\n'+
     '발송 식별자: '+eventId.slice(0,30)+'\n담당 채널: #'+
     (target.property==='suyu'?'hosthelper-suyu-cleaning':'hosthelper-changcheon321-cleaning')+
     (permalink?'\n발송 메시지 링크: '+permalink:'');
@@ -225,7 +200,7 @@ Deno.serve(async(req:Request) => {
       return json({service:'hosthelper-slack-events',deployed:true,
         ready:Boolean(Deno.env.get('HH_SLACK_SIGNING_SECRET')&&runtimeServiceRoleKey()),
         eventsSubscribed:'not_verified',
-        botTokenConfigured:Boolean(availableBotToken()),botSendProbeEnabled:true,
+        botTokenConfigured:Boolean(availableBotToken()),botRelayEnabled:true,
         mode:'signed_webhook',canSendGuestMessages:false,canPurchase:false});
     }
     return json({error:'not_found'},404);
@@ -249,22 +224,6 @@ Deno.serve(async(req:Request) => {
   // Only the signed, allowlisted owner message in the existing private ops channel can trigger a one-off test.
   // No public unauthenticated send endpoint, no guest messages and no secrets exposed.
   const event=payload?.event;
-  if (payload?.type==='event_callback' && event?.channel===CHANNEL_ID) {
-    console.info('HH_EVENT_CLASS '+JSON.stringify({
-      event_type:String(event?.type||'unknown').slice(0,30),
-      subtype:String(event?.subtype||'none').slice(0,40),
-      user_is_owner:event?.user===OWNER_USER_ID,
-      has_bot_id:Boolean(event?.bot_id),
-      has_app_id:Boolean(event?.app_id),
-      matches_test:String(event?.text||'').trim()==='HHBOT_PUSH_TEST_20261118'
-    }));
-  }
-  if (payload?.type==='event_callback' && event?.type==='message' &&
-      event?.channel===CHANNEL_ID && event?.user===OWNER_USER_ID &&
-      String(event?.text||'').trim().startsWith('HHBOT_PUSH_TEST_20261118') && String(event?.text||'').length<500) {
-    const results=await Promise.all(BOT_TARGETS.map(sendPushProbe));
-    return json({ok:true,botPushProbe:results});
-  }
   const relayed=await relayOwnerCleaningSchedule(payload,event);
   if(relayed) return relayed;
   const report=reportFromMessage(payload);
