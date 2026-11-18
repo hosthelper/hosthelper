@@ -97,12 +97,41 @@ async function persistReport(report:any): Promise<{ok:boolean;http:number}> {
   });
   return {ok:res.ok,http:res.status};
 }
+
+const BOT_TARGETS = [
+  {id:'C0CJP9UTZK4', label:'수유스테이'},
+  {id:'C0CJH8L2FSP', label:'창천동321'}
+];
+function availableBotToken(): string {
+  return Deno.env.get('HH_SLACK_BOT_TOKEN') || '';
+}
+async function sendPushProbe(target:{id:string,label:string}): Promise<{channel:string;ok:boolean;error?:string}> {
+  const token = availableBotToken();
+  if (!token) return {channel:target.label,ok:false,error:'bot_token_not_configured'};
+  const message = '[HostHelper Ops 봇 푸시 테스트 | '+target.label+']\n'+
+    '<@'+OWNER_USER_ID+'> 봇 명의로 보낸 실제 알림 테스트입니다.\n'+
+    '휴대폰 잠금화면/알림창과 Slack 앱 아이콘 숫자 배지를 확인해 주세요.\n'+
+    '실제 신규 예약, 청소 일정 변경, 정산 변경은 없습니다.';
+  try {
+    const response=await fetch('https://slack.com/api/chat.postMessage',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json;charset=utf-8'},
+      body:JSON.stringify({channel:target.id,text:message,unfurl_links:false,unfurl_media:false}),
+      signal:AbortSignal.timeout(5000)
+    });
+    const data=await response.json();
+    return {channel:target.label,ok:response.ok && data?.ok===true,
+      ...(data?.ok===true?{}:{error:String(data?.error||'slack_http_'+response.status).slice(0,100)})};
+  } catch {return {channel:target.label,ok:false,error:'slack_delivery_exception'};}
+}
+
 Deno.serve(async(req:Request) => {
   if(req.method==='GET'){
     if(new URL(req.url).pathname.endsWith('/health') || new URL(req.url).pathname.endsWith('/hosthelper-slack-events')){
       return json({service:'hosthelper-slack-events',deployed:true,
         ready:Boolean(Deno.env.get('HH_SLACK_SIGNING_SECRET')&&runtimeServiceRoleKey()),
         eventsSubscribed:'not_verified',
+        botTokenConfigured:Boolean(availableBotToken()),botSendProbeEnabled:true,
         mode:'signed_webhook',canSendGuestMessages:false,canPurchase:false});
     }
     return json({error:'not_found'},404);
@@ -122,6 +151,15 @@ Deno.serve(async(req:Request) => {
   if(payload?.type==='url_verification'){
     if(typeof payload.challenge!=='string'||payload.challenge.length>2048)return json({error:'invalid_challenge'},400);
     return json({challenge:payload.challenge});
+  }
+  // Only the signed, allowlisted owner message in the existing private ops channel can trigger a one-off test.
+  // No public unauthenticated send endpoint, no guest messages and no secrets exposed.
+  const event=payload?.event;
+  if (payload?.type==='event_callback' && event?.type==='message' && !event?.subtype &&
+      !event?.bot_id && event?.channel===CHANNEL_ID && event?.user===OWNER_USER_ID &&
+      String(event?.text||'').trim()==='HHBOT_PUSH_TEST_20261118') {
+    const results=await Promise.all(BOT_TARGETS.map(sendPushProbe));
+    return json({ok:true,botPushProbe:results});
   }
   const report=reportFromMessage(payload);
   if(!report) return json({ok:true,ignored:true});
