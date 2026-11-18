@@ -125,6 +125,100 @@ async function sendPushProbe(target:{id:string,label:string}): Promise<{channel:
   } catch {return {channel:target.label,ok:false,error:'slack_delivery_exception'};}
 }
 
+
+const BOT_RELAY_TARGETS:Record<string,{id:string,label:string,property:string}> = {
+  HHBOT_SEND_SUYU_V1:{id:'C0CJP9UTZK4',label:'수유스테이',property:'suyu'},
+  HHBOT_SEND_CHANGCHEON_V1:{id:'C0CJH8L2FSP',label:'창천동321',property:'changcheon321'}
+};
+async function botPost(channel:string, message:string):Promise<{ok:boolean;ts?:string;error?:string}> {
+  const token=availableBotToken();
+  if(!token) return {ok:false,error:'bot_token_not_configured'};
+  try{
+    const res=await fetch('https://slack.com/api/chat.postMessage',{
+      method:'POST',
+      headers:{Authorization:'Bearer '+token,'Content-Type':'application/json;charset=utf-8'},
+      body:JSON.stringify({channel,text:message,unfurl_links:false,unfurl_media:false}),
+      signal:AbortSignal.timeout(4500)
+    });
+    const data=await res.json();
+    if(res.ok && data?.ok===true && typeof data?.ts==='string') return {ok:true,ts:data.ts};
+    return {ok:false,error:String(data?.error||'slack_rejected').slice(0,100)};
+  }catch{return {ok:false,error:'slack_send_timeout_or_error'};}
+}
+
+async function botPermalink(channel:string, ts:string):Promise<string> {
+  try {
+    const token=availableBotToken();
+    const u=new URL('https://slack.com/api/chat.getPermalink');
+    u.searchParams.set('channel',channel);u.searchParams.set('message_ts',ts);
+    const res=await fetch(u,{headers:{Authorization:'Bearer '+token},signal:AbortSignal.timeout(3000)});
+    const data=await res.json();
+    return res.ok && data?.ok===true && typeof data?.permalink==='string' &&
+      data.permalink.startsWith('https://') ? data.permalink : '';
+  } catch{return '';}
+}
+
+async function relayOwnerCleaningSchedule(payload:any,ev:any):Promise<Response|null>{
+  if(payload?.type!=='event_callback' || ev?.type!=='message' ||
+     ev?.channel!==CHANNEL_ID || ev?.user!==OWNER_USER_ID || ev?.bot_id) return null;
+  const raw=String(ev?.text||'').replace(/\r\n/g,'\n');
+  if(!raw.startsWith('HHBOT_SEND_SUYU_V1\n') && !raw.startsWith('HHBOT_SEND_CHANGCHEON_V1\n')) return null;
+  // The ChatGPT Slack connector adds app attribution text after HHBOT_END; strip it deterministically.
+  const parsed=/^(HHBOT_SEND_SUYU_V1|HHBOT_SEND_CHANGCHEON_V1)\n([\s\S]*?)\n\[HHBOT_END\]/.exec(raw);
+  if(!parsed) return json({ok:false,error:'relay_command_invalid_format'},400);
+  const target=BOT_RELAY_TARGETS[parsed[1]];
+  const body=parsed[2].trim();
+  if(body.length<35 || body.length>4500 ||
+      (target.property==='suyu' && (!body.includes('수유스테이') || body.includes('창천동321'))) ||
+      (target.property==='changcheon321' && (!body.includes('창천동321') || body.includes('수유스테이'))) ||
+      /(?:010[- ]?\d{3,4}[- ]?\d{4}|(?:^|[^\d])\d{6}(?:[^\d]|$))/.test(body)) {
+    return json({ok:false,error:'relay_message_invalid_or_sensitive'},400);
+  }
+  const eventId=String(payload?.event_id||'');
+  if(!/^Ev[A-Za-z0-9]{5,128}$/.test(eventId)) return json({ok:false,error:'relay_event_id_invalid'},400);
+  const key=runtimeServiceRoleKey();
+  if(!key || !availableBotToken()) return json({ok:false,error:'relay_auth_not_configured'},503);
+  const url=(Deno.env.get('SUPABASE_URL')||'https://buzcnfnimzlsjvbeefjb.supabase.co')+
+    '/rest/v1/hosthelper_ai_slack_bot_deliveries';
+  const headers={apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json'};
+  let inserted=false;
+  try {
+    const reserve=await fetch(url+'?on_conflict=event_id',{
+      method:'POST',headers:{...headers,Prefer:'resolution=ignore-duplicates,return=representation'},
+      body:JSON.stringify({event_id:eventId,property_id:target.property,channel_id:target.id,status:'pending'}),
+      signal:AbortSignal.timeout(3500)
+    });
+    if(!reserve.ok) return json({ok:false,error:'relay_queue_unavailable'},503);
+    const saved=await reserve.json();
+    inserted=Array.isArray(saved)&&saved.length===1;
+    if(!inserted) return json({ok:true,duplicate_ignored:true});
+  } catch{return json({ok:false,error:'relay_queue_timeout'},503);}
+  const posted=await botPost(target.id,'<@'+OWNER_USER_ID+'>\n'+body);
+  if(!posted.ok){
+    try{await fetch(url+'?event_id=eq.'+encodeURIComponent(eventId),{
+      method:'DELETE',headers,signal:AbortSignal.timeout(2000)
+    });}catch{}
+    return json({ok:false,error:'relay_slack_send_failed',reason:posted.error},503);
+  }
+  try {
+    const saved=await fetch(url+'?event_id=eq.'+encodeURIComponent(eventId),{
+      method:'PATCH',headers:{...headers,Prefer:'return=minimal'},
+      body:JSON.stringify({status:'sent',slack_ts:posted.ts,updated_at:new Date().toISOString()}),
+      signal:AbortSignal.timeout(2600)
+    });
+    if(!saved.ok) console.warn('HH_BOT_RELAY_AUDIT_PATCH_FAILED');
+  }catch{console.warn('HH_BOT_RELAY_AUDIT_TIMEOUT');}
+  // Owner confirmation is sent from the bot as well, rather than the operator's own account.
+  // The bot's event cannot re-enter this branch because its user is not OWNER_USER_ID.
+  const permalink=await botPermalink(target.id,String(posted.ts||''));
+  const receipt='<@'+OWNER_USER_ID+'>\n[청소일정 Slack 봇 발송 완료]\n'+target.label+' 전용 채널로 '+(body.includes('테스트')?'연동 테스트 메시지':'갱신된 청소 예정표')+'를 발송했습니다.\n'+
+    '발송 식별자: '+eventId.slice(0,30)+'\n담당 채널: #'+
+    (target.property==='suyu'?'hosthelper-suyu-cleaning':'hosthelper-changcheon321-cleaning')+
+    (permalink?'\n발송 메시지 링크: '+permalink:'');
+  await botPost(CHANNEL_ID,receipt);
+  return json({ok:true,bot_relay_sent:true,property:target.property});
+}
+
 Deno.serve(async(req:Request) => {
   if(req.method==='GET'){
     if(new URL(req.url).pathname.endsWith('/health') || new URL(req.url).pathname.endsWith('/hosthelper-slack-events')){
@@ -155,12 +249,24 @@ Deno.serve(async(req:Request) => {
   // Only the signed, allowlisted owner message in the existing private ops channel can trigger a one-off test.
   // No public unauthenticated send endpoint, no guest messages and no secrets exposed.
   const event=payload?.event;
-  if (payload?.type==='event_callback' && event?.type==='message' && !event?.subtype &&
-      !event?.bot_id && event?.channel===CHANNEL_ID && event?.user===OWNER_USER_ID &&
-      String(event?.text||'').trim()==='HHBOT_PUSH_TEST_20261118') {
+  if (payload?.type==='event_callback' && event?.channel===CHANNEL_ID) {
+    console.info('HH_EVENT_CLASS '+JSON.stringify({
+      event_type:String(event?.type||'unknown').slice(0,30),
+      subtype:String(event?.subtype||'none').slice(0,40),
+      user_is_owner:event?.user===OWNER_USER_ID,
+      has_bot_id:Boolean(event?.bot_id),
+      has_app_id:Boolean(event?.app_id),
+      matches_test:String(event?.text||'').trim()==='HHBOT_PUSH_TEST_20261118'
+    }));
+  }
+  if (payload?.type==='event_callback' && event?.type==='message' &&
+      event?.channel===CHANNEL_ID && event?.user===OWNER_USER_ID &&
+      String(event?.text||'').trim().startsWith('HHBOT_PUSH_TEST_20261118') && String(event?.text||'').length<500) {
     const results=await Promise.all(BOT_TARGETS.map(sendPushProbe));
     return json({ok:true,botPushProbe:results});
   }
+  const relayed=await relayOwnerCleaningSchedule(payload,event);
+  if(relayed) return relayed;
   const report=reportFromMessage(payload);
   if(!report) return json({ok:true,ignored:true});
   try {
